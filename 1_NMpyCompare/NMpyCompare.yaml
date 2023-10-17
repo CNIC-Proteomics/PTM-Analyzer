@@ -1,0 +1,22 @@
+#
+# PARAMETERS: NMpyCompare.py
+#
+
+# Path to iSanXoT report
+infile: S:\U_Proteomica\UNIDAD\DatosCrudos\Jose_Antonio_Enriquez\Ratones_Heteroplasmicos\ReprocesadoRafa\BorradorPaper\Procesamiento_CD\iSanXoT\Muscle-1\reports\pgm2p_NM.txt
+
+# Column name of low level (FirstRowName#SecondRowName)
+low_level: pgm#LEVEL
+# Column name of high level (FirstRowName#SecondRowName)
+high_level: p#LEVEL
+
+# Column name of integration
+integration: Z_pgm2p
+
+# ScanFreq
+scanfreq: ScanFreq#REL
+
+# Columns considered to find non modified (FirstRowName#SecondRowName)
+NM_columns:
+  - g#REL:
+    - NM

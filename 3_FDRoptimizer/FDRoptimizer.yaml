@@ -1,0 +1,44 @@
+#
+# PARAMETERS: NMpyCompare.py
+#
+
+# Path to iSanXoT report
+#infile: S:\U_Proteomica\UNIDAD\software\MacrosRafa\data\Proteomics\GroupTools\FDRoptimizer\tests\test1\LIMMA_NM_qf_table_adapted.tsv
+infile: S:\U_Proteomica\UNIDAD\software\MacrosRafa\data\Proteomics\GroupTools\FDRoptimizer\tests\test2\LIMMA_NM_Tabla_final_aortas.tsv
+
+# Path to folder plots:
+outfolder: tests/test2/FDR
+
+# Name of the STATS columns (without group names) to calculate the FDR.
+# In the case of Z_pgm2p_limma-NM[g], FDR of Z_pgm2p will be calculated considering NM pgm only. These will be identified using 'g' column
+FDR_integration:
+    - Z_pgm2p_limma
+    - Z_pgm2p_limma-NM[g]
+    - Z_pgm2p_dNM_limma
+    - Z_p2qf_limma
+    - Z_qf2qfq_limma
+
+
+# Pair groups to which calculate FDR
+groups:
+    #- H-C
+    - Dpost-Dant
+    - Pant-Dant
+    - Ppost-Dpost 
+    - P-D
+    - Ppost-Pant
+
+# FDR thresholds applied
+FDR_Thr:
+    - 0.01
+    - 0.05
+    - 0.1
+    - 1
+
+
+# Scan frequency window
+Window: [0, 20]
+
+
+# Add column with FDR of at maximum value
+AddFDR: True
