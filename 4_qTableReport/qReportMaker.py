@@ -9,6 +9,7 @@ import logging
 import numpy as np
 import os
 import pandas as pd
+import openpyxl
 import sys
 import yaml
 import re
@@ -28,16 +29,21 @@ idx = pd.IndexSlice
 #os.chdir(r"S:\U_Proteomica\UNIDAD\software\MacrosRafa\data\Proteomics\GroupTools\ReportAnalysis\qTableReport")
 from utils.BinomialSiteListMaker import main as BSLM
 
-def getColumnNames(config):
+def getColumnNames(config, contrast):
     return [tuple(i) for i in [
-        config['pdmCol'], config['qCol'], config['qDescCol'], config['pdmFreq'],\
-        config['qFreq'], config['sign'], config['signNM'], \
-        config['FDR_dNM'], config['FDR_NM']
-        
+        config['pdmCol'], 
+        config['qCol'], 
+        config['qDescCol'], 
+        config['pdmFreq'],
+        config['qFreq'], 
+        [f"{config['sign'][0]}_{contrast}", config['sign'][1]], 
+        [f"{config['signNM'][0]}_{contrast}", config['signNM'][1]], 
+        [f"{config['FDR_dNM'][0]}_{contrast}", config['FDR_dNM'][1]],
+        [f"{config['FDR_NM'][0]}_{contrast}", config['FDR_NM'][1]],
         ]
     ]
 
-def generateFreqTable(config, sign_i, fdr_i, rep):
+def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
     '''
     Parameters
     ----------
@@ -51,7 +57,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep):
     ptm : TYPE
         DESCRIPTION.
     '''
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config)
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     boolean = np.logical_and.reduce([
         rep[FDRdNM] < fdr_i,
@@ -78,7 +84,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep):
         'values_pivot': config['values_pivot']
         })
     
-    with pd.ExcelWriter(os.path.join(config['outfolder'], 'freqTables', f'freqTable_{sign_i}_{fdr_i}.xlsx')) as writer:
+    with pd.ExcelWriter(os.path.join(config['outfolder'], 'freqTables', contrast, f'freqTable_{sign_i}_{fdr_i}.xlsx')) as writer:
         bi.to_excel(writer, sheet_name='Raw', index=False)
         biPivot.to_excel(writer, sheet_name=f'PIVOT-{config["binom"]}-FDR-{config["q_thr"]}-{config["values_pivot"]}')
     
@@ -88,7 +94,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep):
 
 
 
-def qReportPivot(config, fdr_i, sign_i, rep, ptmCol):
+def qReportPivot(config, fdr_i, sign_i, rep, ptmCol, contrast):
     '''
 
     Parameters
@@ -105,10 +111,10 @@ def qReportPivot(config, fdr_i, sign_i, rep, ptmCol):
 
     '''
     
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config)
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     # Generate PTM Freq Table
-    biptm = generateFreqTable(config, sign_i, fdr_i, rep)
+    biptm = generateFreqTable(config, sign_i, fdr_i, rep, contrast)
     
     repD = rep[np.logical_and.reduce([
         rep[FDRdNM] < fdr_i,
@@ -135,7 +141,7 @@ def qReportPivot(config, fdr_i, sign_i, rep, ptmCol):
     return qTableD
         
 
-def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep):
+def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
     '''
     
     Parameters
@@ -153,7 +159,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep):
 
     '''
     
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config)
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     # Collapse PTMs of the same protein
     qTableD = qTableD.reset_index().drop(pdmCol, axis=1).groupby([qCol]).agg(sum)
@@ -215,7 +221,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep):
     return qTableD
 
 
-def qReportDesign(config, quan, qTableD):
+def qReportDesign(config, quan, qTableD, contrast):
     '''
 
     Parameters
@@ -231,7 +237,7 @@ def qReportDesign(config, quan, qTableD):
 
     '''
     
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config)
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     # Sort columns
     infoCols = [qdCol,qFreq,(quan,'NM'),(quan,'NMsig'),('Hypergeom','NMbased'),('Hypergeom','PTMbased'), (quan, 'PTMs')]
@@ -269,50 +275,63 @@ def qReportDesign(config, quan, qTableD):
         for i,j in qTableD.columns
         ])
     
+    
+    plotted_q = [os.path.splitext(i)[0] for i in os.listdir(config['plotFolder'])]
+    qTableD[qTableD.columns[0]] = \
+        [f"=HYPERLINK(\"{os.path.join(config['plotFolder'], i)}.html\", \"{i}\")" if i in plotted_q else i for i in qTableD.iloc[:, 0]]
+    
     return qTableD
 
 
-def qReportWrite(config, fdr_i, sign_i, quan, qTableD):
+def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
     
-    if not os.path.exists(os.path.join(config['outfolder'], 'qReport', f'FDR-{fdr_i}')):
-        os.makedirs(os.path.join(config['outfolder'], 'qReport', f'FDR-{fdr_i}'))
+    if not os.path.exists(os.path.join(config['outfolder'], 'qReport', contrast, f'FDR-{fdr_i}')):
+        os.makedirs(os.path.join(config['outfolder'], 'qReport', contrast, f'FDR-{fdr_i}'), exist_ok=True)
     
-    qTableD.to_csv(
-        os.path.join(config['outfolder'], 'qReport', f'FDR-{fdr_i}', f'qReport_FDR-{fdr_i}_{sign_i}_{quan}.tsv'),
-        index=False, sep='\t'
+    qReportPath = os.path.join(config['outfolder'], 'qReport', contrast, f'FDR-{fdr_i}', f'qReport_FDR-{fdr_i}_{sign_i}_{quan}.xlsx')
+    
+    header = list(zip(*qTableD.columns.tolist()))
+    qTableD.columns = np.arange(0, qTableD.shape[1])
+    
+    qTableD = pd.concat([pd.DataFrame(header), qTableD])
+    
+    qTableD.to_excel(
+        qReportPath,
+        header=False,
+        index=False#, sep='\t'
         )
+    
+    toFormat = [n+1 for n,i in enumerate(qTableD.iloc[:, 0]) if 'HYPERLINK' in i]
+    
+    book = openpyxl.load_workbook(qReportPath)
+    sheet = book['Sheet1']
+    # sheet.delete_rows(4, 1)
+    # sheet.delete_cols(1, 1)
+    
+    for i in toFormat:
+        sheet[f'A{i}'].font = openpyxl.styles.Font(color='0000FF', underline='single')
+    
+    book.save(qReportPath)
+    
+    
 
-
-#
-# Main
-# 
-
-
-def main(config, file=None):
+def qReportContrast(rep, config, contrast):
     '''
-    main
+    
+
+    Parameters
+    ----------
+    config : TYPE
+        DESCRIPTION.
+    contrast : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
     '''
-    
-    # Get pandas report from file or read it from config
-    if file:
-        rep = file.copy()
-    else:
-        logging.info(f"Reading Report: {config['infile']}")
-        rep = pd.read_csv(
-            config['infile'], 
-            sep='\t', 
-            low_memory=False, 
-            header=[0,1],
-            keep_default_na=True,
-            na_values='#DIV/0!'
-            )
-    
-    #
-    # Adapt Input Report
-    #
-    
-    # Get column names
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config)
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     # Get required report fraction
     rep = rep.loc[:, list(set([pdmCol, qCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM, qdCol]))].drop_duplicates()
@@ -343,19 +362,19 @@ def main(config, file=None):
     
     
     # Create folder with output files
-    if not os.path.exists(os.path.join(config['outfolder'], 'FreqTables')):
-        os.makedirs(os.path.join(config['outfolder'], 'FreqTables'))
+    if not os.path.exists(os.path.join(config['outfolder'], 'FreqTables', contrast)):
+        os.makedirs(os.path.join(config['outfolder'], 'FreqTables', contrast), exist_ok=True)
     
     
     # All combinations FDR x Sign
     fdrxsign = list(itertools.product(config['FDR'], ['up', 'down']))
     
-    params = [(config, fdr_i, sign_i, rep, ptmCol) for fdr_i, sign_i in fdrxsign]
+    params = [(config, fdr_i, sign_i, rep, ptmCol, contrast) for fdr_i, sign_i in fdrxsign]
     qReportList = [(i[1], i[2], qReportPivot(*i)) for i in params]
     
     logging.info('Pivot Report to obtain pre-qReport')
     params = [
-     (config, fdr_i, sign_i, quan, qTableD[quan], repNM[quan], rep) 
+     (config, fdr_i, sign_i, quan, qTableD[quan], repNM[quan], rep, contrast) 
      for fdr_i, sign_i, qTableD in qReportList if qTableD 
      for quan in qTableD
      ]
@@ -370,29 +389,57 @@ def main(config, file=None):
     pool.join()
     qReportList = [(i[1], i[2], i[3], j) for i,j in zip(params, qReportList)]
     
-
-
     
     logging.info('Adding data to qReport')
     params = [
-     [(config, quan, qTableD), (fdr_i, sign_i, quan)]
+     [(config, quan, qTableD, contrast), (fdr_i, sign_i, quan)]
      for fdr_i, sign_i, quan, qTableD in qReportList
      ]
     qReportList = [(fdr_i, sign_i, quan, qReportDesign(*i)) for i, (fdr_i, sign_i, quan) in params]
     
     logging.info('Adapting qReport format')
     params = [
-     (config, fdr_i, sign_i, quan, qTableD)
+     (config, fdr_i, sign_i, quan, qTableD, contrast)
      for fdr_i, sign_i, quan, qTableD in qReportList
      ]
     
-    
+
     if config['outfolder']:
         logging.info('Writing output')
         _ = [qReportWrite(*i) for i in params]
     
     else:
         return qReportList
+    
+
+
+#
+# Main
+# 
+
+
+def main(config, file=None):
+    '''
+    main
+    '''
+    
+    # Get pandas report from file or read it from config
+    if file:
+        rep = file.copy()
+    else:
+        logging.info(f"Reading Report: {config['infile']}")
+        rep = pd.read_csv(
+            config['infile'], 
+            sep='\t', 
+            low_memory=False, 
+            header=[0,1],
+            keep_default_na=True,
+            na_values='#DIV/0!'
+            )
+    
+    
+    return [qReportContrast(rep, config, contrast) for contrast in config['groups']]
+    
 
 
 

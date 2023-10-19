@@ -4,10 +4,10 @@
 
 # Path to iSanXoT report
 #infile: S:\U_Proteomica\UNIDAD\software\MacrosRafa\data\Proteomics\GroupTools\FDRoptimizer\tests\test1\LIMMA_NM_qf_table_adapted.tsv
-infile: S:\U_Proteomica\UNIDAD\software\MacrosRafa\data\Proteomics\GroupTools\FDRoptimizer\tests\test2\LIMMA_NM_Tabla_final_aortas.tsv
+infile: D:\ReportAnalysis\test\test1\LIMMA_NM_qfq_table_pgmfreq.tsv
 
 # Path to folder plots:
-outfolder: tests/test2/FDR
+outfolder: D:\ReportAnalysis\test\test1\FDRPlots
 
 # Name of the STATS columns (without group names) to calculate the FDR.
 # In the case of Z_pgm2p_limma-NM[g], FDR of Z_pgm2p will be calculated considering NM pgm only. These will be identified using 'g' column
@@ -17,16 +17,22 @@ FDR_integration:
     - Z_pgm2p_dNM_limma
     - Z_p2qf_limma
     - Z_qf2qfq_limma
+    - Z_qfq2qfqall_limma
+
+# Name of the columns containing the frequencies. There must be correspondance with FDR_integration field
+LevelFreqs:
+    - pgmFreq
+    - pgmFreq
+    - pgmFreq
+    - pFreq
+    - qfFreq
+    - qFreq
 
 
 # Pair groups to which calculate FDR
 groups:
-    #- H-C
-    - Dpost-Dant
-    - Pant-Dant
-    - Ppost-Dpost 
-    - P-D
-    - Ppost-Pant
+    - H-C
+    - C2-H2
 
 # FDR thresholds applied
 FDR_Thr:
@@ -37,7 +43,7 @@ FDR_Thr:
 
 
 # Scan frequency window
-Window: [0, 20]
+Window: [0, 50]
 
 
 # Add column with FDR of at maximum value

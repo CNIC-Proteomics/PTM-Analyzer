@@ -3,7 +3,7 @@
 #
 
 # Path to iSanXoT report
-infile: S:\U_Proteomica\UNIDAD\DatosCrudos\Jose_Antonio_Enriquez\Ratones_Heteroplasmicos\ReprocesadoRafa\BorradorPaper\Procesamiento_CD\iSanXoT\Muscle-1\reports\pgm2p_NM.txt
+infile: D:\ReportAnalysis\test\test1\qfq_table_pgmfreq.tsv
 
 # Column name of low level (FirstRowName#SecondRowName)
 low_level: pgm#LEVEL
@@ -14,7 +14,7 @@ high_level: p#LEVEL
 integration: Z_pgm2p
 
 # ScanFreq
-scanfreq: ScanFreq#REL
+scanfreq: pgmFreq#REL
 
 # Columns considered to find non modified (FirstRowName#SecondRowName)
 NM_columns:

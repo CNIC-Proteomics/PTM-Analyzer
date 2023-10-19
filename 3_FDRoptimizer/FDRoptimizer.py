@@ -53,22 +53,22 @@ def main(config, file=None):
     
             fig = make_subplots(rows=1, cols=len(config['FDR_integration']), subplot_titles=config['FDR_integration'])
     
-            for i, integration in enumerate(config['FDR_integration']):
+            for i, (integration, freqCol) in enumerate(zip(config['FDR_integration'], config['LevelFreqs'])):
                 
                 logging.info(f'Get FDR for integration "{integration}"')
                 
                 lvCol = (re.search(r'^Z_([a-zA-Z]+)2', integration).groups()[0], 'LEVEL')
-                scCol = (lvCol[0]+'Freq', 'REL')
+                scCol = (freqCol, 'REL')
                 
                 if len(integration.split('-'))==2:
                     pvCol, myFilt = integration.split('-')
                     myField, myCol = re.search(r'([^\]]+)\[([^\]]+)\]', myFilt).groups()
-                    rep[(f'{pvCol}_{t}_{myField}_ONLY', 'STATS')] = [
+                    rep[(f'{pvCol}_{myField}_ONLY_{t}', 'STATS')] = [
                         j if i else np.nan
                         for i,j in 
                         zip(rep[(myCol, 'REL')]==myField, rep.loc[:, (f'{pvCol}_{t}', 'STATS')])
                     ]
-                    pvCol = (f'{pvCol}_{t}_{myField}_ONLY', 'STATS')
+                    pvCol = (f'{pvCol}_{myField}_ONLY_{t}', 'STATS')
                 
                 else:
                     pvCol = (f'{integration}_{t}', 'STATS')
@@ -126,7 +126,7 @@ def main(config, file=None):
         
     if config['AddFDR'] and not file:
         basename, ext = os.path.splitext(os.path.basename(config['infile']))
-        rep.to_csv(os.path.join(config['outfolder'], f'{basename}_FDR_{ext}'), sep='\t', index=False)
+        rep.to_csv(os.path.join(config['outfolder'], f'FDR_{basename}_{ext}'), sep='\t', index=False)
         
 
     return rep
