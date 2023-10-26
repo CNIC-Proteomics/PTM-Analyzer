@@ -177,7 +177,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
     # Add NM freq considering all pdm
     qTableD = qTableD.join(
         repNM[[qCol, pdmFreq]].groupby(qCol).agg(sum).fillna(0)\
-            .rename(columns={'pgmFreq': quan, 'REL': 'NM'}),
+            .rename(columns={pdmFreq[0]: quan, 'REL': 'NM'}),
         how='left'
         )
     
@@ -190,7 +190,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
                 ]),
             [qCol, pdmFreq]
             ].groupby(qCol).agg(sum)\
-            .rename(columns={'pgmFreq': quan, 'REL': 'NMsig'}),
+            .rename(columns={pdmFreq[0]: quan, 'REL': 'NMsig'}),
         how='left'
         ).fillna(0)
     
