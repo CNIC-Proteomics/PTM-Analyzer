@@ -91,14 +91,14 @@ def main(config, file=None):
                 
                 logging.info(f'Maximum number of significant elements {ymax} at scan frequency {xmax}')
                 
-                if config['AddFDR']:
+                if config['AddFDR'] and thr==max(config['FDR_Thr']):
                     
                     boolean = tmp.loc[:, scCol]>=xmax
                     
                     tmp = tmp.join(
                         pd.DataFrame({
-                            (f'{pvCol[0]}', f'qvalue_{thr}'): multipletests(tmp.loc[boolean, pvCol], method='fdr_bh')[1]
-                            #(f'{pvCol[0]}', f'qvalue'): multipletests(tmp.loc[boolean, pvCol], method='fdr_bh')[1]
+                            #(f'{pvCol[0]}', f'qvalue_{thr}'): multipletests(tmp.loc[boolean, pvCol], method='fdr_bh')[1]
+                            (f'{pvCol[0]}', f'qvalue'): multipletests(tmp.loc[boolean, pvCol], method='fdr_bh')[1]
                         }, index=tmp.index[boolean]), how='left'                        
                     )
                     

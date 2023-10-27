@@ -2,7 +2,7 @@ import zipfile
 import os
 
 # Lista de nombres de las carpetas que quieres comprimir
-carpetas = ['1_NMpyCompare', '2_ReportLimma-browser', '3_FDRoptimizer', '4_qTableReport']
+carpetas = ['1_NMpyCompare', '2_ReportLimma_wo_GUI', '3_FDRoptimizer', '4_qTableReport']
 
 exclude = ["\\test", "\\__pycache__"]
 

@@ -1,0 +1,26 @@
+
+report_infile: D:\ReportAnalysis\2_ReportLimma_wo_GUI\test\test1\NM_qfq_table_pgmfreq.tsv
+
+sample_table: D:\ReportAnalysis\2_ReportLimma_wo_GUI\limma_sample_table.tsv
+
+outfile: D:\ReportAnalysis\2_ReportLimma_wo_GUI\test\test1\LIMMA_NM_qfq_table_pgmfreq.tsv
+
+# Possible types 
+# - limma
+# - limma_with_duplicates
+# - t-test
+test_type:
+  - limma
+  - limma_with_duplicates
+  - t-test
+
+integrations:
+  - Z_pgm2p
+  - Z_pgm2p_dNM
+  - Z_p2qf
+  - Z_qf2qfq
+  - Z_qfq2qfqall
+  
+hypothesis_testing:
+  - [ H, C ]
+  - [ Control, Heteroplasmy ]
