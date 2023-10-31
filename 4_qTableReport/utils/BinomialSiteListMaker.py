@@ -44,6 +44,7 @@ def getBinom(wdf, col):
     '''
     '''
     p, d, a, m, x = col
+    
 
     # Get aa freq
     afreq = pd.Series(list(zip(*[
@@ -76,8 +77,8 @@ def getBinom(wdf, col):
     # P2 --> p = p(a) & ni = Total pdm with i mod
     fdf['p2'] = [afreq[i] for i in fdf[a]]
 
-    d_size = wdf[d].value_counts().to_frame().reset_index().rename(
-        columns={'index': 'd', 'd': 'n2'})
+    d_size = wdf[d].value_counts().to_frame().reset_index()#.rename(columns={'index': 'd', 'd': 'n2'})
+    d_size.columns = ['d', 'n2']
 
     fdf = pd.merge(
         fdf,
@@ -159,6 +160,7 @@ def main(args):
     ]
 
     wdf = pd.DataFrame(wdf, columns=[pdm, p, d, a, m])
+
 
     logging.info("Calculating binomial pvalues at PSM level")
     biS = getBinom(wdf, [p, d, a, m, x])

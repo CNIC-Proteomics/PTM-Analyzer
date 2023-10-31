@@ -72,6 +72,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
     if rep_i.shape[0] == 0:
         return []
     
+    
     bi, biPivot = BSLM({
         'infile': rep_i,
         'outfile': None,
@@ -135,7 +136,7 @@ def qReportPivot(config, fdr_i, sign_i, rep, ptmCol, contrast):
         
     qTableD = {
         'PSMs': qTableD,
-        'Peptides': qTableD.applymap(lambda x: 0 if x==0 else 1)
+        'Peptides': qTableD.map(lambda x: 0 if x==0 else 1)
         }
     
     return qTableD
@@ -162,7 +163,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
     pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     # Collapse PTMs of the same protein
-    qTableD = qTableD.reset_index().drop(pdmCol, axis=1).groupby([qCol]).agg(sum)
+    qTableD = qTableD.reset_index().drop(pdmCol, axis=1).groupby([qCol]).agg("sum")
     
     # Get all PTMs inside each protein 
     qTableD[(quan, 'PTMs')] = qTableD.sum(axis=1)
@@ -176,7 +177,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
         
     # Add NM freq considering all pdm
     qTableD = qTableD.join(
-        repNM[[qCol, pdmFreq]].groupby(qCol).agg(sum).fillna(0)\
+        repNM[[qCol, pdmFreq]].groupby(qCol).agg("sum").fillna(0)\
             .rename(columns={pdmFreq[0]: quan, 'REL': 'NM'}),
         how='left'
         )
@@ -189,7 +190,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
                 repNM[FDRNM]<fdr_i
                 ]),
             [qCol, pdmFreq]
-            ].groupby(qCol).agg(sum)\
+            ].groupby(qCol).agg("sum")\
             .rename(columns={pdmFreq[0]: quan, 'REL': 'NMsig'}),
         how='left'
         ).fillna(0)
