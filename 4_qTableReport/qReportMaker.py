@@ -38,8 +38,8 @@ def getColumnNames(config, contrast):
         config['qFreq'], 
         [f"{config['sign'][0]}_{contrast}", config['sign'][1]], 
         [f"{config['signNM'][0]}_{contrast}", config['signNM'][1]], 
-        [f"{config['FDR_dNM'][0]}_{contrast}", config['FDR_dNM'][1]],
-        [f"{config['FDR_NM'][0]}_{contrast}", config['FDR_NM'][1]],
+        [f"{config['qvalue_dNM'][0]}_{contrast}", config['qvalue_dNM'][1]],
+        [f"{config['qvalue_NM'][0]}_{contrast}", config['qvalue_NM'][1]],
         ]
     ]
 
@@ -85,9 +85,13 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
         'values_pivot': config['values_pivot']
         })
     
-    with pd.ExcelWriter(os.path.join(config['outfolder'], 'freqTables', contrast, f'freqTable_{sign_i}_{fdr_i}.xlsx')) as writer:
+    outFolder = os.path.join(config['outfolder'], 'FreqTables', contrast, f"{config['qvalue_dNM'][1]}-{fdr_i}")
+    if not os.path.exists(outFolder):
+        os.makedirs(outFolder, exist_ok=True)
+    
+    with pd.ExcelWriter(os.path.join(outFolder, f'freqTable_{sign_i}_{fdr_i}.xlsx')) as writer:
         bi.to_excel(writer, sheet_name='Raw', index=False)
-        biPivot.to_excel(writer, sheet_name=f'PIVOT-{config["binom"]}-FDR-{config["q_thr"]}-{config["values_pivot"]}')
+        biPivot.to_excel(writer, sheet_name=f'PIVOT-{config["binom"]}-{config["q_thr"]}-{config["values_pivot"]}')
     
     ptm = bi[bi[config['binom']]<config['q_thr']]
     ptm = list(zip(ptm.a, ptm.d))
@@ -286,10 +290,10 @@ def qReportDesign(config, quan, qTableD, contrast):
 
 def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
     
-    if not os.path.exists(os.path.join(config['outfolder'], 'qReport', contrast, f'FDR-{fdr_i}')):
-        os.makedirs(os.path.join(config['outfolder'], 'qReport', contrast, f'FDR-{fdr_i}'), exist_ok=True)
+    if not os.path.exists(os.path.join(config['outfolder'], 'qReport', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}')):
+        os.makedirs(os.path.join(config['outfolder'], 'qReport', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}'), exist_ok=True)
     
-    qReportPath = os.path.join(config['outfolder'], 'qReport', contrast, f'FDR-{fdr_i}', f'qReport_FDR-{fdr_i}_{sign_i}_{quan}.xlsx')
+    qReportPath = os.path.join(config['outfolder'], 'qReport', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}', f'qReport-{fdr_i}_{sign_i}_{quan}.xlsx')
     
     header = list(zip(*qTableD.columns.tolist()))
     qTableD.columns = np.arange(0, qTableD.shape[1])
@@ -363,12 +367,12 @@ def qReportContrast(rep, config, contrast):
     
     
     # Create folder with output files
-    if not os.path.exists(os.path.join(config['outfolder'], 'FreqTables', contrast)):
-        os.makedirs(os.path.join(config['outfolder'], 'FreqTables', contrast), exist_ok=True)
+    # if not os.path.exists(os.path.join(config['outfolder'], 'FreqTables', contrast)):
+    #     os.makedirs(os.path.join(config['outfolder'], 'FreqTables', contrast), exist_ok=True)
     
     
     # All combinations FDR x Sign
-    fdrxsign = list(itertools.product(config['FDR'], ['up', 'down']))
+    fdrxsign = list(itertools.product(config['qvThr'], ['up', 'down']))
     
     params = [(config, fdr_i, sign_i, rep, ptmCol, contrast) for fdr_i, sign_i in fdrxsign]
     qReportList = [(i[1], i[2], qReportPivot(*i)) for i in params]

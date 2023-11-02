@@ -63,15 +63,15 @@ def main(config, file=None):
                 if len(integration.split('-'))==2:
                     pvCol, myFilt = integration.split('-')
                     myField, myCol = re.search(r'([^\]]+)\[([^\]]+)\]', myFilt).groups()
-                    rep[(f'{pvCol}_{myField}_ONLY_{t}', 'STATS')] = [
+                    rep[(f'{pvCol}_{myField}_ONLY_{t}', 'pvalue')] = [
                         j if i else np.nan
                         for i,j in 
-                        zip(rep[(myCol, 'REL')]==myField, rep.loc[:, (f'{pvCol}_{t}', 'STATS')])
+                        zip(rep[(myCol, 'REL')]==myField, rep.loc[:, (f'{pvCol}_{t}', 'pvalue')])
                     ]
-                    pvCol = (f'{pvCol}_{myField}_ONLY_{t}', 'STATS')
+                    pvCol = (f'{pvCol}_{myField}_ONLY_{t}', 'pvalue')
                 
                 else:
-                    pvCol = (f'{integration}_{t}', 'STATS')
+                    pvCol = (f'{integration}_{t}', 'pvalue')
                     
                     
                 logging.info(f'Level column: {lvCol}')
@@ -126,7 +126,7 @@ def main(config, file=None):
         
     if config['AddFDR'] and not file:
         basename, ext = os.path.splitext(os.path.basename(config['infile']))
-        rep.to_csv(os.path.join(config['outfolder'], f'FDR_{basename}_{ext}'), sep='\t', index=False)
+        rep.to_csv(os.path.join(config['outfolder'], f'FDR_{basename}{ext}'), sep='\t', index=False)
         
 
     return rep
