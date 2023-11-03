@@ -32,7 +32,7 @@ from utils.BinomialSiteListMaker import main as BSLM
 def getColumnNames(config, contrast):
     return [tuple(i) for i in [
         config['pdmCol'], 
-        config['qCol'], 
+        config['qCol'],
         config['qDescCol'], 
         config['pdmFreq'],
         config['qFreq'], 
@@ -42,6 +42,42 @@ def getColumnNames(config, contrast):
         [f"{config['qvalue_NM'][0]}_{contrast}", config['qvalue_NM'][1]],
         ]
     ]
+
+def getRepQFColumnNames(config, contrast):
+    return [ tuple(i) for i in [
+        config['pCol'],
+        config['qfCol'],
+        config['qCol'],
+        config['pFreq'],
+        config['qfFreq'],
+        [f"{config['qvalue_p'][0]}_{contrast}", config['qvalue_p'][1]],
+        [f"{config['qvalue_qf'][0]}_{contrast}", config['qvalue_qf'][1]],
+        ]
+    ]
+
+def getRepQF(rep0, config, contrast):
+    
+    pCol, qfCol, qCol, pFreq, qfFreq, FDRp, FDRqf = getRepQFColumnNames(config, contrast)
+    
+    repQF = {
+        'PSMs': {},
+        'Peptides': {}
+        }
+    
+    for i, iCol, iFreq, FDRi in [('p', pCol, pFreq, FDRp), ('qf', qfCol, qfFreq, FDRqf)]:
+        if not all([j in rep0.columns for j in [iCol, iFreq, FDRi]]):
+            repQF['PSMs'][i]=None
+            repQF['Peptides'][i]=None
+            continue
+        
+        iRep = rep0.loc[:, [qCol, iCol, iFreq, FDRi]].drop_duplicates().dropna().copy()
+        repQF['PSMs'][i] = iRep.copy()
+        repQF['Peptides'][i] = iRep.copy()
+        repQF['Peptides'][i][iFreq] = [ 0 if j==0 else 1 for j in repQF['Peptides'][i][iFreq]]
+    
+    return repQF
+
+    
 
 def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
     '''
@@ -146,7 +182,7 @@ def qReportPivot(config, fdr_i, sign_i, rep, ptmCol, contrast):
     return qTableD
         
 
-def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
+def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, contrast):
     '''
     
     Parameters
@@ -165,6 +201,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
     '''
     
     pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
+    pCol, qfCol, qCol, pFreq, qfFreq, FDRp, FDRqf = getRepQFColumnNames(config, contrast)
     
     # Collapse PTMs of the same protein
     qTableD = qTableD.reset_index().drop(pdmCol, axis=1).groupby([qCol]).agg("sum")
@@ -182,7 +219,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
     # Add NM freq considering all pdm
     qTableD = qTableD.join(
         repNM[[qCol, pdmFreq]].groupby(qCol).agg("sum").fillna(0)\
-            .rename(columns={pdmFreq[0]: quan, 'REL': 'NM'}),
+            .rename(columns={pdmFreq[0]: quan, pdmFreq[1]: 'NM'}),
         how='left'
         )
     
@@ -195,20 +232,52 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, rep, contrast):
                 ]),
             [qCol, pdmFreq]
             ].groupby(qCol).agg("sum")\
-            .rename(columns={pdmFreq[0]: quan, 'REL': 'NMsig'}),
+            .rename(columns={pdmFreq[0]: quan, pdmFreq[1]: 'NMsig'}),
         how='left'
         ).fillna(0)
-    
-    # Add Hypergeometric test
-    qTableD[('Hypergeom', 'NMbased')] = [
+        
+    for i, iFreq, FDRi in [('p', pFreq, FDRp), ('qf', qfFreq, FDRqf)]:
+        if type(repPQF[i]) == type(None): continue
+        iRep = repPQF[i].loc[:, [qCol, iFreq, FDRi]]
+        qTableD = qTableD.join(
+            iRep.loc[:, [qCol, iFreq]].groupby(qCol).agg('sum')\
+                .rename(columns={iFreq[0]:quan, iFreq[1]:i}),
+            how='left'
+            )
+        
+        qTableD = qTableD.join(
+        iRep.loc[iRep[FDRi]<fdr_i, [qCol, iFreq]].groupby(qCol).agg('sum')\
+            .rename(columns={iFreq[0]: quan, iFreq[1]: i+'sig'}),
+            how='left'
+            )
+
+
+    def getHypergeom(qTableD, c1, c2):
+        qTableD[('Hypergeom', c1+'based')] = [
         1-hypergeom.cdf(
             x-1, # x
-            qTableD[(quan,'NM')].sum(), # M overall population
-            qTableD[(quan,'NMsig')].sum(), # n Defect population
+            qTableD[(quan,c1)].sum(), # M overall population
+            qTableD[(quan,c2)].sum(), # n Defect population
             N # N test population
         )
-        for x,N in zip(qTableD[(quan,'NMsig')], qTableD[(quan,'NM')])
+        for x,N in zip(qTableD[(quan,c2)], qTableD[(quan,c1)])
         ]
+        return qTableD
+        
+    for c1, c2 in [('NM', 'NMsig'), ('p', 'psig'), ('qf', 'qfsig')]:
+        qTableD = getHypergeom(qTableD, c1, c2)
+        
+
+    # Add Hypergeometric test
+    # qTableD[('Hypergeom', 'NMbased')] = [
+    #     1-hypergeom.cdf(
+    #         x-1, # x
+    #         qTableD[(quan,'NM')].sum(), # M overall population
+    #         qTableD[(quan,'NMsig')].sum(), # n Defect population
+    #         N # N test population
+    #     )
+    #     for x,N in zip(qTableD[(quan,'NMsig')], qTableD[(quan,'NM')])
+    #     ]
 
     qTableD[('Hypergeom', 'PTMbased')] = [
         1-hypergeom.cdf(
@@ -245,7 +314,9 @@ def qReportDesign(config, quan, qTableD, contrast):
     pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     # Sort columns
-    infoCols = [qdCol,qFreq,(quan,'NM'),(quan,'NMsig'),('Hypergeom','NMbased'),('Hypergeom','PTMbased'), (quan, 'PTMs')]
+    infoCols = [qdCol,qFreq,(quan,'NM'),(quan,'NMsig'),(quan,'p'),(quan,'psig'),(quan,'qf'),(quan,'qfsig'),\
+                ('Hypergeom','NMbased'),('Hypergeom','pbased'),('Hypergeom','qfbased'),('Hypergeom','PTMbased'), (quan, 'PTMs')]
+    infoCols = [i for i in infoCols if i in qTableD.columns]
     i = qTableD.loc[:, infoCols]
     qTableD = i.join(qTableD.loc[:, [pdmFreq[0]]].replace(0, np.nan)).sort_values((quan, 'PTMs'), ascending=False)
 
@@ -320,7 +391,7 @@ def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
     
     
 
-def qReportContrast(rep, config, contrast):
+def qReportContrast(rep0, config, contrast):
     '''
     
 
@@ -339,7 +410,7 @@ def qReportContrast(rep, config, contrast):
     pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     # Get required report fraction
-    rep = rep.loc[:, list(set([pdmCol, qCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM, qdCol]))].drop_duplicates()
+    rep = rep0.loc[:, list(set([pdmCol, qCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM, qdCol]))].drop_duplicates()
     
     if config['pdmColFormat']==2:
         logging.info('Formatting pdm from ; to []')
@@ -365,6 +436,8 @@ def qReportContrast(rep, config, contrast):
         }
     repNM['Peptides'][pdmFreq] = [0 if i==0 else 1 for i in repNM['Peptides'][pdmFreq]]
     
+
+    repPQF = getRepQF(rep0, config, contrast)
     
     # Create folder with output files
     # if not os.path.exists(os.path.join(config['outfolder'], 'FreqTables', contrast)):
@@ -379,20 +452,20 @@ def qReportContrast(rep, config, contrast):
     
     logging.info('Pivot Report to obtain pre-qReport')
     params = [
-     (config, fdr_i, sign_i, quan, qTableD[quan], repNM[quan], rep, contrast) 
+     (config, fdr_i, sign_i, quan, qTableD[quan], repNM[quan], repPQF[quan], rep, contrast) 
      for fdr_i, sign_i, qTableD in qReportList if qTableD 
      for quan in qTableD
      ]
     
     # Single core
-    # qReportList = [(i[1], i[2], i[3], qReportAddData(*i)) for i in params]
+    qReportList = [(i[1], i[2], i[3], qReportAddData(*i)) for i in params]
 
     # Multicore
-    pool = multiprocessing.Pool(processes=config['n_cpu'])
-    qReportList = pool.starmap(qReportAddData, params)
-    pool.close()
-    pool.join()
-    qReportList = [(i[1], i[2], i[3], j) for i,j in zip(params, qReportList)]
+    #pool = multiprocessing.Pool(processes=config['n_cpu'])
+    #qReportList = pool.starmap(qReportAddData, params)
+    #pool.close()
+    #pool.join()
+    #qReportList = [(i[1], i[2], i[3], j) for i,j in zip(params, qReportList)]
     
     
     logging.info('Adding data to qReport')

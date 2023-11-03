@@ -1,14 +1,11 @@
 
-# Path to report file
-report_infile: D:\ReportAnalysis\2_ReportLimma_wo_GUI\test\test1\NM_qfq_table_pgmfreq.tsv
+report_infile: D:\ReportAnalysis\test\test1\1_NMpyCompare\NM_qfq_table_pgmfreq.tsv
 
-# Path to .tsv table with sample groups
-sample_table: D:\ReportAnalysis\2_ReportLimma_wo_GUI\limma_sample_table.tsv
+sample_table: D:\ReportAnalysis\test\test1\2_ReportLimma_wo_GUI\limma_sample_table.tsv
 
-# Path to output file
-outfile: D:\ReportAnalysis\2_ReportLimma_wo_GUI\test\test1\LIMMA_NM_qfq_table_pgmfreq.tsv
+outfile: D:\ReportAnalysis\test\test1\2_ReportLimma_wo_GUI\LIMMA_NM_qfq_table_pgmfreq.tsv
 
-# Statistical tests applied. Possible types:
+# Possible types 
 # - limma
 # - limma_with_duplicates
 # - t-test
@@ -18,14 +15,14 @@ test_type:
   - t-test
 
 # Integrations used to apply Limma
-integrations:
-  - Z_pgm2p
-  - Z_pgm2p_dNM
-  - Z_p2qf
-  - Z_qf2qfq
-  - Z_qfq2qfqall
+# [ [LowLevel_firstRow, LowLevel_secondRow], integration ]
+ColumnNames:
+  - [ [pgm, LEVEL], Z_pgm2p]
+  - [ [pgm, LEVEL], Z_pgm2p_dNM]
+  - [ [p, LEVEL], Z_p2qf]
+  - [ [qf, LEVEL], Z_qf2qfq]
+  - [ [qfq, LEVEL], Z_qfq2qfqall]
   
-# Groups to be compared (use the group names of sample table)
-# If the value is [Group1, Group2],the mean difference will be calculated as Group1 - Group2
 hypothesis_testing:
-  - [ Heteroplasmy, Control ]
+  - [ H, C ]
+  - [ Control, Heteroplasmy ]

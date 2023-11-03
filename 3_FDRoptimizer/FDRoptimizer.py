@@ -51,22 +51,27 @@ def main(config, file=None):
 
             logging.info(f'Group: {t}')
     
-            fig = make_subplots(rows=1, cols=len(config['FDR_integration']), subplot_titles=config['FDR_integration'])
-    
-            for i, (integration, freqCol) in enumerate(zip(config['FDR_integration'], config['LevelFreqs'])):
+            #fig = make_subplots(rows=1, cols=len(config['FDR_integration']), subplot_titles=config['FDR_integration'])
+            fig = make_subplots(rows=1, cols=len(config['ColumnNames']), subplot_titles=list(zip(*config['ColumnNames']))[-1])
+
+            for i, (lvCol, scCol, integration) in enumerate(config['ColumnNames']):
+            #for i, (integration, freqCol) in enumerate(zip(config['FDR_integration'], config['LevelFreqs'])):
                 
                 logging.info(f'Get FDR for integration "{integration}"')
                 
-                lvCol = (re.search(r'^Z_([a-zA-Z]+)2', integration).groups()[0], 'LEVEL')
-                scCol = (freqCol, 'REL')
+                lvCol = tuple(lvCol)
+                scCol = tuple(scCol)
+                #lvCol = (re.search(r'^Z_([a-zA-Z]+)2', integration).groups()[0], 'LEVEL')
+                #scCol = (freqCol, 'REL')
                 
                 if len(integration.split('-'))==2:
                     pvCol, myFilt = integration.split('-')
-                    myField, myCol = re.search(r'([^\]]+)\[([^\]]+)\]', myFilt).groups()
+                    myField, myCol = re.search(r'([^\]]+)\(([^\]]+)\)', myFilt).groups()
+                    myCol = tuple([i.strip() for i in myCol.split('&')])
                     rep[(f'{pvCol}_{myField}_ONLY_{t}', 'pvalue')] = [
                         j if i else np.nan
                         for i,j in 
-                        zip(rep[(myCol, 'REL')]==myField, rep.loc[:, (f'{pvCol}_{t}', 'pvalue')])
+                        zip(rep[myCol]==myField, rep.loc[:, (f'{pvCol}_{t}', 'pvalue')])
                     ]
                     pvCol = (f'{pvCol}_{myField}_ONLY_{t}', 'pvalue')
                 
