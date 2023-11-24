@@ -201,7 +201,7 @@ calculatePvalues <- function(obj, config, sampleGroups) {
       
       lowLevelSet_bool <- !duplicated(lowLevelCol)
       tmp <- LIMMA(sampleGroups, Target, x, integration, eset[lowLevelSet_bool,], "limma")
-      tmp_log <- -log2(tmp)*mean_sign[lowLevelSet_bool,]
+      tmp_log <- -log10(tmp)*mean_sign[lowLevelSet_bool,]
       names(tmp_log) <- gsub("_limma_", "_logLimma_", names(tmp))
       tmp <- cbind(tmp, tmp_log)
       
@@ -222,7 +222,7 @@ calculatePvalues <- function(obj, config, sampleGroups) {
     if ( 'limma_with_duplicates' %in% config$test_type) {
       loginfo(paste0(integration, " - Applying LIMMA with duplicates"), logger="ReportLimma")
       tmp <- LIMMA(sampleGroups, Target, x, integration, eset, "limmaDup")
-      tmp_log <- -log2(tmp)*mean_sign
+      tmp_log <- -log10(tmp)*mean_sign
       names(tmp_log) <- gsub("_limmaDup_", "_logLimmaDup_", names(tmp))
       tmp <- cbind(tmp, tmp_log)
       pvalues_df_tmp <- cbind(pvalues_df_tmp, tmp)
@@ -235,7 +235,7 @@ calculatePvalues <- function(obj, config, sampleGroups) {
     if ( 't-test' %in% config$test_type) {
       loginfo(paste0(integration, " - Calculating t-test"), logger="ReportLimma")
       pvalues_ttest <- classicTTEST(eset, Target, x, integration)
-      tmp_log <- -log2(pvalues_ttest)*mean_sign
+      tmp_log <- -log10(pvalues_ttest)*mean_sign
       names(tmp_log) <- gsub("_ttest_", "_logTtest_", names(pvalues_ttest))
       pvalues_ttest <- cbind(pvalues_ttest, tmp_log)
       pvalues_df_tmp <- cbind(pvalues_df_tmp, pvalues_ttest)
@@ -305,7 +305,7 @@ for (i in config[['ColumnNames']]) {
 }
 
 # Read with samples and parse it
-sampleTable <- read.csv(config$sample_table, sep='\t')
+sampleTable <- read.csv(config$sample_table, sep='\t', colClasses="character")
 sampleGroups <- as.list(sampleTable)
 
 for (i in names(sampleGroups)) {
