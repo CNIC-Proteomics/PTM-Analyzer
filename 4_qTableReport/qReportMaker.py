@@ -37,7 +37,7 @@ def getColumnNames(config, contrast):
         config['pdmFreq'],
         config['qFreq'], 
         [f"{config['sign'][0]}_{contrast}", config['sign'][1]], 
-        [f"{config['signNM'][0]}_{contrast}", config['signNM'][1]], 
+        [f"{config['signNM'][0]}_{contrast}", config['signNM'][1]],
         [f"{config['qvalue_dNM'][0]}_{contrast}", config['qvalue_dNM'][1]],
         [f"{config['qvalue_NM'][0]}_{contrast}", config['qvalue_NM'][1]],
         ]
@@ -52,28 +52,36 @@ def getRepQFColumnNames(config, contrast):
         config['qfFreq'],
         [f"{config['qvalue_p'][0]}_{contrast}", config['qvalue_p'][1]],
         [f"{config['qvalue_qf'][0]}_{contrast}", config['qvalue_qf'][1]],
+        [f"{config['sign_p'][0]}_{contrast}", config['sign_p'][1]],
+        [f"{config['sign_qf'][0]}_{contrast}", config['sign_qf'][1]],
+        config['missing_cleavages']
         ]
     ]
 
 def getRepQF(rep0, config, contrast):
     
-    pCol, qfCol, qCol, pFreq, qfFreq, FDRp, FDRqf = getRepQFColumnNames(config, contrast)
+    pCol, qfCol, qCol, pFreq, qfFreq, FDRp, FDRqf, sign_p, sign_qf, mcCol = getRepQFColumnNames(config, contrast)
     
     repQF = {
         'PSMs': {},
         'Peptides': {}
         }
     
-    for i, iCol, iFreq, FDRi in [('p', pCol, pFreq, FDRp), ('qf', qfCol, qfFreq, FDRqf)]:
+    for i, iCol, iFreq, FDRi, sign_i in [('p', pCol, pFreq, FDRp, sign_p), ('qf', qfCol, qfFreq, FDRqf, sign_qf)]:
         if not all([j in rep0.columns for j in [iCol, iFreq, FDRi]]):
             repQF['PSMs'][i]=None
             repQF['Peptides'][i]=None
             continue
         
-        iRep = rep0.loc[:, [qCol, iCol, iFreq, FDRi]].drop_duplicates().dropna().copy()
+        iRep = rep0.loc[:, [qCol, iCol, iFreq, FDRi, sign_i, mcCol]].drop_duplicates().dropna().copy()
         repQF['PSMs'][i] = iRep.copy()
         repQF['Peptides'][i] = iRep.copy()
         repQF['Peptides'][i][iFreq] = [ 0 if j==0 else 1 for j in repQF['Peptides'][i][iFreq]]
+    
+    repQF['PSMs']['DT'] = repQF['PSMs']['p'][repQF['PSMs']['p'][mcCol]==0]
+    repQF['Peptides']['DT'] = repQF['PSMs']['p'][repQF['PSMs']['p'][mcCol]==0]
+    repQF['PSMs']['DP'] = repQF['PSMs']['p'][repQF['PSMs']['p'][mcCol]>0]
+    repQF['Peptides']['DP'] = repQF['PSMs']['p'][repQF['PSMs']['p'][mcCol]>0]
     
     return repQF
 
@@ -201,10 +209,18 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
     '''
     
     pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
-    pCol, qfCol, qCol, pFreq, qfFreq, FDRp, FDRqf = getRepQFColumnNames(config, contrast)
+    pCol, qfCol, qCol, pFreq, qfFreq, FDRp, FDRqf, sign_p, sign_qf, mcCol = getRepQFColumnNames(config, contrast)
     
     # Collapse PTMs of the same protein
     qTableD = qTableD.reset_index().drop(pdmCol, axis=1).groupby([qCol]).agg("sum")
+    
+    # Add missing proteins
+    missQ = rep[qCol].drop_duplicates()
+    missQ = missQ[~np.isin(missQ, qTableD.index)]
+    qTableD = pd.concat([
+        qTableD,
+        pd.DataFrame(None, index=missQ, columns=qTableD.columns).fillna(0)        
+        ]).copy()
     
     # Get all PTMs inside each protein 
     qTableD[(quan, 'PTMs')] = qTableD.sum(axis=1)
@@ -236,9 +252,10 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
         how='left'
         ).fillna(0)
         
-    for i, iFreq, FDRi in [('p', pFreq, FDRp), ('qf', qfFreq, FDRqf)]:
+    #for i, iFreq, FDRi in [('p', pFreq, FDRp), ('qf', qfFreq, FDRqf)]:
+    for i, iFreq, FDRi, sign_ii in [('DT', pFreq, FDRp, sign_p), ('DP', pFreq, FDRp, sign_p), ('qf', qfFreq, FDRqf, sign_qf)]:
         if type(repPQF[i]) == type(None): continue
-        iRep = repPQF[i].loc[:, [qCol, iFreq, FDRi]]
+        iRep = repPQF[i].loc[:, [qCol, iFreq, FDRi, sign_ii]]
         qTableD = qTableD.join(
             iRep.loc[:, [qCol, iFreq]].groupby(qCol).agg('sum')\
                 .rename(columns={iFreq[0]:quan, iFreq[1]:i}),
@@ -246,10 +263,16 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
             )
         
         qTableD = qTableD.join(
-        iRep.loc[iRep[FDRi]<fdr_i, [qCol, iFreq]].groupby(qCol).agg('sum')\
-            .rename(columns={iFreq[0]: quan, iFreq[1]: i+'sig'}),
-            how='left'
-            )
+        iRep.loc[
+            np.logical_and.reduce([
+                iRep[FDRi]<fdr_i,
+                iRep[sign_ii]>0 if sign_i=='up' else iRep[sign_ii]<0,
+            ]), 
+            [qCol, iFreq]
+        ].groupby(qCol).agg('sum')\
+        .rename(columns={iFreq[0]: quan, iFreq[1]: i+'sig'}),
+        how='left'
+        )
 
 
     def getHypergeom(qTableD, c1, c2):
@@ -264,20 +287,10 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
         ]
         return qTableD
         
-    for c1, c2 in [('NM', 'NMsig'), ('p', 'psig'), ('qf', 'qfsig')]:
+    #for c1, c2 in [('NM', 'NMsig'), ('p', 'psig'), ('qf', 'qfsig')]:
+    for c1, c2 in [('NM', 'NMsig'), ('DT', 'DTsig'), ('DP', 'DPsig'), ('qf', 'qfsig')]:
         qTableD = getHypergeom(qTableD, c1, c2)
         
-
-    # Add Hypergeometric test
-    # qTableD[('Hypergeom', 'NMbased')] = [
-    #     1-hypergeom.cdf(
-    #         x-1, # x
-    #         qTableD[(quan,'NM')].sum(), # M overall population
-    #         qTableD[(quan,'NMsig')].sum(), # n Defect population
-    #         N # N test population
-    #     )
-    #     for x,N in zip(qTableD[(quan,'NMsig')], qTableD[(quan,'NM')])
-    #     ]
 
     qTableD[('Hypergeom', 'PTMbased')] = [
         1-hypergeom.cdf(
@@ -314,8 +327,8 @@ def qReportDesign(config, quan, qTableD, contrast):
     pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     # Sort columns
-    infoCols = [qdCol,qFreq,(quan,'NM'),(quan,'NMsig'),(quan,'p'),(quan,'psig'),(quan,'qf'),(quan,'qfsig'),\
-                ('Hypergeom','NMbased'),('Hypergeom','pbased'),('Hypergeom','qfbased'),('Hypergeom','PTMbased'), (quan, 'PTMs')]
+    infoCols = [qdCol,qFreq,(quan,'NM'),(quan,'NMsig'),(quan,'DT'),(quan,'DTsig'),(quan,'DP'),(quan,'DPsig'),(quan,'qf'),(quan,'qfsig'),\
+                ('Hypergeom','NMbased'),('Hypergeom','DTbased'),('Hypergeom','DPbased'),('Hypergeom','qfbased'),('Hypergeom','PTMbased'), (quan, 'PTMs')]
     infoCols = [i for i in infoCols if i in qTableD.columns]
     i = qTableD.loc[:, infoCols]
     qTableD = i.join(qTableD.loc[:, [pdmFreq[0]]].replace(0, np.nan)).sort_values((quan, 'PTMs'), ascending=False)
@@ -393,8 +406,6 @@ def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
 
 def qReportContrast(rep0, config, contrast):
     '''
-    
-
     Parameters
     ----------
     config : TYPE
@@ -405,28 +416,28 @@ def qReportContrast(rep0, config, contrast):
     Returns
     -------
     None.
-
     '''
     pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
+    ptmCol = ('PTM', 'REL')
     
     # Get required report fraction
-    rep = rep0.loc[:, list(set([pdmCol, qCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM, qdCol]))].drop_duplicates()
+    rep = rep0.loc[:, list(set([pdmCol, qCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM, qdCol, ptmCol]))].drop_duplicates()
     
-    if config['pdmColFormat']==2:
-        logging.info('Formatting pdm from ; to []')
-        mypgm = [i.split(';') for i in rep[pdmCol]]
-        rep[pdmCol] = [
-            f'{i[0]}_{i[1]}' if len(i)==2 or i[2]=='' else f'{i[0][:int(i[2])]}[{i[1]}]{i[0][int(i[2]):]}'
-            for i in mypgm
-        ]
+    # if config['pdmColFormat']==2:
+    #     logging.info('Formatting pdm from ; to []')
+    #     mypgm = [i.split(';') for i in rep[pdmCol]]
+    #     rep[pdmCol] = [
+    #         f'{i[0]}_{i[1]}' if len(i)==2 or i[2]=='' else f'{i[0][:int(i[2])]}[{i[1]}]{i[0][int(i[2]):]}'
+    #         for i in mypgm
+    #     ]
     
-    rep = rep[~rep[pdmCol].duplicated()]
+    # rep = rep[~rep[pdmCol].duplicated()]
     
-    # Get PTM from input report
-    logging.info('Get PTMs from input report')
-    ptmCol = ('PTM', 'REL')
-    myptm = [re.search(r'(.)\[([^]]+)\]', pdm_i) for pdm_i in rep[pdmCol]]
-    rep[ptmCol] = [i.groups() if i else (None, None) for i in myptm]
+    # # Get PTM from input report
+    # logging.info('Get PTMs from input report')
+    # ptmCol = ('PTM', 'REL')
+    # myptm = [re.search(r'(.)\[([^]]+)\]', pdm_i) for pdm_i in rep[pdmCol]]
+    # rep[ptmCol] = [i.groups() if i else (None, None) for i in myptm]
     
     # Extract NM elements from report
     repNM = rep.loc[[i==(None, None) for i in rep[ptmCol]], [qCol, pdmCol, pdmFreq, FDRNM, signNM]]
@@ -490,6 +501,67 @@ def qReportContrast(rep0, config, contrast):
         return qReportList
     
 
+def getPTMCol(rep, config):
+    # Add column with pair (aminoacid, deltamass)
+    pdmCol = tuple(config['pdmCol'])
+    if config['pdmColFormat']==2:
+        logging.info('Formatting pdm from ; to []')
+        mypgm = [i.split(';') for i in rep[pdmCol]]
+        rep[pdmCol] = [
+            f'{i[0]}_{i[1]}' if len(i)==2 or i[2]=='' else f'{i[0][:int(i[2])]}[{i[1]}]{i[0][int(i[2]):]}'
+            for i in mypgm
+        ]
+    
+    # Get PTM from input report
+    logging.info('Get PTMs from input report')
+    
+    myptm = [re.search(r'(.)\[([^]]+)\]', pdm_i) for pdm_i in rep[pdmCol]]
+    myptm = [i.groups() if i else (None, None) for i in myptm]
+    return myptm
+
+
+def getBasalQReport(rep, qCol, qDescCol, pdmFreq, ptmCol):
+    df = rep.loc[:, [qCol, qDescCol, pdmFreq, ptmCol]].copy()
+    df[ptmCol] = [('NM', 'NM') if i==None and j==None else (i,j) for i,j in df[ptmCol]]
+
+    df[('np', 'REL')] = 1
+    df = df.groupby([qCol, qDescCol, ptmCol]).agg("sum").reset_index().droplevel(1, axis=1)
+    
+    basal = {}
+    for freqType, name in [(pdmFreq[0], 'PSMs'), ('np', 'Peptides')]: 
+    
+        basal[freqType] = df.pivot(columns=ptmCol[0], index=[qCol[0], qDescCol[0]], values=[freqType]) 
+    
+        basal[freqType].columns = pd.MultiIndex.from_tuples([j for i,j in basal[freqType].columns])
+        basal[freqType] = basal[freqType].fillna(0)
+        
+        basal[freqType] = pd.concat([
+            pd.DataFrame(basal[freqType].sum(axis=0), columns=[('','Total')]).T, 
+            basal[freqType]
+        ]).sort_values(('', 'Total'), axis=1, ascending=False)
+        
+        basal[freqType].columns = pd.MultiIndex.from_tuples([
+            (i[0], i[1], j) for i,j in zip(basal[freqType].columns, basal[freqType].iloc[0,:].values)
+            ])
+        
+        basal[freqType].sum(axis=0)
+        
+        i = basal[freqType].columns.tolist()
+        basal[freqType][('', '', 'Total')] = basal[freqType].sum(axis=1)
+        basal[freqType] = basal[freqType].loc[:, [('','','Total'), *i]]
+        
+        basal[freqType] = basal[freqType].sort_values(('','','Total'), axis=0, ascending=False)
+        basal[freqType] = basal[freqType].replace(0, np.nan)
+        basal[freqType].index = pd.MultiIndex.from_tuples(basal[freqType].index)
+        basal[freqType] = basal[freqType].iloc[1:, :]
+        
+        outFolder = os.path.join(config['outfolder'], 'qReport', "Basal")
+        if not os.path.exists(outFolder):
+            os.makedirs(outFolder, exist_ok=True)
+        basal[freqType].to_csv(os.path.join(outFolder, f'Basal_{name}.tsv'), sep='\t')
+    
+    return
+
 
 #
 # Main
@@ -515,7 +587,15 @@ def main(config, file=None):
             na_values='#DIV/0!'
             )
     
+
+    ptmCol = ('PTM', 'REL')
+    pdmCol = tuple(config['pdmCol'])
+    rep[ptmCol] = getPTMCol(rep, config)
+    rep = rep[~rep[pdmCol].duplicated()]
     
+    _ = getBasalQReport(rep, tuple(config['qCol']), tuple(config['qDescCol']), tuple(config['pdmFreq']), ptmCol)
+    
+        
     return [qReportContrast(rep, config, contrast) for contrast in config['groups']]
     
 
