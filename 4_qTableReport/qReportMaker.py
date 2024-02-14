@@ -73,15 +73,19 @@ def getRepQF(rep0, config, contrast):
             repQF['Peptides'][i]=None
             continue
         
-        iRep = rep0.loc[:, [qCol, iCol, iFreq, FDRi, sign_i, mcCol]].drop_duplicates().dropna().copy()
+        if i == 'p':
+            iRep = rep0.loc[:, [qCol, iCol, iFreq, FDRi, sign_i, mcCol]].drop_duplicates().copy()#.dropna()
+        elif i == 'qf':
+            iRep = rep0.loc[:, [qCol, iCol, iFreq, FDRi, sign_i]].drop_duplicates().copy()#.dropna()
+            
         repQF['PSMs'][i] = iRep.copy()
         repQF['Peptides'][i] = iRep.copy()
         repQF['Peptides'][i][iFreq] = [ 0 if j==0 else 1 for j in repQF['Peptides'][i][iFreq]]
     
     repQF['PSMs']['DT'] = repQF['PSMs']['p'][repQF['PSMs']['p'][mcCol]==0]
-    repQF['Peptides']['DT'] = repQF['PSMs']['p'][repQF['PSMs']['p'][mcCol]==0]
+    repQF['Peptides']['DT'] = repQF['Peptides']['p'][repQF['Peptides']['p'][mcCol]==0]
     repQF['PSMs']['DP'] = repQF['PSMs']['p'][repQF['PSMs']['p'][mcCol]>0]
-    repQF['Peptides']['DP'] = repQF['PSMs']['p'][repQF['PSMs']['p'][mcCol]>0]
+    repQF['Peptides']['DP'] = repQF['Peptides']['p'][repQF['Peptides']['p'][mcCol]>0]
     
     return repQF
 
@@ -253,8 +257,14 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
         ).fillna(0)
         
     #for i, iFreq, FDRi in [('p', pFreq, FDRp), ('qf', qfFreq, FDRqf)]:
-    for i, iFreq, FDRi, sign_ii in [('DT', pFreq, FDRp, sign_p), ('DP', pFreq, FDRp, sign_p), ('qf', qfFreq, FDRqf, sign_qf)]:
+    for i, iFreq, FDRi, sign_ii in [
+            ('DT', pFreq, FDRp, sign_p), 
+            ('DP', pFreq, FDRp, sign_p), 
+            ('qf', qfFreq, FDRqf, sign_qf)
+            ]:
+        
         if type(repPQF[i]) == type(None): continue
+    
         iRep = repPQF[i].loc[:, [qCol, iFreq, FDRi, sign_ii]]
         qTableD = qTableD.join(
             iRep.loc[:, [qCol, iFreq]].groupby(qCol).agg('sum')\
@@ -423,21 +433,6 @@ def qReportContrast(rep0, config, contrast):
     # Get required report fraction
     rep = rep0.loc[:, list(set([pdmCol, qCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM, qdCol, ptmCol]))].drop_duplicates()
     
-    # if config['pdmColFormat']==2:
-    #     logging.info('Formatting pdm from ; to []')
-    #     mypgm = [i.split(';') for i in rep[pdmCol]]
-    #     rep[pdmCol] = [
-    #         f'{i[0]}_{i[1]}' if len(i)==2 or i[2]=='' else f'{i[0][:int(i[2])]}[{i[1]}]{i[0][int(i[2]):]}'
-    #         for i in mypgm
-    #     ]
-    
-    # rep = rep[~rep[pdmCol].duplicated()]
-    
-    # # Get PTM from input report
-    # logging.info('Get PTMs from input report')
-    # ptmCol = ('PTM', 'REL')
-    # myptm = [re.search(r'(.)\[([^]]+)\]', pdm_i) for pdm_i in rep[pdmCol]]
-    # rep[ptmCol] = [i.groups() if i else (None, None) for i in myptm]
     
     # Extract NM elements from report
     repNM = rep.loc[[i==(None, None) for i in rep[ptmCol]], [qCol, pdmCol, pdmFreq, FDRNM, signNM]]
