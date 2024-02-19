@@ -8,6 +8,9 @@ infile: D:\CNIC\Scripts\ReportStats\test\FDR_LIMMA_NM_qfq_table_pgmfreq.tsv
 # Output file
 outfolder: D:\CNIC\Scripts\ReportStats\test\
 
+# Path to file relating protein Uniprot ID (first col) to other information (e.g. Category)
+q2info: S:\U_Proteomica\UNIDAD\NextCloud\1_PTM_Analysis\Heteroplasmia_Heart\ReportStats-v0.6\myMitocarta.tsv
+
 # FDR threshold used
 qvThr:
     - 0.01

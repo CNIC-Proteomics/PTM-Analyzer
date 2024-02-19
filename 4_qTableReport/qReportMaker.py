@@ -374,6 +374,11 @@ def qReportDesign(config, quan, qTableD, contrast):
         for i,j in qTableD.columns
         ])
     
+    # Add info contained in q2info
+    if os.path.isfile(config['q2info']):
+        q2info = pd.read_csv(config['q2info'], sep='\t')
+        q2info.columns = pd.MultiIndex.from_tuples([qTableD.columns[0] if n==0 else (i,'','') for n,i in enumerate(q2info.columns)])
+        qTableD = pd.merge(q2info, qTableD, how='right', on=[qTableD.columns[0]])
     
     plotted_q = [os.path.splitext(i)[0] for i in os.listdir(config['plotFolder'])]
     qTableD[qTableD.columns[0]] = \
