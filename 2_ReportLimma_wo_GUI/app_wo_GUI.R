@@ -4,7 +4,7 @@ library("logging")
 library("yaml")
 
 # Get get arguments
-#configPath <- "D:\\ReportAnalysis\\2_ReportLimma_wo_GUI\\test\\test3\\limma_params_2.txt"
+#configPath <- "D:\\ReportAnalysis\\test\\test7_Andrea\\2_ReportLimma_wo_GUI\\limma_params.yaml"
 args = commandArgs(trailingOnly=TRUE)
 configPath <- args[1]
 
@@ -71,23 +71,36 @@ LIMMA <- function(sampleGroups, Target, x, integration, eset, type) {
   f <- factor(Target, levels=names(sampleGroups))
   design <- model.matrix(~0+f)
   colnames(design) <- names(sampleGroups)
-  fit <- lmFit(eset, design)
   
-  #x <- gsub(" vs ", "-", obj$hypTesting)
-  contrast.matrix <- makeContrasts(contrasts=x, levels=names(sampleGroups))
+  if (!all(is.na(eset))) {
+    
+    fit <- lmFit(eset, design)
+    
+    #x <- gsub(" vs ", "-", obj$hypTesting)
+    contrast.matrix <- makeContrasts(contrasts=x, levels=names(sampleGroups))
+    
+    fit2 <- contrasts.fit(fit, contrast.matrix)
+    fit2 <- eBayes(fit2)
+    
+    tmp <- as.data.frame(fit2$p.value)
+    
+    loginfo(paste0(integration, " - Prior Variance: ", fit2$s2.prior), logger="ReportLimma")
+    loginfo(paste0(integration, " - Prior Degrees of Freedom: ", fit2$df.prior), logger="ReportLimma")
   
-  fit2 <- contrasts.fit(fit, contrast.matrix)
-  fit2 <- eBayes(fit2)
+    } else {
+      
+    tmp <- data.frame(matrix(NA, nrow = nrow(eset), ncol = length(x)))
+    colnames(tmp) <- x
+    
+  }
   
-  tmp <- as.data.frame(fit2$p.value)
   newColname <- c()
   for (i in colnames(tmp)) {
     newColname <- append(newColname, paste(integration, type, i, sep="_"))
   }
   colnames(tmp) <- newColname
   
-  loginfo(paste0(integration, " - Prior Variance: ", fit2$s2.prior), logger="ReportLimma")
-  loginfo(paste0(integration, " - Prior Degrees of Freedom: ", fit2$df.prior), logger="ReportLimma")
+
   
   return (tmp)
 }

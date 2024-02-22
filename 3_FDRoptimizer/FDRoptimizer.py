@@ -87,7 +87,11 @@ def main(config, file=None):
                 tmp = rep.loc[:, [lvCol, pvCol, scCol]].dropna().drop_duplicates()
     
                 x, y = zip(*[
-                    (s+1, sum(multipletests(tmp.loc[tmp.loc[:, scCol]>=s+1, pvCol], method='fdr_bh')[1]<=thr)) 
+                    (
+                        s+1, 
+                        sum(multipletests(tmp.loc[tmp.loc[:, scCol]>=s+1, pvCol], method='fdr_bh')[1]<=thr) 
+                        if len(tmp.loc[tmp.loc[:, scCol]>=s+1, pvCol])>0 else 0
+                        ) 
                     for s in range(*config['Window'])
                 ])
                 
@@ -103,7 +107,7 @@ def main(config, file=None):
                     tmp = tmp.join(
                         pd.DataFrame({
                             #(f'{pvCol[0]}', f'qvalue_{thr}'): multipletests(tmp.loc[boolean, pvCol], method='fdr_bh')[1]
-                            (f'{pvCol[0]}', f'qvalue'): multipletests(tmp.loc[boolean, pvCol], method='fdr_bh')[1]
+                            (f'{pvCol[0]}', f'qvalue'): multipletests(tmp.loc[boolean, pvCol], method='fdr_bh')[1] if len(tmp.loc[boolean, pvCol])>0 else 1
                         }, index=tmp.index[boolean]), how='left'                        
                     )
                     
