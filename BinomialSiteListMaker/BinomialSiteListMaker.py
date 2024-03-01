@@ -25,15 +25,6 @@ from statsmodels.stats.multitest import multipletests
 
 PEAK = 'PEAK'
 
-# args = {
-#         'infile': r"S:\U_Proteomica\UNIDAD\software\MacrosRafa\data\Proteomics\GroupTools\BinomialResMod\test\test1\heteroplasmy_psm_table.txt",
-#         'outfile': None,
-#         'peptidoform_column': 'TrunkSequence',
-#         'x': 5,
-#         'include_nm': False,
-#         'peakorph_column': 'New_PeakAssignation',
-#         'scanfreq_column': None
-#         }
 
 #
 # Local Functions
@@ -44,6 +35,7 @@ def getBinom(wdf, col):
     '''
     '''
     p, d, a, m, x = col
+    
 
     # Get aa freq
     afreq = pd.Series(list(zip(*[
@@ -76,14 +68,14 @@ def getBinom(wdf, col):
     # P2 --> p = p(a) & ni = Total pdm with i mod
     fdf['p2'] = [afreq[i] for i in fdf[a]]
 
-    d_size = wdf[d].value_counts().to_frame().reset_index().rename(
-        columns={'index': 'd', 'd': 'n2'})
+    d_size = wdf[d].value_counts().to_frame().reset_index()#.rename(columns={'index': 'd', 'd': 'n2'})
+    d_size.columns = [d, 'n2']
 
     fdf = pd.merge(
         fdf,
         d_size,
         how='left',
-        on='d'
+        on=d
     )
 
     # binom = P( Bi(n,p) >= x )
@@ -120,7 +112,9 @@ def main(args):
     '''
 
     # Set column names
-    pdm, p, d, a, m, x = args['peptidoform_column'], 'p', 'd', 'a', 'm', args['x']
+    pdm, p, d, a, m, x = args['peptidoform_column'], args['peptide_column'], \
+        args['modifcation_column'], args['modified_residue_column'], \
+            args['modified_position_column'], args['x']
 
     # Read infile
     if type(args['infile']) == pd.DataFrame:
@@ -135,30 +129,50 @@ def main(args):
             df[args['scanfreq_column']])].reset_index(drop=True)
 
     # Build working df
-    pdmList = df[pdm].tolist()
+    if d=='' or p=='' or a=='' or m=='':
+        p, d, a, m = 'p', 'd', 'a', 'm'
+        
+        pdmList = df[pdm].tolist()
+    
+        if args['peakorph_column']:
+            logging.info(f"Filtering NM based on {args['peakorph_column']}")
+            pdmList = df.loc[df[args['peakorph_column']] == PEAK, pdm].tolist()
+    
+        # if not args['include_nm']:
+            # logging.info("Excluding NM (pdm without [Mod])")
+        
+        pdmListNM = [i for i in pdmList if '[' not in i]
+        unassigned = pd.Series([i.split('_')[1] for i in pdmListNM]).value_counts().to_frame()
+        unassigned.columns = ['Unnasigned']
+        
+        pdmList = [i for i in pdmList if '[' in i]
+    
+        logging.info("Obtaining working dataframe")
+        wdf = [
+            (i, re.search(r'(.)\[([^]]+)\]', i))
+            for i in pdmList
+        ]
+    
+        wdf = [
+            # (i, *i.split('_'), 'U', int(len(i)/2)) if j == None else
+            (i, re.sub(r'\[[^]]+\]', '', i), j.groups()[1],
+             j.groups()[0], i.index('[')-1)  # m index is 0-based
+            for i, j in wdf
+        ]
+        
+    
+        wdf = pd.DataFrame(wdf, columns=[pdm, p, d, a, m])
+        
+    else:
+        wdf = pd.DataFrame(df, columns=[pdm, p, d, a, m])
+        unassigned = wdf[wdf.m.isna()][[d]].value_counts().to_frame()
+        unassigned.columns = ['Unnasigned']
+        wdf = wdf[~wdf.m.isna()]
 
-    if args['peakorph_column']:
-        logging.info(f"Filtering NM based on {args['peakorph_column']}")
-        pdmList = df.loc[df[args['peakorph_column']] == PEAK, pdm].tolist()
+    if wdf.shape[0] == 0:
+        logging.error('No modified peptidoform was detected. Exiting program...')
+        return None, None
 
-    # if not args['include_nm']:
-        # logging.info("Excluding NM (pdm without [Mod])")
-    pdmList = [i for i in pdmList if '[' in i]
-
-    logging.info("Obtaining working dataframe")
-    wdf = [
-        (i, re.search(r'(.)\[([^]]+)\]', i))
-        for i in pdmList
-    ]
-
-    wdf = [
-        # (i, *i.split('_'), 'U', int(len(i)/2)) if j == None else
-        (i, re.sub(r'\[[^]]+\]', '', i), j.groups()[1],
-         j.groups()[0], i.index('[')-1)  # m index is 0-based
-        for i, j in wdf
-    ]
-
-    wdf = pd.DataFrame(wdf, columns=[pdm, p, d, a, m])
 
     logging.info("Calculating binomial pvalues at PSM level")
     biS = getBinom(wdf, [p, d, a, m, x])
@@ -186,7 +200,11 @@ def main(args):
     q_thr = float(args['q_thr']) # 0.01
     values_pivot = args['values_pivot'] #'x-PSM'
 
-    biPivot = pd.pivot_table(bi[bi[binom]<q_thr], index='d', columns='a', values=values_pivot)
+    biPivot = pd.pivot_table(bi[bi[binom]<q_thr], index=d, columns=a, values=values_pivot)
+    
+    if args['show_unassigned']:
+        biPivot = pd.concat([biPivot, unassigned])
+    
     biPivot['total'] = biPivot.sum(axis=1)
     biPivot = biPivot.sort_values('total', ascending=False)
 
@@ -236,6 +254,7 @@ if __name__ == '__main__':
         config.read(args.config)
         params = dict(config.items('Params'))
         params['x'] = int(params['x'])
+        params['show_unassigned'] = params['show_unassigned'].lower() == 'true'
 
     else:
         params = args.__dict__

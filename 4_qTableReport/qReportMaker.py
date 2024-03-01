@@ -114,7 +114,9 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
     
     rep_i = rep[boolean]
     
-    rep_i = rep_i[[pdmCol, pdmFreq]].droplevel(1, axis=1)
+    rep_i = rep_i[[
+        pdmCol, pdmFreq,tuple(config['pCol']),tuple(config['gCol']), tuple(config['aCol']), tuple(config['mCol'])
+        ]].droplevel(1, axis=1)
     
     # If no pdm is filtered return empty list
     if rep_i.shape[0] == 0:
@@ -125,6 +127,11 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
         'infile': rep_i,
         'outfile': None,
         'peptidoform_column': pdmCol[0],
+        'peptide_column': config['pCol'][0],
+        'modifcation_column': config['gCol'][0],
+        'modified_residue_column': config['aCol'][0],
+        'modified_position_column': config['mCol'][0],
+        'show_unassigned': False,
         'x': config['x'],
         'peakorph_column': None,
         'scanfreq_column': pdmFreq[0],
@@ -132,6 +139,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
         'q_thr': config['q_thr'],
         'values_pivot': config['values_pivot']
         })
+
     
     outFolder = os.path.join(config['outfolder'], 'FreqTables', contrast, f"{config['qvalue_dNM'][1]}-{fdr_i}")
     if not os.path.exists(outFolder):
@@ -142,6 +150,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
         biPivot.to_excel(writer, sheet_name=f'PIVOT-{config["binom"]}-{config["q_thr"]}-{config["values_pivot"]}')
     
     ptm = bi[bi[config['binom']]<config['q_thr']]
+    ptm = ptm.rename(columns={config['aCol'][0]:'a', config['gCol'][0]:'d'})
     ptm = list(zip(ptm.a, ptm.d))
     return ptm
 
@@ -380,7 +389,7 @@ def qReportDesign(config, quan, qTableD, contrast):
         q2info.columns = pd.MultiIndex.from_tuples([qTableD.columns[0] if n==0 else (i,'','') for n,i in enumerate(q2info.columns)])
         qTableD = pd.merge(q2info, qTableD, how='right', on=[qTableD.columns[0]])
     
-    if config['plotFolder']:
+    if config['plotFolder'] and os.path.exists(config['plotFolder']):
         plotted_q = [os.path.splitext(i)[0] for i in os.listdir(config['plotFolder'])]
         qTableD[qTableD.columns[0]] = \
             [f"=HYPERLINK(\"{os.path.join(config['plotFolder'], i)}.html\", \"{i}\")" if i in plotted_q else i for i in qTableD.iloc[:, 0]]
@@ -437,7 +446,9 @@ def qReportContrast(rep0, config, contrast):
     ptmCol = ('PTM', 'REL')
     
     # Get required report fraction
-    rep = rep0.loc[:, list(set([pdmCol, qCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM, qdCol, ptmCol]))].drop_duplicates()
+    rep = rep0.loc[:, list(set([
+        pdmCol, qCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM, qdCol, ptmCol, 
+        tuple(config['pCol']),tuple(config['gCol']), tuple(config['aCol']), tuple(config['mCol'])]))].drop_duplicates()
     
     
     # Extract NM elements from report
@@ -590,8 +601,12 @@ def main(config, file=None):
     
 
     ptmCol = ('PTM', 'REL')
+    rep[ptmCol] = [
+        (None, None) if np.isnan(k) else (i,j) 
+        for i,j, k in zip(rep[tuple(config['aCol'])], rep[tuple(config['gCol'])], rep[tuple(config['mCol'])])
+        ]
     pdmCol = tuple(config['pdmCol'])
-    rep[ptmCol] = getPTMCol(rep, config)
+    #rep[ptmCol] = getPTMCol(rep, config)
     rep = rep[~rep[pdmCol].duplicated()]
     
     _ = getBasalQReport(rep, tuple(config['qCol']), tuple(config['qDescCol']), tuple(config['pdmFreq']), ptmCol)
