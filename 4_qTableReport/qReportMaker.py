@@ -389,20 +389,92 @@ def qReportDesign(config, quan, qTableD, contrast):
         q2info.columns = pd.MultiIndex.from_tuples([qTableD.columns[0] if n==0 else (i,'','') for n,i in enumerate(q2info.columns)])
         qTableD = pd.merge(q2info, qTableD, how='right', on=[qTableD.columns[0]])
     
-    if config['plotFolder'] and os.path.exists(config['plotFolder']):
-        plotted_q = [os.path.splitext(i)[0] for i in os.listdir(config['plotFolder'])]
+    if config['plotFolder'] and os.path.exists(config['plotFolder'][0]):
+        qTableD = qTableD[[qTableD.columns[0]]].rename(columns={'':'NoFilt'}).join(qTableD)
+        plotted_q = [os.path.splitext(i)[0] for i in os.listdir(config['plotFolder'][0])]
         qTableD[qTableD.columns[0]] = \
-            [f"=HYPERLINK(\"{os.path.join(config['plotFolder'], i)}.html\", \"{i}\")" if i in plotted_q else i for i in qTableD.iloc[:, 0]]
+            [f"=HYPERLINK(\"{os.path.join(config['plotFolder'][0], i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
+        
+        if len(config['plotFolder'])>1 and os.path.exists(config['plotFolder'][1]):
+            qTableD = qTableD[[qTableD.columns[1]]].rename(columns={'':'Filt'}).join(qTableD)
+            plotted_q = [os.path.splitext(i)[0] for i in os.listdir(config['plotFolder'][1])]
+            qTableD[qTableD.columns[0]] = \
+                [f"=HYPERLINK(\"{os.path.join(config['plotFolder'][1], i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
+        
+        
     
     return qTableD
 
 
+def qReportMergeUpDown(params):
+    md = {}
+    
+    for i in params:
+        fdr, sign, quan, df = i[1], i[2], i[3], i[4]
+        if fdr not in md.keys():
+            md[fdr] = {}
+        
+        if quan not in md[fdr].keys():
+            md[fdr][quan] = {}
+        
+        if sign not in md[fdr][quan].keys():
+            md[fdr][quan][sign] = df
+            md[fdr][quan]['params'] = i
+        
+    params2 = []
+    for fdr in md:
+        for quan in md[fdr]:
+            if 'up' not in md[fdr][quan] or 'down' not in md[fdr][quan]: continue
+            dfup = md[fdr][quan]['up']
+            dfdo = md[fdr][quan]['down']
+            params_i = list(md[fdr][quan]['params'])
+    
+            dfup = dfup.sort_values(dfup.columns[0])
+            dfdo = dfdo.sort_values(dfdo.columns[0])
+            
+            dfup.index = np.arange(0,dfup.shape[0])
+            dfdo.index = np.arange(0,dfdo.shape[0])
+            
+            _i = [n for n,i in enumerate(dfup.columns) if i == (quan, 'PTMs', '')][0]
+            dfup_ptm = dfup.iloc[:, _i:]
+            dfup_wo = dfup.iloc[:, :_i]
+            
+            _i = [n for n,i in enumerate(dfdo.columns) if i == (quan, 'PTMs', '')][0]
+            dfdo_ptm = dfdo.iloc[:, _i:]
+            dfdo_wo = dfdo.iloc[:, :_i]
+            
+            dfup_ptm.columns = pd.MultiIndex.from_tuples([('up', *i) for i in dfup_ptm.columns])
+            dfdo_ptm.columns = pd.MultiIndex.from_tuples([('down', *i) for i in dfdo_ptm.columns])
+            
+            df_ptm = dfup_ptm.join(dfdo_ptm)
+            
+            df_out = pd.DataFrame()
+            for col in dfup_wo.columns:
+                if 'sig' in col[1]:
+                    df_out[('up', *col)] = dfup_wo[col]
+                    df_out[('down', *col)] = dfdo_wo[col]
+                elif 'Hypergeom' in col[0]:
+                    df_out[('up', *col)] = dfup_wo[col]
+                    df_out[('down', *col)] = dfdo_wo[col]
+                else:
+                    df_out[('', *col)] = dfup_wo[col]
+            
+            df_out.columns = pd.MultiIndex.from_tuples(df_out.columns)
+            df_out = df_out.join(df_ptm)
+            params_i[2] = 'up&down'
+            params_i[4] = df_out
+            params2.append(tuple(params_i))
+
+    return params2
+
+
 def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
     
-    if not os.path.exists(os.path.join(config['outfolder'], 'qReport', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}')):
-        os.makedirs(os.path.join(config['outfolder'], 'qReport', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}'), exist_ok=True)
+    outFolder = os.path.join(config['outfolder'], 'qReport', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}')
+    if not os.path.exists(outFolder):
+        os.makedirs(outFolder, exist_ok=True)
     
-    qReportPath = os.path.join(config['outfolder'], 'qReport', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}', f'qReport-{fdr_i}_{sign_i}_{quan}.xlsx')
+    qReportPath = os.path.join(outFolder, f'qReport-{fdr_i}_{sign_i}_{quan}.xlsx')
     
     header = list(zip(*qTableD.columns.tolist()))
     qTableD.columns = np.arange(0, qTableD.shape[1])
@@ -416,6 +488,7 @@ def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
         )
     
     toFormat = [n+1 for n,i in enumerate(qTableD.iloc[:, 0]) if 'HYPERLINK' in i]
+    toFormat2 = [n+1 for n,i in enumerate(qTableD.iloc[:, 1]) if 'HYPERLINK' in i]
     
     book = openpyxl.load_workbook(qReportPath)
     sheet = book['Sheet1']
@@ -424,6 +497,9 @@ def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
     
     for i in toFormat:
         sheet[f'A{i}'].font = openpyxl.styles.Font(color='0000FF', underline='single')
+    
+    for i in toFormat2:
+        sheet[f'B{i}'].font = openpyxl.styles.Font(color='0000FF', underline='single')
     
     book.save(qReportPath)
     
@@ -503,6 +579,8 @@ def qReportContrast(rep0, config, contrast):
      (config, fdr_i, sign_i, quan, qTableD, contrast)
      for fdr_i, sign_i, quan, qTableD in qReportList
      ]
+    
+    params = params + qReportMergeUpDown(params)
     
 
     if config['outfolder']:

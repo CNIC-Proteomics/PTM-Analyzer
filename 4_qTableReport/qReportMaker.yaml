@@ -176,8 +176,11 @@ values_pivot: x-PSM
 
 #
 # Plot path: Path to the folder containing Cristina Plots
-#
-plotFolder: D:\CNIC\Scripts\ReportStats\test\Plots
+# - /Path/to/CompletePlot
+# - /Path/to/FilteredPlot
+plotFolder: 
+    - D:\CNIC\Scripts\ReportStats\test\Plots
+    - D:\CNIC\Scripts\ReportStats\test\Plots_FDR
 
 n_cpu: 8 
 
