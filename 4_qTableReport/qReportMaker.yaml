@@ -178,9 +178,13 @@ values_pivot: x-PSM
 # Plot path: Path to the folder containing Cristina Plots
 # - /Path/to/CompletePlot
 # - /Path/to/FilteredPlot
+
+# Leave it blank to use default folder:
+#   - [outfolder]/PTMMaps/{groups}/plots
+#   - [outfolder]/PTMMaps/{groups}/plots_FDR
 plotFolder: 
-    - D:\CNIC\Scripts\ReportStats\test\Plots
-    - D:\CNIC\Scripts\ReportStats\test\Plots_FDR
+    - 
+    - 
 
 n_cpu: 8 
 

@@ -4,7 +4,7 @@ library("logging")
 library("yaml")
 
 # Get get arguments
-#configPath <- "D:\\ReportAnalysis\\test\\test7_Andrea\\2_ReportLimma_wo_GUI\\limma_params.yaml"
+# configPath <- "D:\\ReportAnalysis\\2_ReportLimma_wo_GUI\\test\\test4\\limma_params_HFpEF_01.yaml"
 args = commandArgs(trailingOnly=TRUE)
 configPath <- args[1]
 

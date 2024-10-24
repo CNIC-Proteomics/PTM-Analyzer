@@ -389,20 +389,26 @@ def qReportDesign(config, quan, qTableD, contrast):
         q2info.columns = pd.MultiIndex.from_tuples([qTableD.columns[0] if n==0 else (i,'','') for n,i in enumerate(q2info.columns)])
         qTableD = pd.merge(q2info, qTableD, how='right', on=[qTableD.columns[0]])
     
-    if config['plotFolder'] and os.path.exists(config['plotFolder'][0]):
+    if config['plotFolder']:# and os.path.exists(config['plotFolder'][0]):
         qTableD = qTableD[[qTableD.columns[0]]].rename(columns={'':'NoFilt'}).join(qTableD)
-        plotted_q = [os.path.splitext(i)[0] for i in os.listdir(config['plotFolder'][0])]
+        
+        ptmMapPath = config['plotFolder'][0] if config['plotFolder'][0] else os.path.join(config['outfolder'], f'PTMMaps/{contrast}/plots')
+        plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPath)]
+        
+        ptmMapPathExcel = config['plotFolder'][0] if config['plotFolder'][0] else f'../../../PTMMaps/{contrast}/plots'
         qTableD[qTableD.columns[0]] = \
-            [f"=HYPERLINK(\"{os.path.join(config['plotFolder'][0], i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
+            [f"=HYPERLINK(\"{os.path.join(ptmMapPathExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
         
-        if len(config['plotFolder'])>1 and os.path.exists(config['plotFolder'][1]):
+        if len(config['plotFolder'])>1: #and os.path.exists(config['plotFolder'][1]):
             qTableD = qTableD[[qTableD.columns[1]]].rename(columns={'':'Filt'}).join(qTableD)
-            plotted_q = [os.path.splitext(i)[0] for i in os.listdir(config['plotFolder'][1])]
+            
+            ptmMapPath = config['plotFolder'][1] if config['plotFolder'][1] else os.path.join(config['outfolder'], f'PTMMaps/{contrast}/plots_FDR')
+            plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPath)]
+            
+            ptmMapPathExcel = config['plotFolder'][1] if config['plotFolder'][1] else f'../../../PTMMaps/{contrast}/plots_FDR'
             qTableD[qTableD.columns[0]] = \
-                [f"=HYPERLINK(\"{os.path.join(config['plotFolder'][1], i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
+                [f"=HYPERLINK(\"{os.path.join(ptmMapPathExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
         
-        
-    
     return qTableD
 
 
@@ -451,8 +457,12 @@ def qReportMergeUpDown(params):
             df_out = pd.DataFrame()
             for col in dfup_wo.columns:
                 if 'sig' in col[1]:
-                    df_out[('up', *col)] = dfup_wo[col]
-                    df_out[('down', *col)] = dfdo_wo[col]
+                    if col[1] == 'NMsig':
+                        df_out[('up (NM decreased)', *col)] = dfup_wo[col]
+                        df_out[('down (NM increased)', *col)] = dfdo_wo[col]
+                    else:
+                        df_out[('up', *col)] = dfup_wo[col]
+                        df_out[('down', *col)] = dfdo_wo[col]
                 elif 'Hypergeom' in col[0]:
                     df_out[('up', *col)] = dfup_wo[col]
                     df_out[('down', *col)] = dfdo_wo[col]
