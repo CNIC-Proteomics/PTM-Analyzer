@@ -109,7 +109,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
     
     boolean = np.logical_and.reduce([
         rep[FDRdNM] < fdr_i,
-        rep[sign] > 0 if sign_i == 'up' else rep[sign] < 0    
+        rep[sign] > 0 if sign_i == 'up' else rep[sign] < 0,
         ])
     
     rep_i = rep[boolean]
@@ -690,7 +690,8 @@ def main(config, file=None):
 
     ptmCol = ('PTM', 'REL')
     rep[ptmCol] = [
-        (None, None) if np.isnan(k) else (i,j) 
+        #(None, None) if np.isnan(k) else (i,j) 
+        (None, None) if j == config['NMgroup'] else (i,j) 
         for i,j, k in zip(rep[tuple(config['aCol'])], rep[tuple(config['gCol'])], rep[tuple(config['mCol'])])
         ]
     pdmCol = tuple(config['pdmCol'])

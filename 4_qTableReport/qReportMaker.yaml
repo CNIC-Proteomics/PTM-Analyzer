@@ -44,7 +44,8 @@ mCol:
     - m
     - REL
 
-
+# Name of the group corresponding to non-modified
+NMgroup: NM
 
 
 #
