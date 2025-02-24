@@ -1,0 +1,13 @@
+bottleneck==1.3.5
+et_xmlfile==1.1.0
+numpy==1.26.0
+openpyxl==3.0.10
+pandas==2.1.1
+patsy==0.5.3
+plotly==5.18.0
+python-dateutil==2.8.2
+pytz==2023.3.post1
+pyyaml==6.0.1
+scipy==1.11.3
+statsmodels==0.14.0
+tenacity==8.2.2
