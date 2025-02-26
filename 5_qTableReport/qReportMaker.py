@@ -389,32 +389,25 @@ def qReportDesign(config, quan, qTableD, contrast):
         q2info.columns = pd.MultiIndex.from_tuples([qTableD.columns[0] if n==0 else (i,'','') for n,i in enumerate(q2info.columns)])
         qTableD = pd.merge(q2info, qTableD, how='right', on=[qTableD.columns[0]])
     
-    # if 'plotFolder' in config and config['plotFolder']:
     if args.ptmmap and os.path.isdir(args.ptmmap):
         ptmmap_path = args.ptmmap
         ptmmap_path_relative = os.path.join('../../../../', os.path.basename(ptmmap_path))
         qTableD = qTableD[[qTableD.columns[0]]].rename(columns={'':'NoFilt'}).join(qTableD)
         
-        # ptmMapPath = config['plotFolder'][0] if config['plotFolder'][0] else os.path.join(args.outdir, f'PTMMaps/{contrast}/plots')
         ptmMapPath = os.path.join(ptmmap_path, f'{contrast}/plots')
         if os.path.isdir(ptmMapPath):
             plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPath)]
             
-            # ptmMapPathExcel = config['plotFolder'][0] if config['plotFolder'][0] else f'../../../PTMMaps/{contrast}/plots'
             ptmMapPathExcel = os.path.join(ptmmap_path_relative, f'{contrast}/plots')
             qTableD[qTableD.columns[0]] = \
                 [f"=HYPERLINK(\"{os.path.join(ptmMapPathExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
             
-            # ptmMapPathFDR = config['plotFolder'][1] if config['plotFolder'][1] else os.path.join(args.outdir, f'PTMMaps/{contrast}/plots_FDR')
             ptmMapPathFDR = os.path.join(ptmmap_path, f'{contrast}/plots_FDR')
             if os.path.isdir(ptmMapPathFDR):
-            # if len(config['plotFolder'])>1: #and os.path.exists(config['plotFolder'][1]):
                 qTableD = qTableD[[qTableD.columns[1]]].rename(columns={'':'Filt'}).join(qTableD)
                 
-                # ptmMapPathFDR = config['plotFolder'][1] if config['plotFolder'][1] else os.path.join(args.outdir, f'PTMMaps/{contrast}/plots_FDR')
                 plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPathFDR)]
                 
-                # ptmMapPathFDRExcel = config['plotFolder'][1] if config['plotFolder'][1] else f'../../../PTMMaps/{contrast}/plots_FDR'
                 ptmMapPathFDRExcel = os.path.join(ptmmap_path_relative, f'{contrast}/plots_FDR')
                 qTableD[qTableD.columns[0]] = \
                     [f"=HYPERLINK(\"{os.path.join(ptmMapPathFDRExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
@@ -720,10 +713,10 @@ if __name__ == '__main__':
     
 
     parser = argparse.ArgumentParser(
-        description='qTableMaker',
+        description='qReportMaker',
         epilog='''
         Example:
-            python qTableMaker.py
+            python qReportMaker.py
         ''')
 
     parser.add_argument('-i', '--infile', required=True, help='Path to report with the FDR results')

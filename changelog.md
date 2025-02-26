@@ -10,7 +10,7 @@ ___
 + Modified the input parameter file:
   - Created a unique global file containing all parameters.
   - The global file includes a section name for the method used.
-+ Adapted all methods to the new input parameter file.  
++ Adapted all methods to the new input parameter file.
 
 ___
 ## v0.13
