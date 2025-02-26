@@ -1,28 +1,26 @@
+#
+# PARAMETERS: LIMMA wo GUI
+#
+LimmaCompare:
 
-report_infile: D:\ReportAnalysis\test\test1\1_NMpyCompare\NM_qfq_table_pgmfreq.tsv
+  # Possible types 
+  # - limma
+  # - limma_with_duplicates
+  # - t-test
+  test_type:
+    - limma
+    - limma_with_duplicates
+    - t-test
 
-sample_table: D:\ReportAnalysis\test\test1\2_ReportLimma_wo_GUI\limma_sample_table.tsv
-
-outfile: D:\ReportAnalysis\test\test1\2_ReportLimma_wo_GUI\LIMMA_NM_qfq_table_pgmfreq.tsv
-
-# Possible types 
-# - limma
-# - limma_with_duplicates
-# - t-test
-test_type:
-  - limma
-  - limma_with_duplicates
-  - t-test
-
-# Integrations used to apply Limma
-# [ [LowLevel_firstRow, LowLevel_secondRow], integration ]
-ColumnNames:
-  - [ [pgm, LEVEL], Z_pgm2p]
-  - [ [pgm, LEVEL], Z_pgm2p_dNM]
-  - [ [p, LEVEL], Z_p2qf]
-  - [ [qf, LEVEL], Z_qf2qfq]
-  - [ [qfq, LEVEL], Z_qfq2qfqall]
-  
-hypothesis_testing:
-  - [ H, C ]
-  - [ Control, Heteroplasmy ]
+  # Integrations used to apply Limma
+  # [ [LowLevel_firstRow, LowLevel_secondRow], integration ]
+  ColumnNames:
+    - [ [pgm, LEVEL], Z_pgm2p]
+    - [ [pgm, LEVEL], Z_pgm2p_dNM]
+    - [ [p, LEVEL], Z_p2qf]
+    - [ [qf, LEVEL], Z_qf2qfq]
+    - [ [qfq, LEVEL], Z_qfq2qfqall]
+    
+  hypothesis_testing:
+    - [ H, C ]
+    - [ Control, Heteroplasmy ]

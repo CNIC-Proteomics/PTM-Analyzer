@@ -1,22 +1,20 @@
 #
 # PARAMETERS: NMpyCompare.py
 #
+NMpyCompare:
 
-# Path to iSanXoT report
-infile: D:\ReportAnalysis\test\test1\qfq_table_pgmfreq.tsv
+  # Column name of low level (FirstRowName#SecondRowName)
+  low_level: pgm#LEVEL
+  # Column name of high level (FirstRowName#SecondRowName)
+  high_level: p#LEVEL
 
-# Column name of low level (FirstRowName#SecondRowName)
-low_level: pgm#LEVEL
-# Column name of high level (FirstRowName#SecondRowName)
-high_level: p#LEVEL
+  # Column name of integration
+  integration: Z_pgm2p
 
-# Column name of integration
-integration: Z_pgm2p
+  # ScanFreq
+  scanfreq: pgmFreq#REL
 
-# ScanFreq
-scanfreq: pgmFreq#REL
-
-# Columns considered to find non modified (FirstRowName#SecondRowName)
-NM_columns:
-  - g#REL:
-    - NM
+  # Columns considered to find non modified (FirstRowName#SecondRowName)
+  NM_columns:
+    - g#REL:
+      - NM

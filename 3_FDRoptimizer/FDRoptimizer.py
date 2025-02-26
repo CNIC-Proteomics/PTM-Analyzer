@@ -35,14 +35,16 @@ def main(config, file=None):
     if file:
         rep = file.copy()
     else:
-        logging.info(f"Reading Report: {config['infile']}")
-        rep = pd.read_csv(config['infile'], sep='\t', low_memory=False, header=[0,1])
+        logging.info(f"Reading Report: {args.infile}")
+        rep = pd.read_csv(args.infile, sep='\t', low_memory=False, header=[0,1])
         
-    # Create folder with out files (html and report with FDR)
-    if not os.path.exists(config['outfolder']):
-        os.makedirs(config['outfolder'])
-    
-    
+    # prepare workspace for graphs
+    outdir_gh = os.path.join(outdir, 'FDRoptimizer')
+    logging.info(f"Preparing workspace for graphs: {outdir_gh}")
+    if not os.path.exists(outdir_gh):
+        os.makedirs(outdir_gh, exist_ok=False)
+
+
     for thr in config['FDR_Thr']:
         
         logging.info(f'FDR Threshold: {thr}')
@@ -130,12 +132,11 @@ def main(config, file=None):
     
             # fig.show()
     
-            with open(os.path.join(config["outfolder"], f'FDR_{thr}.html'), 'a') as f:
-                    f.write(fig.to_html(full_html=False, include_plotlyjs='cdn', default_height='50%', default_width='95%'))
+            with open(os.path.join(outdir_gh, f'FDR_{thr}.html'), 'a') as f:
+                f.write(fig.to_html(full_html=False, include_plotlyjs='cdn', default_height='50%', default_width='95%'))
         
     if config['AddFDR'] and not file:
-        basename, ext = os.path.splitext(os.path.basename(config['infile']))
-        rep.to_csv(os.path.join(config['outfolder'], f'FDR_{basename}{ext}'), sep='\t', index=False)
+        rep.to_csv(args.outfile, sep='\t', index=False)
         
 
     return rep
@@ -151,20 +152,30 @@ if __name__ == '__main__':
             python FDRoptimizer.py
         ''')
 
+    parser.add_argument('-i', '--infile', required=True, help='Path to report with the Limma comparisons')
+    parser.add_argument('-o', '--outfile', required=True, help='Path to output where FDR values will be saved')
     parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'FDRoptimizer.yaml'), type=str, help='Path to config file')
 
     args = parser.parse_args()
 
 
     with open(args.config) as file:
-        config = yaml.load(file, yaml.FullLoader)
+        config = yaml.load(file, yaml.FullLoader)        
+        # get the config section
+        config = config.get('FDRoptimizer')
         
+
+    # prepare workspace
+    outdir = os.path.dirname(args.outfile)
+    if not os.path.exists(outdir):
+        os.makedirs(outdir, exist_ok=False)
+    
 
     logging.basicConfig(level=logging.INFO,
                         format='FDRoptimizer.py - '+str(os.getpid())+' - %(asctime)s - %(levelname)s - %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p',
                         handlers=[logging.FileHandler(
-                            os.path.splitext(config['infile'])[0]+'.log'
+                            os.path.join(outdir, 'FDRoptimizer.log')
                             ),
                             logging.StreamHandler()])
 

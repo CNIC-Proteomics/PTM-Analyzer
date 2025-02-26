@@ -1,5 +1,3 @@
-**/test/
-**/__pycache__/
-**/R-Portable
-**/ChromiumPortable
-*.zip
+.vscode
+env
+*/*/__pycache__

@@ -1,0 +1,67 @@
+#
+# PARAMETERS: PTMMap
+#
+PTMMap:
+
+  pgm_column_name: pgm
+  pgm_second_header_column_name: LEVEL
+  g_column_name: g
+  g_second_header_column_name: REL
+  a_column_name: a
+  a_second_header_column_name: REL
+  n_column_name: n
+  n_second_header_column_name: REL
+  e_column_name: e
+  e_second_header_column_name: REL
+  p_column_name: p
+  p_second_header_column_name: LEVEL
+  q_column_name: q
+  q_second_header_column_name: LEVEL
+  d_column_name: d
+  d_second_header_column_name: REL
+  qf_column_name: qf
+  qf_second_header_column_name: LEVEL
+  pFreq_column_name: pFreq
+  pFreq_second_header_column_name: REL
+  qfFreq_column_name: qfFreq
+  qfFreq_second_header_column_name: REL
+  pgmFreq_column_name: pgmFreq
+  pgmFreq_second_header_column_name: REL
+  first_b_column_name: first_b
+  first_b_second_header_column_name: REL
+  description_column_name: description
+  description_second_header_column_name: REL
+  Missing_Cleavages_column_name: Missing_Cleavage
+  Missing_Cleavages_second_header_column_name: REL
+
+  LPS_p2qf_column_name: Z_p2qf_logLimma_H-C # -LPS of p2qf integration
+  LPS_qf2q_column_name: Z_qf2q_logLimma_H-C # -LPS of qf2q integration
+  LPS_pgm2p_column_name: Z_pgm2p_logLimma_H-C # -LPS of pfm2p integration
+  LPS_pgm2p_NM_column_name: Z_pgm2p_dNM_logLimma_H-C # -LPS of pgm2p_MN integration
+
+  LPS_p2qf_second_header_column_name: LPS
+  LPS_qf2q_second_header_column_name: LPS
+  LPS_pgm2p_second_header_column_name: LPS
+  LPS_pgm2p_NM_second_header_column_name: LPS
+
+  Filter_pgm2p_NM_column_name: Z_pgm2p_dNM_limma_H-C # Filtering column (qvalues, pvalue, etc.) of pgm2p integration corrected by NMCompare.py
+  Filter_pgm2p_column_name: Z_pgm2p_limma_NM_ONLY_H-C # Filtering column (qvalues, pvalue, etc.) of pgm2p integration calculated ONLY with NM
+  Filter_p2qf_column_name: Z_p2qf_limma_H-C # Filtering column (qvalues, pvalue, etc.) of p2qf integration
+  Filter_qf2q_column_name: Z_qf2q_limma_H-C # Filtering column (qvalues, pvalue, etc.) of qf2q integration
+
+  Filter_pgm2p_NM_second_header_column_name: qvalue
+  Filter_pgm2p_second_header_column_name: qvalue
+  Filter_p2qf_second_header_column_name: qvalue
+  Filter_qf2q_second_header_column_name: qvalue
+
+  threshold_pgm2p_NM: 0.05 # Threshold of filtering column (pgm2p_NM integration)
+  threshold_pgm2p: 0.05 # Threshold of filtering column (pgm2p integration)
+  threshold_p2qf: 0.05 # Threshold of filtering column (p2qf integration)
+  threshold_qf2q: 0.05 # Threshold of filtering column (qf2q integration)
+
+  pgmFreqThreshold: 0 # Threshold
+
+  NM: NM # How Non-modified are named
+
+  path_plots_with_threshold: plots_FDR # Folder in which filtered PTM Maps will be saved
+  path_plots_Without_threshold: plots # Folder in which completed PTM Maps will be saved

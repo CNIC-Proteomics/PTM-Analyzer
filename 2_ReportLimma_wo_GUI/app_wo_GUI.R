@@ -2,11 +2,25 @@
 library("limma")
 library("logging")
 library("yaml")
+library("optparse")
 
-# Get get arguments
-# configPath <- "D:\\ReportAnalysis\\2_ReportLimma_wo_GUI\\test\\test4\\limma_params_HFpEF_01.yaml"
-args = commandArgs(trailingOnly=TRUE)
-configPath <- args[1]
+# define command-line options
+option_list <- list(
+  make_option(c("-c", "--config"), type = "character", default = NULL, help = "Path to the YAML configuration file", metavar = "character"),
+  make_option(c("-i", "--input"), type = "character", default = NULL, help = "Path to the isanxot report file", metavar = "character"),
+  make_option(c("-s", "--samples"), type = "character", default = NULL, help = "Path to the sample table file", metavar = "character"),
+  make_option(c("-o", "--output"), type = "character", default = NULL, help = "Path to the output file", metavar = "character")
+)
+
+# parse options
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+
+# ensure required arguments are provided
+if (is.null(opt$config) || is.null(opt$input) || is.null(opt$samples) || is.null(opt$output)) {
+  print_help(opt_parser)
+  stop("Missing required arguments!", call. = FALSE)
+}
 
 
 # set constants
@@ -293,6 +307,7 @@ writeOutputReport <- function (config, reportData, pvalues_df, subHeader) {
   #outFile <- paste("LIMMA", basename(obj$filePath), sep="_")
   #outPath <- paste(outDir, outFile, sep="\\")
   
+  # print table
   write.table(reportData, file = config$outfile, quote = F, sep = "\t", row.names = F,
               col.names = F, na="")
   
@@ -305,7 +320,22 @@ writeOutputReport <- function (config, reportData, pvalues_df, subHeader) {
 #
 
 # Read YAML file
-config <- read_yaml(configPath)
+config <- read_yaml(opt$config)
+
+# get the config section
+config <- config$LimmaCompare
+
+# override specific parameters from command-line arguments
+config$report_infile <- opt$input
+config$sample_table <- opt$samples
+config$outfile <- opt$output
+
+# prepare workspace
+outdir <- dirname(config$outfile)  # Extract the directory path from the output file
+if (!dir.exists(outdir)) {
+  dir.create(outdir, recursive = TRUE, showWarnings = TRUE)
+}
+
 
 config[['integrations']] <- c()
 config[['lowLevel1']] <- c()
@@ -332,7 +362,8 @@ for (i in names(sampleGroups)) {
 }
 
 # Set Logging file
-logFile <- paste0(strsplit(config$report_infile, split='[^.]+$', perl=T), 'log')
+# logFile <- paste0(strsplit(config$report_infile, split='[^.]+$', perl=T), 'log')
+logFile <- paste0(outdir, '/LimmaCompare.log')
 basicConfig()
 addHandler(writeToFile, logger='ReportLimma', file=logFile)
 

@@ -191,9 +191,9 @@ def main(config, file=None):
     '''
     
     # read report
-    logging.info(f"Reading report: {config['infile']}")
+    logging.info(f"Reading report: {args.infile}")
     if file==None:
-        repdf = pd.read_csv(config['infile'], sep='\t', header=[0,1], low_memory=False)
+        repdf = pd.read_csv(args.infile, sep='\t', header=[0,1], low_memory=False)
     else:
         repdf = file
 
@@ -218,11 +218,10 @@ def main(config, file=None):
     
 
 
+    logging.info(f"Writing output report: {args.outfile}")
     # write report
-    outpath = os.path.join(os.path.dirname(config['infile']), 'NM_'+os.path.basename(config['infile']))
-    logging.info(f"Writing output report: {outpath}")
     repdf.to_csv(
-        outpath,
+        args.outfile,
         sep='\t',
         index=False
     )
@@ -240,6 +239,8 @@ if __name__ == '__main__':
             python NMpyCompare.py
         ''')
 
+    parser.add_argument('-i', '--infile', required=True, help='Path to iSanXoT report file')
+    parser.add_argument('-o', '--outfile', required=True, help='Output with the NM-corrected values')
     parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'NMpyCompare.yaml'), type=str, help='Path to config file')
 
     args = parser.parse_args()
@@ -247,13 +248,21 @@ if __name__ == '__main__':
 
     with open(args.config) as file:
         config = yaml.load(file, yaml.FullLoader)
+        # get the config section
+        config = config.get('NMpyCompare')
         
+
+    # prepare workspace
+    outdir = os.path.dirname(args.outfile)
+    if not os.path.exists(outdir):
+        os.makedirs(outdir, exist_ok=False)
+
 
     logging.basicConfig(level=logging.INFO,
                         format='NMpyCompare.py - '+str(os.getpid())+' - %(asctime)s - %(levelname)s - %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p',
                         handlers=[logging.FileHandler(
-                            os.path.splitext(config['infile'])[0]+'.log'
+                            os.path.join(outdir, 'NMpyCompare.log')
                             ),
                             logging.StreamHandler()])
 
