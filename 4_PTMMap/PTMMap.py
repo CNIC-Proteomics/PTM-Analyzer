@@ -389,7 +389,7 @@ if __name__ == '__main__':
 
     # prepare workspace
     outdir = args.outdir
-    if not os.path.exists(outdir):
+    if outdir and not os.path.exists(outdir):
         os.makedirs(outdir, exist_ok=False)
 
     # logging debug level. By default, info level

@@ -167,7 +167,7 @@ if __name__ == '__main__':
 
     # prepare workspace
     outdir = os.path.dirname(args.outfile)
-    if not os.path.exists(outdir):
+    if outdir and not os.path.exists(outdir):
         os.makedirs(outdir, exist_ok=False)
     
 

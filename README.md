@@ -12,37 +12,27 @@ Download the ReportAnalysis-vx.xx.zip from the last release and unzip the file. 
 **Description:**
 This Python script calculates NM-corrected values from the iSanXoT report. It subtracts the Zpgm2p value of the associated non-modified peptidoform from the Zpgm2p value of each modified peptidoform. Users can specify column names for integration levels, quantitative values, and criteria for identifying non-modified peptidoforms through the configuration file. The NM-corrected values are then appended as new columns in the iSanXoT report.
 
-**Execution:**
-```bash
-python NMpyCompare.py -c path/to/NMpyCompare.yaml
-```
-
 ### 2. ReportLimma
 **Description:**
 This script performs hypothesis testing for comparisons between different groups across integration levels using the **limma** package. It computes p-values for statistical contrasts, the mean difference between groups, and the LPS value (-log(p-value) adjusted by the sign of the mean difference).
-
-**Execution:**
-```bash
-ReportLimma.bat path/to/limma_params.yaml
-```
 
 ### 3. FDRoptimizer
 **Description:**
 Implemented in Python, this script applies an iterative algorithm to optimize the spectral count threshold at each integration step. It scans different thresholds to maximize the number of elements with a q-value below a user-defined threshold, using the Benjamini-Hochberg algorithm for multiple testing correction.
 
-**Execution:**
-```bash
-python FDRoptimizer.py -c path/to/FDRoptimizer.yaml
-```
+### 4. PTMMap
+**Description:**
+PTMap is a tool developed with the aim of visualizing, interpreting, and comparing the proteins PTMs of s. This module represents, as many maps as proteins for which any integration meets the threshold established by the user. Each map illustrates the change between one condition and another based on the p-value of all calculated integrations, on the y-axis.
 
-### 4. qTableReport
+### 5. qTableReport
 **Description:**
 This Python script enables a detailed exploration of significant changes at the protein level in a peptide-centric workflow. It generates an output table summarizing the number of modified and non-modified peptidoforms with significant increases or decreases, along with details on digestion status and qc clusters.
 
-**Execution:**
-```bash
-python qTableReport.py -c path/to/qReportMaker.yaml
-```
+
+## Example Commands
+
+For additional examples and tests, please consult the **[Test Guide](TESTS.md)**.
+
 
 ## Contact
 For questions or issues, please open an issue on the GitHub repository.
