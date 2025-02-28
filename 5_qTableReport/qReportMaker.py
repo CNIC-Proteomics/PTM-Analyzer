@@ -389,26 +389,21 @@ def qReportDesign(config, quan, qTableD, contrast):
         q2info.columns = pd.MultiIndex.from_tuples([qTableD.columns[0] if n==0 else (i,'','') for n,i in enumerate(q2info.columns)])
         qTableD = pd.merge(q2info, qTableD, how='right', on=[qTableD.columns[0]])
     
-    if args.ptmmap and os.path.isdir(args.ptmmap):
-        ptmmap_path = args.ptmmap
-        ptmmap_path_relative = os.path.join('../../../../', os.path.basename(ptmmap_path))
-        qTableD = qTableD[[qTableD.columns[0]]].rename(columns={'':'NoFilt'}).join(qTableD)
+    if args.outdir:
+        ptmMapPath = os.path.join(args.outdir, config.get("path_plots_Without_threshold"))
+        ptmMapPathFDR = os.path.join(args.outdir, config.get("path_plots_with_threshold"))
         
-        ptmMapPath = os.path.join(ptmmap_path, f'{contrast}/plots')
-        if os.path.isdir(ptmMapPath):
-            plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPath)]
-            
-            ptmMapPathExcel = os.path.join(ptmmap_path_relative, f'{contrast}/plots')
+        if os.path.isdir(ptmMapPath):         
+            ptmMapPathExcel = os.path.join('../../../', ptmMapPath)
+            plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPath)]            
+            qTableD = qTableD[[qTableD.columns[0]]].rename(columns={'':'NoFilt'}).join(qTableD)
             qTableD[qTableD.columns[0]] = \
                 [f"=HYPERLINK(\"{os.path.join(ptmMapPathExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
             
-            ptmMapPathFDR = os.path.join(ptmmap_path, f'{contrast}/plots_FDR')
-            if os.path.isdir(ptmMapPathFDR):
+            if os.path.isdir(ptmMapPathFDR):                
+                ptmMapPathFDRExcel = os.path.join('../../../', ptmMapPathFDR)
+                plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPathFDR)]                
                 qTableD = qTableD[[qTableD.columns[1]]].rename(columns={'':'Filt'}).join(qTableD)
-                
-                plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPathFDR)]
-                
-                ptmMapPathFDRExcel = os.path.join(ptmmap_path_relative, f'{contrast}/plots_FDR')
                 qTableD[qTableD.columns[0]] = \
                     [f"=HYPERLINK(\"{os.path.join(ptmMapPathFDRExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
         
@@ -483,11 +478,11 @@ def qReportMergeUpDown(params):
 
 def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
     
-    outFolder = os.path.join(args.outdir, 'qReport', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}')
+    outFolder = os.path.join(args.outdir, 'qReports', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}')
     if not os.path.exists(outFolder):
         os.makedirs(outFolder, exist_ok=True)
     
-    qReportPath = os.path.join(outFolder, f'qReport-{fdr_i}_{sign_i}_{quan}.xlsx')
+    qReportPath = os.path.join(outFolder, f'qReports-{fdr_i}_{sign_i}_{quan}.xlsx')
     
     header = list(zip(*qTableD.columns.tolist()))
     qTableD.columns = np.arange(0, qTableD.shape[1])
@@ -658,7 +653,7 @@ def getBasalQReport(rep, qCol, qDescCol, pdmFreq, ptmCol):
         basal[freqType].index = pd.MultiIndex.from_tuples(basal[freqType].index)
         basal[freqType] = basal[freqType].iloc[1:, :]
         
-        outFolder = os.path.join(args.outdir, 'qReport', "Basal")
+        outFolder = os.path.join(args.outdir, 'qReports', "Basal")
         if not os.path.exists(outFolder):
             os.makedirs(outFolder, exist_ok=True)
         basal[freqType].to_csv(os.path.join(outFolder, f'Basal_{name}.tsv'), sep='\t')
