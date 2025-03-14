@@ -28,6 +28,7 @@ PTMap is a tool developed with the aim of visualizing, interpreting, and compari
 **Description:**
 This Python script enables a detailed exploration of significant changes at the protein level in a peptide-centric workflow. It generates an output table summarizing the number of modified and non-modified peptidoforms with significant increases or decreases, along with details on digestion status and qc clusters.
 
+For further information, consult the **[MODULES](MODULES.md)**.
 
 ## Example Commands
 
