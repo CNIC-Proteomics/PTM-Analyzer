@@ -1,47 +1,69 @@
-# TESTS
+# Samples
 
-## Tests 1: iSanXoT report from mouse heteroplasmia (heart)
+Ensure Python is installed on your system along with the required dependencies.
 
-### 1. NMpyCompare
-```
-python 1_NMpyCompare/NMpyCompare.py \
-  -i tests/heteroplasmic_heart/inputs/isanxot_report_q2all_pdm.tsv \
-  -c tests/heteroplasmic_heart/inputs/params.yml \
-  -o tests/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM.tsv
-```
+For further information, consult the [INSTALLATION Guide](INSTALLATION.md).
 
-### 2. ReportLimma
-```
-Rscript --vanilla 2_ReportLimma_wo_GUI/app_wo_GUI.R \
-  -i tests/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM.tsv \
-  -c tests/heteroplasmic_heart/inputs/params.yml \
-  -s tests/heteroplasmic_heart/inputs/limma_comparisons.tsv \
-  -o tests/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA.tsv
+
+## Samples 1: iSanXoT report from mouse heteroplasmia (Heart)
+
+Download sample files
+```bash
+cd samples && \
+wget https://zenodo.org/records/14446572/files/ReportAnalysis_Heteroplasmic_Heart.zip?download=1 -O ReportAnalysis_Heteroplasmic_Heart.zip && \
+unzip ReportAnalysis_Heteroplasmic_Heart.zip && \
+cd ..
 ```
 
-### 3. FDRoptimizer
+Execute the programs for the current sample:
+
+1. MergeiSanxotPDM:
 ```
-python 3_FDRoptimizer/FDRoptimizer.py \
-  -i tests/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA.tsv \
-  -c tests/heteroplasmic_heart/inputs/params.yml \
-  -o tests/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA_FDR.tsv
+python 1_MergeiSanxotPDM/MergeiSanxotPDM.py \
+  -i samples/heteroplasmic_heart/inputs/q2all.tsv \
+  -p samples/heteroplasmic_heart/inputs/experiment_PDMTable_GM_J.txt \
+  -o samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm.tsv
 ```
 
-### 4. PTMMap
+2. NMpyCompare:
 ```
-python 4_PTMMap/PTMMap.py \
-  -i tests/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA_FDR.tsv \
-  -c tests/heteroplasmic_heart/inputs/params.yml \
-  -o tests/heteroplasmic_heart/results/PTMMaps/H-C
-```
-
-### 5. qTableReport
-```
-python 5_qTableReport/qReportMaker.py \
-  -i tests/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA_FDR.tsv \
-  -q tests/heteroplasmic_heart/inputs/myMitocarta.tsv \
-  -p tests/heteroplasmic_heart/results/PTMMaps \
-  -c tests/heteroplasmic_heart/inputs/params.yml \
-  -o tests/heteroplasmic_heart/results/qReports
+python 2_NMpyCompare/NMpyCompare.py \
+  -i samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm.tsv \
+  -c samples/heteroplasmic_heart/inputs/params.yml \
+  -o samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM.tsv
 ```
 
+3. ReportLimma:
+```
+Rscript --vanilla 3_ReportLimma_wo_GUI/app_wo_GUI.R \
+  -i samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM.tsv \
+  -c samples/heteroplasmic_heart/inputs/params.yml \
+  -s samples/heteroplasmic_heart/inputs/limma_comparisons.tsv \
+  -o samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA.tsv
+```
+
+4. FDRoptimizer:
+```
+python 4_FDRoptimizer/FDRoptimizer.py \
+  -i samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA.tsv \
+  -c samples/heteroplasmic_heart/inputs/params.yml \
+  -o samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA_FDR.tsv
+```
+
+5. PTMMap:
+```
+python 5_PTMMap/PTMMap.py \
+  -i samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA_FDR.tsv \
+  -c samples/heteroplasmic_heart/inputs/params.yml \
+  -o samples/heteroplasmic_heart/results/PTMMaps/H-C
+```
+
+6. qTableReport:
+```
+python 6_qTableReport/qReportMaker.py \
+  -i samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA_FDR.tsv \
+  -q samples/heteroplasmic_heart/inputs/myMitocarta.tsv \
+  -p samples/heteroplasmic_heart/results/PTMMaps \
+  -c samples/heteroplasmic_heart/inputs/params.yml \
+  -o samples/heteroplasmic_heart/results/qReports
+```
