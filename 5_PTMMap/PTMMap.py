@@ -27,12 +27,16 @@ warnings.filterwarnings("ignore")
 ###################
 # Local functions #
 ###################
-def readInfile(infile):
+def readInfile(infile, pgm):
     '''    
     Read input file to dataframe.
     '''
     df = pd.read_csv(infile,sep="\t", encoding='latin',header=[0,1], low_memory=False)
     df.columns = df.columns.map('_'.join)
+
+    df = df.replace('#NUM!',np.nan)
+    df = df.drop_duplicates(subset=[pgm])
+
     return df
 
 def applyStructure(row,New_FDR,g,NM,a,first_b,New_LPS,LPS_pgm2p,LPS_pgm2p_NM,n,FDR_pgm,p,e,d,a_g_d,pgmFreq,dicc_FDRNM,pgmFreqThreshold):
@@ -73,12 +77,13 @@ def applyStructure(row,New_FDR,g,NM,a,first_b,New_LPS,LPS_pgm2p,LPS_pgm2p_NM,n,F
     else: 
         row[a_g_d] = row[a]
     return row
-def obtaindf (infile,pgm,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qf,FDR_qf2q,Missing_Cleavages,LPS_p2qf,LPS_qf2q,e,description, p,q,qf,pFreq,pgmFreq, qfFreq,d,NM,threshold_pgm2p,pgmFreqThreshold):
-    df = readInfile(infile)
+def obtaindf (df,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qf,FDR_qf2q,Missing_Cleavages,LPS_p2qf,LPS_qf2q,e,description, p,q,qf,pFreq,pgmFreq, qfFreq,d,NM,threshold_pgm2p,pgmFreqThreshold):
+# def obtaindf (infile,pgm,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qf,FDR_qf2q,Missing_Cleavages,LPS_p2qf,LPS_qf2q,e,description, p,q,qf,pFreq,pgmFreq, qfFreq,d,NM,threshold_pgm2p,pgmFreqThreshold):
+    # df = readInfile(infile)
 
    
-    df = df.replace('#NUM!',np.nan)
-    df = df.drop_duplicates(subset=[pgm])
+    # df = df.replace('#NUM!',np.nan)
+    # df = df.drop_duplicates(subset=[pgm])
     df = df.loc[:,[g, a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM, FDR_NM, FDR_pgm,FDR_p2qf, FDR_qf2q,Missing_Cleavages,LPS_p2qf, LPS_qf2q, e , description,p, q, qf, pFreq, qfFreq, pgmFreq,d]]
 
     df = df.rename(columns={New_FDR:"New_FDR",FDR_pgm:"FDR_pgm",g:"g", a: "a",n:"n",first_b : "first_b", LPS_pgm2p: "LPS_pgm2p",
@@ -254,80 +259,38 @@ def main(config):
     """
     logging.info("Reading PTMap configuration file")
 
-    pgm_first_header = config.get("pgm_column_name") 
-    g_first_header = config.get("g_column_name") 
-    a_first_header = config.get("a_column_name") 
-    n_first_header = config.get("n_column_name") 
-    e_first_header = config.get("e_column_name") 
-    p_first_header = config.get("p_column_name") 
-    q_first_header = config.get("q_column_name") 
-    d_first_header = config.get("d_column_name")
-    qf_first_header = config.get("qf_column_name") 
-    pFreq_first_header = config.get("pFreq_column_name")
-    qfFreq_first_header = config.get("qfFreq_column_name")
-    pgmFreq_first_header = config.get("pgmFreq_column_name")
-    first_b_first_header  = config.get("first_b_column_name") 
-    description_first_header = config.get("description_column_name")
-    Missing_Cleavages_first_header = config.get("Missing_Cleavages_column_name")
-    pgm_second_header = config.get("pgm_second_header_column_name") 
-    g_second_header = config.get("g_second_header_column_name") 
-    a_second_header = config.get("a_second_header_column_name") 
-    n_second_header = config.get("n_second_header_column_name") 
-    e_second_header = config.get("e_second_header_column_name") 
-    p_second_header = config.get("p_second_header_column_name") 
-    q_second_header = config.get("q_second_header_column_name") 
-    d_second_header = config.get("d_second_header_column_name")
-    qf_second_header = config.get("qf_second_header_column_name") 
-    pFreq_second_header = config.get("pFreq_second_header_column_name")
-    qfFreq_second_header = config.get("qfFreq_second_header_column_name")
-    pgmFreq_second_header = config.get("pgmFreq_second_header_column_name")
-    first_b_second_header  = config.get("first_b_second_header_column_name") 
-    description_second_header = config.get("description_second_header_column_name")
-    Missing_Cleavages_second_header = config.get("Missing_Cleavages_second_header_column_name")
+    # extract parameters
+    pgm_first_header, pgm_second_header = config.get("pgm_column_name", ["", ""])
+    pgm = f"{pgm_first_header}_{pgm_second_header}"
+    g_first_header, g_second_header = config.get("g_column_name", ["", ""])
+    g = f"{g_first_header}_{g_second_header}"
+    a_first_header, a_second_header = config.get("a_column_name", ["", ""])
+    a = f"{a_first_header}_{a_second_header}"
+    n_first_header, n_second_header = config.get("n_column_name", ["", ""])
+    n = f"{n_first_header}_{n_second_header}"
+    e_first_header, e_second_header = config.get("e_column_name", ["", ""])
+    e = f"{e_first_header}_{e_second_header}"
+    p_first_header, p_second_header = config.get("p_column_name", ["", ""])
+    p = f"{p_first_header}_{p_second_header}"
+    q_first_header, q_second_header = config.get("q_column_name", ["", ""])
+    q = f"{q_first_header}_{q_second_header}"
+    d_first_header, d_second_header = config.get("d_column_name", ["", ""])
+    d = f"{d_first_header}_{d_second_header}"
+    qf_first_header, qf_second_header = config.get("qf_column_name", ["", ""])
+    qf = f"{qf_first_header}_{qf_second_header}"
+    pFreq_first_header, pFreq_second_header = config.get("pFreq_column_name", ["", ""])
+    pFreq = f"{pFreq_first_header}_{pFreq_second_header}"
+    qfFreq_first_header, qfFreq_second_header = config.get("qfFreq_column_name", ["", ""])
+    qfFreq = f"{qfFreq_first_header}_{qfFreq_second_header}"
+    pgmFreq_first_header, pgmFreq_second_header = config.get("pgmFreq_column_name", ["", ""])
+    pgmFreq = f"{pgmFreq_first_header}_{pgmFreq_second_header}"
+    first_b_first_header, first_b_second_header = config.get("first_b_column_name", ["", ""])
+    first_b = f"{first_b_first_header}_{first_b_second_header}"
+    description_first_header, description_second_header = config.get("description_column_name", ["", ""])
+    description = f"{description_first_header}_{description_second_header}"
+    Missing_Cleavages_first_header, Missing_Cleavages_second_header = config.get("Missing_Cleavages_column_name", ["", ""])
+    Missing_Cleavages = f"{Missing_Cleavages_first_header}_{Missing_Cleavages_second_header}"
 
-    pgm =  pgm_first_header+"_"+pgm_second_header
-    g =  g_first_header+"_"+g_second_header
-    a =  a_first_header+"_"+a_second_header
-    n =  n_first_header+"_"+n_second_header
-    e =  e_first_header+"_"+e_second_header
-    p =  p_first_header+"_"+p_second_header
-    q =  q_first_header+"_"+q_second_header
-    d = d_first_header+"_"+d_second_header
-    qf = qf_first_header+"_"+qf_second_header
-    pFreq = pFreq_first_header+"_"+pFreq_second_header
-    qfFreq = qfFreq_first_header+"_"+qfFreq_second_header
-    pgmFreq = pgmFreq_first_header+"_"+pgmFreq_second_header
-    first_b  = first_b_first_header+"_"+first_b_second_header 
-    description = description_first_header+"_"+description_second_header
-    Missing_Cleavages=  Missing_Cleavages_first_header+"_"+Missing_Cleavages_second_header
-    
-    LPS_p2qf_first_header = config.get("LPS_p2qf_column_name") 
-    LPS_qf2q_first_header = config.get("LPS_qf2q_column_name") 
-    LPS_pgm2p_first_header = config.get("LPS_pgm2p_column_name") 
-    LPS_pgm2p_NM_first_header = config.get("LPS_pgm2p_NM_column_name")
-    LPS_p2qf_second_header = config.get("LPS_p2qf_second_header_column_name") 
-    LPS_qf2q_second_header = config.get("LPS_qf2q_second_header_column_name") 
-    LPS_pgm2p_second_header = config.get("LPS_pgm2p_second_header_column_name") 
-    LPS_pgm2p_NM_second_header = config.get("LPS_pgm2p_NM_second_header_column_name")
-
-    LPS_p2qf = LPS_p2qf_first_header+"_"+LPS_p2qf_second_header
-    LPS_qf2q = LPS_qf2q_first_header+"_"+LPS_qf2q_second_header
-    LPS_pgm2p =  LPS_pgm2p_first_header+"_"+LPS_pgm2p_second_header
-    LPS_pgm2p_NM = LPS_pgm2p_NM_first_header+"_"+LPS_pgm2p_NM_second_header
-    FDR_pgm_first_header  = config.get("Filter_pgm2p_NM_column_name") 
-    FDR_NM_first_header  = config.get("Filter_pgm2p_column_name") 
-    FDR_p2qf_first_header = config.get("Filter_p2qf_column_name") 
-    FDR_qf2q_first_header = config.get("Filter_qf2q_column_name")
-    FDR_pgm_second_header = config.get("Filter_pgm2p_NM_second_header_column_name") 
-    FDR_NM_second_header  = config.get("Filter_pgm2p_second_header_column_name") 
-    FDR_p2qf_second_header = config.get("Filter_p2qf_second_header_column_name") 
-    FDR_qf2q_second_header = config.get("Filter_qf2q_second_header_column_name") 
-    
-    FDR_pgm =FDR_pgm_first_header+"_"+FDR_pgm_second_header
-    FDR_NM  =FDR_NM_first_header+"_"+FDR_NM_second_header
-    FDR_p2qf =FDR_p2qf_first_header+"_"+FDR_p2qf_second_header
-    FDR_qf2q  =FDR_qf2q_first_header+"_"+FDR_qf2q_second_header
-    
     threshold_pgm2p_NM = config.get("threshold_pgm2p_NM") 
     threshold_pgm2p = config.get("threshold_pgm2p") 
     threshold_p2qf = config.get("threshold_p2qf") 
@@ -339,30 +302,53 @@ def main(config):
     path_plots_FDR = config.get("path_plots_with_threshold")
     path_plots = config.get("path_plots_Without_threshold")
 
-    # prepare workspaces
-    group_path_FDR = os.path.join(args.outdir, path_plots_FDR)
-    group_path = os.path.join(args.outdir, path_plots)
-    if not os.path.exists(group_path):
-        os.makedirs(group_path, exist_ok=False)
-    #else: 
-        #os.remove(group_path)
-        #os.mkdir(group_path) 
-    if not os.path.exists(group_path_FDR):
-        os.makedirs(group_path_FDR, exist_ok=False)
-    #else: 
-        #os.remove(group_path_FDR)
-        #os.mkdir(group_path_FDR)
-    logging.info("Processing input file")
-    df_final = obtaindf (args.infile,pgm,"New_FDR",g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qf,FDR_qf2q,Missing_Cleavages,LPS_p2qf,LPS_qf2q,e,description, p,q,qf,pFreq,pgmFreq, qfFreq,d,NM,threshold_pgm2p,pgmFreqThreshold)
+    groups = config.get("groups")
 
+    logging.info(f"Reading input file: {args.infile}...")
+    df = readInfile(args.infile,pgm)
+
+    logging.info(f'Processing by groups: {groups}')
+    for grp in groups:
+        logging.info(f"- preparing workspace for '{grp}'...")
+        # prepare workspaces
+        group_path_FDR = os.path.join(args.outdir, path_plots_FDR, grp)
+        group_path = os.path.join(args.outdir, path_plots, grp)
+        if not os.path.exists(group_path):
+            os.makedirs(group_path, exist_ok=False)
+        if not os.path.exists(group_path_FDR):
+            os.makedirs(group_path_FDR, exist_ok=False)
+
+        logging.info(f'- preparing parameters...')
+
+        # read LPS column mappings
+        LPS_mappings = config.get("LPS_ColumnNames", [])
+        LPS_p2qf = f"{LPS_mappings[0][0]}_{grp}_{LPS_mappings[0][1]}"
+        LPS_qf2q = f"{LPS_mappings[1][0]}_{grp}_{LPS_mappings[1][1]}"
+        LPS_pgm2p = f"{LPS_mappings[2][0]}_{grp}_{LPS_mappings[2][1]}"
+        LPS_pgm2p_NM = f"{LPS_mappings[3][0]}_{grp}_{LPS_mappings[3][1]}"
+
+        # read NM column mappings
+        NM_mappings = config.get("NM_ColumnNames", [])
+        FDR_pgm = f"{NM_mappings[0][0]}_{grp}_{NM_mappings[0][1]}"
+        FDR_NM = f"{NM_mappings[1][0]}_{grp}_{NM_mappings[1][1]}"
+
+        # read Filter column mappings
+        Filter_mappings = config.get("Filter_ColumnNames", [])
+        FDR_p2qf = f"{Filter_mappings[0][0]}_{grp}_{Filter_mappings[0][1]}"
+        FDR_qf2q = f"{Filter_mappings[1][0]}_{grp}_{Filter_mappings[1][1]}"
+
+        logging.info("- obtaining group data...")
+        df_final = obtaindf (df,"New_FDR",g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qf,FDR_qf2q,Missing_Cleavages,LPS_p2qf,LPS_qf2q,e,description, p,q,qf,pFreq,pgmFreq, qfFreq,d,NM,threshold_pgm2p,pgmFreqThreshold)
+
+        logging.info("- preparing data...")
+        df_p2qf,df_p2qf_filtered, dfqf_2,dfqf_2_filtered,dfpgm, dfpgm_filtered, listproteins= TablesMaker (df_final,threshold_p2qf,NM,"New_LPS","New_FDR",threshold_pgm2p,FDR_qf2q,threshold_qf2q)
+        logging.info("- plotting filtered data...")
+        plotting(df_p2qf_filtered,dfpgm_filtered,dfqf_2_filtered,group_path_FDR,listproteins)
+        logging.info("- plotting all data...")
+        plotting(df_p2qf,dfpgm,dfqf_2,group_path,listproteins)
     
-    logging.info("Preparing data")
-    df_p2qf,df_p2qf_filtered, dfqf_2,dfqf_2_filtered,dfpgm, dfpgm_filtered, listproteins= TablesMaker (df_final,threshold_p2qf,NM,"New_LPS","New_FDR",threshold_pgm2p,FDR_qf2q,threshold_qf2q)
-    logging.info("Plotting")
-    plotting(df_p2qf_filtered,dfpgm_filtered,dfqf_2_filtered,group_path_FDR,listproteins)
-    plotting(df_p2qf,dfpgm,dfqf_2,group_path,listproteins)
-    
-    logging.info("end of the script")
+
+
 if __name__ == '__main__':
 
     # parse arguments
@@ -408,6 +394,5 @@ if __name__ == '__main__':
 
     # start main function
     logging.info('start script: '+"{0}".format(" ".join([x for x in sys.argv])))
-    
-    
     main(config)
+    logging.info("end of the script")
