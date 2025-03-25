@@ -1,173 +1,179 @@
 #
-# PARAMETERS: qTableMaker.yaml
+# PARAMETERS: qReportMaker
 #
 qReportMaker:
 
-    # Number of works in parallel
-    n_cpu: 8 
+  # Number of works in parallel
+  n_cpu: 8
 
-    # FDR threshold used
-    qvThr:
-        - 0.01
-        - 0.05
-    #    - 0.1
-    #    - 1
+  # Folder where the outputs will be saved
+  outDirName: qReports
 
-    # Group contrasts to be analysed
-    groups:
-        - H-C
-    #    - Control-Heteroplasmy
+  # Folder names of PTMMaps
+  path_plots_with_threshold: PTMmaps_FDR
+  path_plots_Without_threshold: PTMmaps
 
+  # FDR threshold used
+  qvThr:
+    - 0.01
+    - 0.05
+    - 0.1
 
-    #
-    # Columns information
-    #
-
-    # First row column name
-    # Second row column name
-
-    # Column name containing group
-    gCol: 
-        - g2
-        - REL
+  # Group contrasts to be analysed
+  groups:
+    - H-C
 
 
-    # Column name containing modified aminoacid
-    aCol: 
-        - a
-        - REL
-        
-    # Column name containing peptide position of modification
-    mCol: 
-        - m
-        - REL
+  #
+  # Columns information
+  #
 
-    # Name of the group corresponding to non-modified
-    NMgroup: NM
+  # First row column name
+  # Second row column name
 
-
-    #
-    # LEVELS
-    #
-
-    # Column containing pgm in the following format: PEP[MOD]TIDE
-    pdmCol:
-        - pgm
-        - LEVEL
-
-    # Column containing p
-    pCol:
-        - p
-        - LEVEL
-
-    # Column containing qf
-    qfCol:
-        - qf
-        - LEVEL
-
-    # Column containing q
-    qCol:
-        - q
-        - REL
-
-    # Column containing protein description
-    qDescCol:
-        - description
-        - REL
-
-    #
-    # Frequencies
-    #
-
-    # Column containing scan frequency of pgm
-    pdmFreq:
-        - pgmFreq
-        - REL
-
-    # Column containing scan frequency of p 
-    pFreq:
-        - pFreq
-        - REL
-
-    # Column containing scan frequency of qf
-    qfFreq:
-        - qfFreq
-        - REL
-
-    # Column containing protein frequency
-    qFreq:
-        - qFreq
-        - REL
-
-    #
-    # Mean differences
-    #
-
-    # Column containing positive values for "up" pgm and negative values for "down"
-    # pgm in Z_pdm2p_dNM. For example, mean difference between Treatment Group and Control Group
-    sign:
-        - Z_pgm2p_dNM_dX
-        - dX
-
-    # Column containing positive values for "up" pdm_NM and negative values for "down"
-    # pdm in Z_pdm2p (without NM correction). For example, mean difference between Treatment Group and Control Group
-    signNM:
-        - Z_pgm2p_dX
-        - dX
-
-    sign_p:
-        - Z_p2qf_dX
-        - dX
-        
-    sign_qf:
-        - Z_qf2qfq_dX
-        - dX
-        
-
-    #
-    # qValue/pValue
-    #
-
-    # Column containing qvalue/pvalue for Z_pgm2p_dNM (pgm corrected by their non modified version)
-    qvalue_dNM:
-        - Z_pgm2p_dNM_limma
-        - qvalue
-
-    # Column containing qvalue/pvalue for Z_pgm2p considering only non modified pgm
-    qvalue_NM:
-        - Z_pgm2p_limma_NM_ONLY
-        - qvalue
-
-    # Column containing qvalue of p
-    qvalue_p:
-        - Z_p2qf_limma
-        - qvalue
-        
-    # Column containing qvalue of qf
-    qvalue_qf:
-        - Z_qf2qfq_limma
-        - qvalue
-
-    # Column containing number of missing cleavages
-    missing_cleavages:
-        - Missing_Cleavages
-        - REL
+  # Column name containing group
+  gCol: 
+    - g
+    - REL
 
 
-    #
-    # PTM Frequency Table options
-    #
+  # Column name containing modified aminoacid
+  aCol: 
+    - a
+    - REL
+      
+  # Column name containing peptide position of modification
+  mCol: 
+    - m
+    - REL
 
-    # Window size used to estimate probability
-    x: 5
+  # Name of the group corresponding to non-modified
+  NMgroup: NM
 
-    # q-value column used to filter PTM (aa, dm)
-    # Possible values: 'binom1-PSM', 'binom1-PDM', 'binom2-PSM', 'binom2-PDM'
-    binom: binom1-PSM
 
-    # Binomial q-value threshold applied to filter PTM
-    q_thr: 0.01
+  #
+  # LEVELS
+  #
 
-    # Values represented in pivot table
-    # Possible values: 'x-PSM', 'x-PDM'
-    values_pivot: x-PSM
+  # Column containing pgm in the following format: PEP[MOD]TIDE
+  pdmCol:
+    - pgm
+    - LEVEL
+
+  # Column containing p
+  pCol:
+    - p
+    - LEVEL
+
+  # Column containing qf
+  qfCol:
+    - qf
+    - LEVEL
+
+  # Column containing q
+  qCol:
+    - q
+    - LEVEL
+
+  # Column containing protein description
+  qDescCol:
+    - description
+    - REL
+
+  #
+  # Frequencies
+  #
+
+  # Column containing scan frequency of pgm
+  pdmFreq:
+    - pgmFreq
+    - REL
+
+  # Column containing scan frequency of p 
+  pFreq:
+    - pFreq
+    - REL
+
+  # Column containing scan frequency of qf
+  qfFreq:
+    - qfFreq
+    - REL
+
+  # Column containing protein frequency
+  qFreq:
+    - qFreq
+    - REL
+
+  #
+  # Mean differences
+  #
+
+  # Column containing positive values for "up" pgm and negative values for "down"
+  # pgm in Z_pdm2p_dNM. For example, mean difference between Treatment Group and Control Group
+  sign:
+    - Z_pgm2p_dNM_dX
+    - dX
+
+  # Column containing positive values for "up" pdm_NM and negative values for "down"
+  # pdm in Z_pdm2p (without NM correction). For example, mean difference between Treatment Group and Control Group
+  signNM:
+    - Z_pgm2p_dX
+    - dX
+
+  sign_p:
+    - Z_p2qf_dX
+    - dX
+      
+  sign_qf:
+    - Z_qf2q_dX
+    - dX
+      
+
+  #
+  # qValue/pValue
+  #
+
+  # Column containing qvalue/pvalue for Z_pgm2p_dNM (pgm corrected by their non modified version)
+  qvalue_dNM:
+    - Z_pgm2p_dNM_limma
+    - qvalue
+
+  # Column containing qvalue/pvalue for Z_pgm2p considering only non modified pgm
+  qvalue_NM:
+    - Z_pgm2p_limma_NM_ONLY
+    - qvalue
+
+  # Column containing qvalue of p
+  qvalue_p:
+    - Z_p2qf_limma
+    - qvalue
+      
+  # Column containing qvalue of qf
+  qvalue_qf:
+    - Z_qf2q_limma
+    - qvalue
+
+  # Column containing number of missing cleavages
+  missing_cleavages:
+    - Missing_Cleavage
+    - REL
+
+
+  #
+  # PTM Frequency Table options
+  #
+
+  # Window size used to estimate probability
+  x: 5
+
+  # q-value column used to filter PTM (aa, dm)
+  # Possible values: 'binom1-PSM', 'binom1-PDM', 'binom2-PSM', 'binom2-PDM'
+  binom: binom1-PSM
+
+  # Binomial q-value threshold applied to filter PTM
+  q_thr: 0.01
+
+  # Values represented in pivot table
+  # Possible values: 'x-PSM', 'x-PDM'
+  values_pivot: x-PSM
+

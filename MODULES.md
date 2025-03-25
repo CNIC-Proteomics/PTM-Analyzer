@@ -30,39 +30,64 @@ On the x-axis, the position of each residue of the protein is represented. Speci
 
 - **Input:**
   - `.tsv` file with limma p-values and -LPS calculated for each integration.
-  - Configuration file (`.ini`): There is a default `.ini` in the “config” folder:
+  - Configuration file (`.yml`)
     - PTMMap parameters:
       ```
-      pgm_column_name: pgm column name.
-      g_column_name: group column name.
-      a_column_name: modified residue column name.
-      n_column_name: modified position within the protein column name.
-      e_column_name: position of the last residue of the peptide within the protein column name.
-      p_column_name: peptide column name.
-      q_column_name: protein column name.
-      d_column_name: Δmass column name.
-      qc_column_name: cluster containing overlapping peptides column name.
-      pFreq_column_name: peptide frequency column name.
-      qcFreq_column_name: qc frequency column name.
-      pgmFreq_column_name: pgm frequency column name.
-      first_b_column_name: position in protein of the first residue of the peptide.
-      description_column_name: description of the protein column name.
-      Missing_Cleavages_column_name: number of missing cleavages column name.
-      LPS_p2qc_column_name: -LPS of p2qc integration column name.
-      LPS_qc2q_column_name: -LPS of qc2q integration column name.
-      LPS_pgm2p_column_name: -LPS of pgm2p integration column name.
-      LPS_pgm2p_NM_column_name: -LPS of pgm2p integration only with the unmodified peptides column name.
-      Filter_pgm2p_NM_column_name: filtering column (FDR, p-value) of pgm2p integration corrected by NMCompare.
-      Filter_pgm2p_column_name: filtering column (FDR, p-value) of pgm2p integration calculated only with NM.
-      Filter_p2qc_column_name: filtering column (FDR, p-value) of p2qc integration.
-      Filter_qc2q_column_name: filtering column (FDR, p-value) of qc2q integration.
-      threshold_pgm2p_NM: threshold of filtering column (pgm2p integration only with unmodified peptides).
-      threshold_pgm2p: threshold of filtering column (pgm2p integration).
-      threshold_p2qc: threshold of filtering column (p2qc integration).
-      threshold_qc2q: threshold of filtering column (qc2q integration).
-      NM: non-modified peptides group.
-      path_plots_with_threshold: folder in which filtered PTM Maps will be saved.
-      path_plots_Without_threshold: folder in which PTM maps, without filters, will be saved.
+      PTMMap:
+        # Folder in which filtered PTM Maps will be saved
+        path_plots_with_threshold: PTMmaps_FDR
+        path_plots_Without_threshold: PTMmaps
+
+        # Required column names
+        pgm_column_name: [pgm, LEVEL]
+        g_column_name: [g, REL]
+        a_column_name: [a, REL]
+        n_column_name: [n, REL]
+        e_column_name: [e, REL]
+        p_column_name: [p, LEVEL]
+        q_column_name: [q, LEVEL]
+        d_column_name: [d, REL]
+        qf_column_name: [qf, LEVEL]
+        pFreq_column_name: [pFreq, REL]
+        qfFreq_column_name: [qfFreq, REL]
+        pgmFreq_column_name: [pgmFreq, REL]
+        first_b_column_name: [first_b, REL]
+        description_column_name: [description, REL]
+        Missing_Cleavages_column_name: [Missing_Cleavage, REL]
+
+        # How Non-modified are named
+        NM: NM
+
+        # Group to be analysed
+        groups:
+          - H-C
+
+        # LPS integrations for: p2qf, qf2q, pfm2p, pgm2p_MN
+        # [LowLevel_firstRow, LowLevel_secondRow]
+        LPS_ColumnNames:
+          - [Z_p2qf_logLimma, LPS]
+          - [Z_qf2q_logLimma, LPS]
+          - [Z_pgm2p_logLimma, LPS]
+          - [Z_pgm2p_dNM_logLimma, LPS]
+
+        # NM comparison for pgm2p integrations
+        # [LowLevel_firstRow, LowLevel_secondRow]
+        NM_ColumnNames:
+          - [Z_pgm2p_dNM_limma, qvalue]
+          - [Z_pgm2p_limma_NM_ONLY, qvalue]
+
+        # Filter integrations for: p2qf, qf2q
+        # [LowLevel_firstRow, LowLevel_secondRow]
+        Filter_ColumnNames:
+          - [Z_p2qf_limma, qvalue]
+          - [Z_qf2q_limma, qvalue]
+
+        # Threshold of filtering for the given integrations: pgm2p_NM, pgm2p, p2qf, qf2q
+        threshold_pgm2p_NM: 0.05
+        threshold_pgm2p: 0.05
+        threshold_p2qf: 0.05
+        threshold_qf2q: 0.05
+        pgmFreqThreshold: 0
       ```
 
 - **Output:**

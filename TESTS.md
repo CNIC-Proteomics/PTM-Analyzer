@@ -32,6 +32,10 @@ python 2_NMpyCompare/NMpyCompare.py \
   -c samples/heteroplasmic_heart/inputs/params.yml \
   -o samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM.tsv
 ```
+python 2_NMpyCompare/NMpyCompare.py \
+  -i samples/heteroplasmic_heart/inputs/q2all-pdmTMerged.tsv \
+  -c samples/heteroplasmic_heart/inputs/params.yml \
+  -o samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM.tsv
 
 3. ReportLimma:
 ```
@@ -55,7 +59,7 @@ python 4_FDRoptimizer/FDRoptimizer.py \
 python 5_PTMMap/PTMMap.py \
   -i samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA_FDR.tsv \
   -c samples/heteroplasmic_heart/inputs/params.yml \
-  -o samples/heteroplasmic_heart/results/PTMMaps/H-C
+  -o samples/heteroplasmic_heart/results
 ```
 
 6. qTableReport:
@@ -63,7 +67,6 @@ python 5_PTMMap/PTMMap.py \
 python 6_qTableReport/qReportMaker.py \
   -i samples/heteroplasmic_heart/results/isanxot_report_q2all_pdm_NM_LIMMA_FDR.tsv \
   -q samples/heteroplasmic_heart/inputs/myMitocarta.tsv \
-  -p samples/heteroplasmic_heart/results/PTMMaps \
   -c samples/heteroplasmic_heart/inputs/params.yml \
-  -o samples/heteroplasmic_heart/results/qReports
+  -o samples/heteroplasmic_heart/results
 ```

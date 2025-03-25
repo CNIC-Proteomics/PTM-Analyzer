@@ -3,65 +3,56 @@
 #
 PTMMap:
 
-  pgm_column_name: pgm
-  pgm_second_header_column_name: LEVEL
-  g_column_name: g
-  g_second_header_column_name: REL
-  a_column_name: a
-  a_second_header_column_name: REL
-  n_column_name: n
-  n_second_header_column_name: REL
-  e_column_name: e
-  e_second_header_column_name: REL
-  p_column_name: p
-  p_second_header_column_name: LEVEL
-  q_column_name: q
-  q_second_header_column_name: LEVEL
-  d_column_name: d
-  d_second_header_column_name: REL
-  qf_column_name: qf
-  qf_second_header_column_name: LEVEL
-  pFreq_column_name: pFreq
-  pFreq_second_header_column_name: REL
-  qfFreq_column_name: qfFreq
-  qfFreq_second_header_column_name: REL
-  pgmFreq_column_name: pgmFreq
-  pgmFreq_second_header_column_name: REL
-  first_b_column_name: first_b
-  first_b_second_header_column_name: REL
-  description_column_name: description
-  description_second_header_column_name: REL
-  Missing_Cleavages_column_name: Missing_Cleavage
-  Missing_Cleavages_second_header_column_name: REL
+  # Folder in which filtered PTM Maps will be saved
+  path_plots_with_threshold: PTMmaps_FDR
+  path_plots_Without_threshold: PTMmaps
 
-  LPS_p2qf_column_name: Z_p2qf_logLimma_H-C # -LPS of p2qf integration
-  LPS_qf2q_column_name: Z_qf2q_logLimma_H-C # -LPS of qf2q integration
-  LPS_pgm2p_column_name: Z_pgm2p_logLimma_H-C # -LPS of pfm2p integration
-  LPS_pgm2p_NM_column_name: Z_pgm2p_dNM_logLimma_H-C # -LPS of pgm2p_MN integration
+  pgm_column_name: [pgm, LEVEL]
+  g_column_name: [g, REL]
+  a_column_name: [a, REL]
+  n_column_name: [n, REL]
+  e_column_name: [e, REL]
+  p_column_name: [p, LEVEL]
+  q_column_name: [q, LEVEL]
+  d_column_name: [d, REL]
+  qf_column_name: [qf, LEVEL]
+  pFreq_column_name: [pFreq, REL]
+  qfFreq_column_name: [qfFreq, REL]
+  pgmFreq_column_name: [pgmFreq, REL]
+  first_b_column_name: [first_b, REL]
+  description_column_name: [description, REL]
+  Missing_Cleavages_column_name: [Missing_Cleavage, REL]
 
-  LPS_p2qf_second_header_column_name: LPS
-  LPS_qf2q_second_header_column_name: LPS
-  LPS_pgm2p_second_header_column_name: LPS
-  LPS_pgm2p_NM_second_header_column_name: LPS
+  # How Non-modified are named
+  NM: NM
 
-  Filter_pgm2p_NM_column_name: Z_pgm2p_dNM_limma_H-C # Filtering column (qvalues, pvalue, etc.) of pgm2p integration corrected by NMCompare.py
-  Filter_pgm2p_column_name: Z_pgm2p_limma_NM_ONLY_H-C # Filtering column (qvalues, pvalue, etc.) of pgm2p integration calculated ONLY with NM
-  Filter_p2qf_column_name: Z_p2qf_limma_H-C # Filtering column (qvalues, pvalue, etc.) of p2qf integration
-  Filter_qf2q_column_name: Z_qf2q_limma_H-C # Filtering column (qvalues, pvalue, etc.) of qf2q integration
+  # Group to be analysed
+  groups:
+    - H-C
 
-  Filter_pgm2p_NM_second_header_column_name: qvalue
-  Filter_pgm2p_second_header_column_name: qvalue
-  Filter_p2qf_second_header_column_name: qvalue
-  Filter_qf2q_second_header_column_name: qvalue
+  # LPS integrations for: p2qf, qf2q, pfm2p, pgm2p_MN
+  # [LowLevel_firstRow, LowLevel_secondRow]
+  LPS_ColumnNames:
+    - [Z_p2qf_logLimma, LPS]
+    - [Z_qf2q_logLimma, LPS]
+    - [Z_pgm2p_logLimma, LPS]
+    - [Z_pgm2p_dNM_logLimma, LPS]
 
-  threshold_pgm2p_NM: 0.05 # Threshold of filtering column (pgm2p_NM integration)
-  threshold_pgm2p: 0.05 # Threshold of filtering column (pgm2p integration)
-  threshold_p2qf: 0.05 # Threshold of filtering column (p2qf integration)
-  threshold_qf2q: 0.05 # Threshold of filtering column (qf2q integration)
+  # NM comparison for pgm2p integrations
+  # [LowLevel_firstRow, LowLevel_secondRow]
+  NM_ColumnNames:
+    - [Z_pgm2p_dNM_limma, qvalue]
+    - [Z_pgm2p_limma_NM_ONLY, qvalue]
 
-  pgmFreqThreshold: 0 # Threshold
+  # Filter integrations for: p2qf, qf2q
+  # [LowLevel_firstRow, LowLevel_secondRow]
+  Filter_ColumnNames:
+    - [Z_p2qf_limma, qvalue]
+    - [Z_qf2q_limma, qvalue]
 
-  NM: NM # How Non-modified are named
-
-  path_plots_with_threshold: plots_FDR # Folder in which filtered PTM Maps will be saved
-  path_plots_Without_threshold: plots # Folder in which completed PTM Maps will be saved
+  # Threshold of filtering for the given integrations: pgm2p_NM, pgm2p, p2qf, qf2q
+  threshold_pgm2p_NM: 0.05
+  threshold_pgm2p: 0.05
+  threshold_p2qf: 0.05
+  threshold_qf2q: 0.05
+  pgmFreqThreshold: 0

@@ -478,7 +478,7 @@ def qReportMergeUpDown(params):
 
 def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
     
-    outFolder = os.path.join(args.outdir, 'qReports', contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}')
+    outFolder = os.path.join(args.outdir, config['outDirName'], contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}')
     if not os.path.exists(outFolder):
         os.makedirs(outFolder, exist_ok=True)
     
@@ -653,7 +653,7 @@ def getBasalQReport(rep, qCol, qDescCol, pdmFreq, ptmCol):
         basal[freqType].index = pd.MultiIndex.from_tuples(basal[freqType].index)
         basal[freqType] = basal[freqType].iloc[1:, :]
         
-        outFolder = os.path.join(args.outdir, 'qReports', "Basal")
+        outFolder = os.path.join(args.outdir, config['outDirName'], "Basal")
         if not os.path.exists(outFolder):
             os.makedirs(outFolder, exist_ok=True)
         basal[freqType].to_csv(os.path.join(outFolder, f'Basal_{name}.tsv'), sep='\t')
