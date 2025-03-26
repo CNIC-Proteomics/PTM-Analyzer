@@ -1,4 +1,16 @@
 ___
+## v1.02
+
+### Date 📅 *2025_03*
+
+### Changes in detail
+
++ Update and improve documentation.
++ Update the PTMMap program to accept simplified input parameters.
++ PTM maps are obtained by group.
+
+
+___
 ## v1.01
 
 ### Date 📅 *2025_02*
