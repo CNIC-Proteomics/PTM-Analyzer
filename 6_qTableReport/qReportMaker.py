@@ -390,23 +390,23 @@ def qReportDesign(config, quan, qTableD, contrast):
         qTableD = pd.merge(q2info, qTableD, how='right', on=[qTableD.columns[0]])
     
     if args.outdir:
-        ptmMapPath = os.path.join(args.outdir, config.get("path_plots_Without_threshold"))
-        ptmMapPathFDR = os.path.join(args.outdir, config.get("path_plots_with_threshold"))
+        ptmMapPath = os.path.join(args.outdir, config.get("path_plots_Without_threshold"), contrast)
+        ptmMapPathFDR = os.path.join(args.outdir, config.get("path_plots_with_threshold"), contrast)
+        ptmMapPathExcel = os.path.join('../../../', os.path.join(config.get("path_plots_Without_threshold"), contrast))
+        ptmMapPathFDRExcel = os.path.join('../../../', os.path.join(config.get("path_plots_with_threshold"), contrast))
         
-        if os.path.isdir(ptmMapPath):         
-            ptmMapPathExcel = os.path.join('../../../', ptmMapPath)
-            plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPath)]            
+        if os.path.isdir(ptmMapPath):
+            plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPath)]
             qTableD = qTableD[[qTableD.columns[0]]].rename(columns={'':'NoFilt'}).join(qTableD)
             qTableD[qTableD.columns[0]] = \
                 [f"=HYPERLINK(\"{os.path.join(ptmMapPathExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
             
-            if os.path.isdir(ptmMapPathFDR):                
-                ptmMapPathFDRExcel = os.path.join('../../../', ptmMapPathFDR)
-                plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPathFDR)]                
-                qTableD = qTableD[[qTableD.columns[1]]].rename(columns={'':'Filt'}).join(qTableD)
-                qTableD[qTableD.columns[0]] = \
-                    [f"=HYPERLINK(\"{os.path.join(ptmMapPathFDRExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
-        
+        if os.path.isdir(ptmMapPathFDR):
+            plotted_q = [os.path.splitext(i)[0] for i in os.listdir(ptmMapPathFDR)]                
+            qTableD = qTableD[[qTableD.columns[1]]].rename(columns={'':'Filt'}).join(qTableD)
+            qTableD[qTableD.columns[0]] = \
+                [f"=HYPERLINK(\"{os.path.join(ptmMapPathFDRExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
+
     return qTableD
 
 
