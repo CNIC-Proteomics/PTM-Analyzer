@@ -12,7 +12,7 @@ For further information, consult the [INSTALLATION Guide](INSTALLATION.md).
 + On Linux:
 ```bash
 cd samples && \
-wget https://zenodo.org/records/15090841/files/heteroplasmic_heart.zip?download=1 && \
+wget https://zenodo.org/records/15090841/files/heteroplasmic_heart.zip?download=1 -O heteroplasmic_heart.zip && \
 unzip heteroplasmic_heart.zip && \
 cd ..
 ```
