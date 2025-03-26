@@ -5,17 +5,31 @@ Ensure Python is installed on your system along with the required dependencies.
 For further information, consult the [INSTALLATION Guide](INSTALLATION.md).
 
 
-## Samples 1: iSanXoT report from mouse heteroplasmia (Heart)
+## Samples 1: iSanXoT Report and PDM table for Mouse Heteroplasmia (Heart)
 
-Download sample files
+### Download the sample files:
+
++ On Linux:
 ```bash
 cd samples && \
-wget https://zenodo.org/records/14446572/files/ReportAnalysis_Heteroplasmic_Heart.zip?download=1 -O ReportAnalysis_Heteroplasmic_Heart.zip && \
-unzip ReportAnalysis_Heteroplasmic_Heart.zip && \
+wget https://zenodo.org/records/15090841/files/heteroplasmic_heart.zip?download=1 && \
+unzip heteroplasmic_heart.zip && \
 cd ..
 ```
 
-Execute the programs for the current sample:
+or
+
++ On Windows:
+```batch
+@echo off
+mkdir samples
+cd samples
+curl -L -o heteroplasmic_heart.zip https://zenodo.org/records/15090841/files/heteroplasmic_heart.zip?download=1 
+powershell -Command "Expand-Archive -Path heteroplasmic_heart.zip -DestinationPath ."
+cd ..
+```
+
+### Execute the programs for the current sample:
 
 1. MergeiSanxotPDM:
 ```
@@ -66,3 +80,20 @@ python 6_qTableReport/qReportMaker.py \
   -c samples/heteroplasmic_heart/inputs/params.yml \
   -o samples/heteroplasmic_heart/results
 ```
+
+## Samples 2: iSanXoT Report and PDM table for Mouse Heteroplasmia (Liver)
+
+You can download the input files for this sample from the following URL:
+
+https://zenodo.org/records/15090841/files/heteroplasmic_liver.zip?download=1
+
+To execute the pipeline, follow the same steps as in Sample 1.
+
+
+## Samples 3: iSanXoT Report and PDM table for Mouse Heteroplasmia (Muscle)
+
+You can download the input files for this sample from the following URL:
+
+https://zenodo.org/records/15090841/files/heteroplasmic_muscle.zip?download=1
+
+To execute the pipeline, follow the same steps as in Sample 1.
