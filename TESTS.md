@@ -12,7 +12,7 @@ For further information, consult the [INSTALLATION Guide](INSTALLATION.md).
 + On Linux:
 ```bash
 cd samples && \
-wget https://zenodo.org/records/15090841/files/heteroplasmic_heart.zip?download=1 -O heteroplasmic_heart.zip && \
+wget https://zenodo.org/records/15096447/files/heteroplasmic_heart.zip?download=1 -O heteroplasmic_heart.zip && \
 unzip heteroplasmic_heart.zip && \
 cd ..
 ```
@@ -24,7 +24,7 @@ or
 @echo off
 mkdir samples
 cd samples
-curl -L -o heteroplasmic_heart.zip https://zenodo.org/records/15090841/files/heteroplasmic_heart.zip?download=1 
+curl -L -o heteroplasmic_heart.zip https://zenodo.org/records/15096447/files/heteroplasmic_heart.zip?download=1 
 powershell -Command "Expand-Archive -Path heteroplasmic_heart.zip -DestinationPath ."
 cd ..
 ```
@@ -85,7 +85,7 @@ python 6_qTableReport/qReportMaker.py \
 
 You can download the input files for this sample from the following URL:
 
-https://zenodo.org/records/15090841/files/heteroplasmic_liver.zip?download=1
+https://zenodo.org/records/15096447/files/heteroplasmic_liver.zip?download=1
 
 To execute the pipeline, follow the same steps as in Sample 1.
 
@@ -94,6 +94,6 @@ To execute the pipeline, follow the same steps as in Sample 1.
 
 You can download the input files for this sample from the following URL:
 
-https://zenodo.org/records/15090841/files/heteroplasmic_muscle.zip?download=1
+https://zenodo.org/records/15096447/files/heteroplasmic_muscle.zip?download=1
 
 To execute the pipeline, follow the same steps as in Sample 1.
