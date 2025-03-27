@@ -7,7 +7,7 @@ carpetas = ['1_MergeiSanxotPDM', '2_NMpyCompare', '3_ReportLimma_wo_GUI', '4_FDR
 exclude = ["\\test", "\\__pycache__"]
 
 # Nombre del archivo ZIP de salida
-nombre_zip = 'ReportAnalysis-v1.02.zip'
+nombre_zip = 'ReportAnalysis-v1.03.zip'
 
 # Crear un archivo ZIP
 with zipfile.ZipFile(nombre_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:

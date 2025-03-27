@@ -1,4 +1,14 @@
 ___
+## v1.03
+
+### Date 📅 *2025_03*
+
+### Changes in detail
+
++ New update to the PTMMap program: includes plot parameters, the ability to download the map in SVG format, and more.
+
+
+___
 ## v1.02
 
 ### Date 📅 *2025_03*
