@@ -1,24 +1,28 @@
 # Modules
 
-1. [NMpyCompare](#1-nmpycompare)
-2. [ReportLimma](#2-reportlimma)
-3. [FDRoptimizer](#3-fdroptimizer)
-4. [PTMMap](#4-ptmmap)
-5. [qTableReport](#5-qtablereport)
+1. [MergeiSanxotPDM](#1-mergeisanxotpdm)
+2. [NMpyCompare](#2-nmpycompare)
+3. [ReportLimma](#3-reportlimma)
+4. [FDRoptimizer](#4-fdroptimizer)
+5. [PTMMap](#5-ptmmap)
+6. [qTableReport](#6-qtablereport)
 
-### 1. NMpyCompare
+### 1. MergeiSanxotPDM
+This Python script merges the iSanXoT report of protein2proteinall with the PDM table.
+
+### 2. NMpyCompare
 
 This module calculates NM-corrected values from the iSanXoT report. It subtracts the Zpgm2p value of the associated non-modified peptidoform from the Zpgm2p value of each modified peptidoform. Users can specify column names for integration levels, quantitative values, and criteria for identifying non-modified peptidoforms through the configuration file. The NM-corrected values are then appended as new columns in the iSanXoT report.
 
-### 2. ReportLimma
+### 3. ReportLimma
 
 This script performs hypothesis testing for comparisons between different groups across integration levels using the **limma** package. It computes p-values for statistical contrasts, the mean difference between groups, and the LPS value (-log(p-value) adjusted by the sign of the mean difference).
 
-### 3. FDRoptimizer
+### 4. FDRoptimizer
 
 Implemented in Python, this script applies an iterative algorithm to optimize the spectral count threshold at each integration step. It scans different thresholds to maximize the number of elements with a q-value below a user-defined threshold, using the Benjamini-Hochberg algorithm for multiple testing correction.
 
-### 4. PTMMap
+### 5. PTMMap
 
 PTMMap is a tool developed with the aim of visualizing, interpreting, and comparing the proteins' PTMs. This module represents as many maps as proteins for which any integration meets the threshold established by the user. Each map illustrates the change between one condition and another based on the p-value of all calculated integrations, on the y-axis.
 
@@ -98,7 +102,7 @@ On the x-axis, the position of each residue of the protein is represented. Speci
 ___
 
 
-### 5. qTableReport
+### 6. qTableReport
 
 This module enables a detailed exploration of significant changes at the protein level in a peptide-centric workflow. It generates an output table summarizing the number of modified and non-modified peptidoforms with significant increases or decreases, along with details on digestion status and qc clusters.
 
