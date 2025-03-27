@@ -38,9 +38,16 @@ On the x-axis, the position of each residue of the protein is represented. Speci
     - PTMMap parameters:
       ```
       PTMMap:
+
         # Folder in which filtered PTM Maps will be saved
         path_plots_with_threshold: PTMmaps_FDR
         path_plots_Without_threshold: PTMmaps
+
+        # Plot parameters
+        font_size: 50
+        grid: No
+        plot_width: 1700
+        plot_height: 850
 
         # Required column names
         pgm_column_name: [pgm, LEVEL]
