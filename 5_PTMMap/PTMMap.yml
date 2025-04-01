@@ -4,12 +4,12 @@
 PTMMap:
 
   # Folder in which filtered PTM Maps will be saved
-  path_plots_with_threshold: PTMmaps_FDR
+  path_plots_with_threshold: PTMmaps_filtered
   path_plots_Without_threshold: PTMmaps
 
   # Plot parameters
   font_size: 50
-  grid: No
+  grid: 'No'
   plot_width: 1700
   plot_height: 850
 
@@ -37,13 +37,14 @@ PTMMap:
   groups:
     - H-C
 
-  # LPS integrations for: p2qf, qf2q, pfm2p, pgm2p_MN
+  # LPS integrations for: p2qc, qc2q, pgm2p, pgm2p_MN
+  # Be careful!! Keep the order of integrations
   # [LowLevel_firstRow, LowLevel_secondRow]
   LPS_ColumnNames:
-    - [Z_p2qf_logLimma, LPS]
-    - [Z_qf2q_logLimma, LPS]
-    - [Z_pgm2p_logLimma, LPS]
-    - [Z_pgm2p_dNM_logLimma, LPS]
+    - [Z_p2qc_logLimma, LPS] # p2qc
+    - [Z_qc2q_logLimma, LPS] # qc2q
+    - [Z_pgm2p_logLimma, LPS] # pgm2p
+    - [Z_pgm2p_dNM_logLimma, LPS] # pgm2p_NM
 
   # NM comparison for pgm2p integrations
   # [LowLevel_firstRow, LowLevel_secondRow]
@@ -51,11 +52,12 @@ PTMMap:
     - [Z_pgm2p_dNM_limma, qvalue]
     - [Z_pgm2p_limma_NM_ONLY, qvalue]
 
-  # Filter integrations for: p2qf, qf2q
+  # Filter integrations for: p2qc, qc2q
+  # Be careful!! Keep the order of integrations
   # [LowLevel_firstRow, LowLevel_secondRow]
   Filter_ColumnNames:
-    - [Z_p2qf_limma, qvalue]
-    - [Z_qf2q_limma, qvalue]
+    - [Z_p2qc_limma, qvalue] # p2qc
+    - [Z_qc2q_limma, qvalue] # qc2q
 
   # Threshold of filtering for the given integrations: pgm2p_NM, pgm2p, p2qf, qf2q
   threshold_pgm2p_NM: 0.05

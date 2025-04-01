@@ -178,9 +178,9 @@ def TablesMaker (df_final,threshold_p2qf,NM,New_LPS,New_FDR,threshold_pgm2p,FDR_
     
     # Proteins thar passs the filters 
     listproteins = list(set((list(dfp_filtered["q"])+list(dfpgm_filtered["q"])+list(dfqf_filtered["q"]))))
-    logging.info("Proteins that pass the threshold p2qf: " + str(len(set(list(dfp_filtered["q"])))))
-    logging.info("Proteins that pass the threshold pgm2p: " + str(len(set(list(dfpgm_filtered["q"])))))
-    logging.info("Proteins that pass the threshold qf2q: " + str(len(set(list(dfqf_filtered["q"])))))
+    logging.info("- proteins that pass the threshold p2qf: " + str(len(set(list(dfp_filtered["q"])))))
+    logging.info("- proteins that pass the threshold pgm2p: " + str(len(set(list(dfpgm_filtered["q"])))))
+    logging.info("- proteins that pass the threshold qf2q: " + str(len(set(list(dfqf_filtered["q"])))))
     
     df_p2qf,df_p2qf_filtered = p2qfMaker(dfp, listproteins,threshold_p2qf)
     dfqf_2,dfqf_2_filtered= qf2qMaker(dfqf, listproteins,threshold_qf2q)
@@ -349,7 +349,7 @@ def main(config):
 
     logging.info(f'Processing by groups: {groups}')
     for grp in groups:
-        logging.info(f"- preparing workspace for '{grp}'...")
+        logging.info(f"Preparing workspace for '{grp}'...")
         # prepare workspaces
         group_path_FDR = os.path.join(args.outdir, path_plots_FDR, grp)
         group_path = os.path.join(args.outdir, path_plots, grp)
