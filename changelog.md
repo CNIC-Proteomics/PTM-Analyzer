@@ -6,7 +6,7 @@ ___
 ### Changes in detail
 
 + New update to the PTMMap program: includes plot parameters, the ability to download the map in SVG format, and more.
-+ Change the order of integration parameters
++ Change the parameters of PTMMap.
 
 
 ___
