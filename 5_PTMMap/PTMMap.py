@@ -361,21 +361,21 @@ def main(config):
         logging.info(f'- preparing parameters...')
 
         # read LPS column mappings
-        LPS_mappings = config.get("LPS_ColumnNames", [])
-        LPS_p2qf = f"{LPS_mappings[0][0]}_{grp}_{LPS_mappings[0][1]}"
-        LPS_qf2q = f"{LPS_mappings[1][0]}_{grp}_{LPS_mappings[1][1]}"
-        LPS_pgm2p = f"{LPS_mappings[2][0]}_{grp}_{LPS_mappings[2][1]}"
-        LPS_pgm2p_NM = f"{LPS_mappings[3][0]}_{grp}_{LPS_mappings[3][1]}"
+        LPS_mappings = config.get("LPS_ColumnNames", {})
+        LPS_p2qf = f"{LPS_mappings['p2qc'][0]}_{grp}_{LPS_mappings['p2qc'][1]}"
+        LPS_qf2q = f"{LPS_mappings['qc2q'][0]}_{grp}_{LPS_mappings['qc2q'][1]}"
+        LPS_pgm2p = f"{LPS_mappings['pgm2p'][0]}_{grp}_{LPS_mappings['pgm2p'][1]}"
+        LPS_pgm2p_NM = f"{LPS_mappings['pgm2p_NM'][0]}_{grp}_{LPS_mappings['pgm2p_NM'][1]}"
 
         # read NM column mappings
-        NM_mappings = config.get("NM_ColumnNames", [])
-        FDR_pgm = f"{NM_mappings[0][0]}_{grp}_{NM_mappings[0][1]}"
-        FDR_NM = f"{NM_mappings[1][0]}_{grp}_{NM_mappings[1][1]}"
+        NM_mappings = config.get("NM_ColumnNames", {})
+        FDR_pgm = f"{NM_mappings['pgm2p'][0]}_{grp}_{NM_mappings['pgm2p'][1]}"
+        FDR_NM = f"{NM_mappings['pgm2p_NM'][0]}_{grp}_{NM_mappings['pgm2p_NM'][1]}"
 
         # read Filter column mappings
-        Filter_mappings = config.get("Filter_ColumnNames", [])
-        FDR_p2qf = f"{Filter_mappings[0][0]}_{grp}_{Filter_mappings[0][1]}"
-        FDR_qf2q = f"{Filter_mappings[1][0]}_{grp}_{Filter_mappings[1][1]}"
+        Filter_mappings = config.get("Filter_ColumnNames", {})
+        FDR_p2qf = f"{Filter_mappings['p2qc'][0]}_{grp}_{Filter_mappings['p2qc'][1]}"
+        FDR_qf2q = f"{Filter_mappings['qc2q'][0]}_{grp}_{Filter_mappings['qc2q'][1]}"
 
         logging.info("- obtaining group data...")
         df_final = obtaindf (df,"New_FDR",g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qf,FDR_qf2q,Missing_Cleavages,LPS_p2qf,LPS_qf2q,e,description, p,q,qf,pFreq,pgmFreq, qfFreq,d,NM,threshold_pgm2p,pgmFreqThreshold)
