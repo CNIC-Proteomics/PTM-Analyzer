@@ -40,12 +40,12 @@ On the x-axis, the position of each residue of the protein is represented. Speci
       PTMMap:
 
         # Folder in which filtered PTM Maps will be saved
-        path_plots_with_threshold: PTMmaps_FDR
+        path_plots_with_threshold: PTMmaps_filtered
         path_plots_Without_threshold: PTMmaps
 
         # Plot parameters
         font_size: 50
-        grid: No
+        grid: 'No'
         plot_width: 1700
         plot_height: 850
 
@@ -58,9 +58,9 @@ On the x-axis, the position of each residue of the protein is represented. Speci
         p_column_name: [p, LEVEL]
         q_column_name: [q, LEVEL]
         d_column_name: [d, REL]
-        qf_column_name: [qf, LEVEL]
+        qc_column_name: [qc, LEVEL]
         pFreq_column_name: [pFreq, REL]
-        qfFreq_column_name: [qfFreq, REL]
+        qcFreq_column_name: [qcFreq, REL]
         pgmFreq_column_name: [pgmFreq, REL]
         first_b_column_name: [first_b, REL]
         description_column_name: [description, REL]
@@ -73,31 +73,31 @@ On the x-axis, the position of each residue of the protein is represented. Speci
         groups:
           - H-C
 
-        # LPS integrations for: p2qf, qf2q, pfm2p, pgm2p_MN
+        # LPS integrations for: p2qc, qc2q, pgm2p, pgm2p_MN
         # [LowLevel_firstRow, LowLevel_secondRow]
         LPS_ColumnNames:
-          - [Z_p2qf_logLimma, LPS]
-          - [Z_qf2q_logLimma, LPS]
-          - [Z_pgm2p_logLimma, LPS]
-          - [Z_pgm2p_dNM_logLimma, LPS]
+          p2qc:     [Z_p2qc_logLimma, LPS]
+          qc2q:     [Z_qc2q_logLimma, LPS]
+          pgm2p:    [Z_pgm2p_logLimma, LPS]
+          pgm2p_NM: [Z_pgm2p_dNM_logLimma, LPS]
 
         # NM comparison for pgm2p integrations
         # [LowLevel_firstRow, LowLevel_secondRow]
         NM_ColumnNames:
-          - [Z_pgm2p_dNM_limma, qvalue]
-          - [Z_pgm2p_limma_NM_ONLY, qvalue]
+          pgm2p:    [Z_pgm2p_dNM_limma, qvalue]
+          pgm2p_NM: [Z_pgm2p_limma_NM_ONLY, qvalue]
 
-        # Filter integrations for: p2qf, qf2q
+        # Filter integrations for: p2qc, qc2q
         # [LowLevel_firstRow, LowLevel_secondRow]
         Filter_ColumnNames:
-          - [Z_p2qf_limma, qvalue]
-          - [Z_qf2q_limma, qvalue]
+          p2qc: [Z_p2qc_limma, qvalue]
+          qc2q: [Z_qc2q_limma, qvalue]
 
-        # Threshold of filtering for the given integrations: pgm2p_NM, pgm2p, p2qf, qf2q
+        # Threshold of filtering for the given integrations: pgm2p_NM, pgm2p, p2qc, qc2q
         threshold_pgm2p_NM: 0.05
         threshold_pgm2p: 0.05
-        threshold_p2qf: 0.05
-        threshold_qf2q: 0.05
+        threshold_p2qc: 0.05
+        threshold_qc2q: 0.05
         pgmFreqThreshold: 0
       ```
 
