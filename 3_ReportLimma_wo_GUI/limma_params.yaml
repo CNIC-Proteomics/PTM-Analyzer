@@ -17,9 +17,9 @@ LimmaCompare:
   ColumnNames:
     - [ [pgm, LEVEL], Z_pgm2p]
     - [ [pgm, LEVEL], Z_pgm2p_dNM]
-    - [ [p, LEVEL], Z_p2qf]
-    - [ [qf, LEVEL], Z_qf2qfq]
-    - [ [qfq, LEVEL], Z_qfq2qfqall]
+    - [ [p, LEVEL], Z_p2qc]
+    - [ [qc, LEVEL], Z_qc2qcq]
+    - [ [qcq, LEVEL], Z_qcq2qcqall]
     
   hypothesis_testing:
     - [ H, C ]

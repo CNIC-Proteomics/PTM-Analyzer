@@ -65,9 +65,9 @@ qReportMaker:
     - p
     - LEVEL
 
-  # Column containing qf
-  qfCol:
-    - qf
+  # Column containing qc
+  qcCol:
+    - qc
     - LEVEL
 
   # Column containing q
@@ -94,9 +94,9 @@ qReportMaker:
     - pFreq
     - REL
 
-  # Column containing scan frequency of qf
-  qfFreq:
-    - qfFreq
+  # Column containing scan frequency of qc
+  qcFreq:
+    - qcFreq
     - REL
 
   # Column containing protein frequency
@@ -121,11 +121,11 @@ qReportMaker:
     - dX
 
   sign_p:
-    - Z_p2qf_dX
+    - Z_p2qc_dX
     - dX
       
-  sign_qf:
-    - Z_qf2q_dX
+  sign_qc:
+    - Z_qc2q_dX
     - dX
       
 
@@ -145,12 +145,12 @@ qReportMaker:
 
   # Column containing qvalue of p
   qvalue_p:
-    - Z_p2qf_limma
+    - Z_p2qc_limma
     - qvalue
       
-  # Column containing qvalue of qf
-  qvalue_qf:
-    - Z_qf2q_limma
+  # Column containing qvalue of qc
+  qvalue_qc:
+    - Z_qc2q_limma
     - qvalue
 
   # Column containing number of missing cleavages

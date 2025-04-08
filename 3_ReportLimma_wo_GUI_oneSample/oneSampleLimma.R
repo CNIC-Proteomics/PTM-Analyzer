@@ -9,7 +9,7 @@ pg. 76
 setwd("S:\\U_Proteomica\\LABS\\LAB_DF\\Comet_PTM\\FA_Biopsias\\2_ReportLimma_wo_GUI_oneSample")
 
 groups <- c('B0', 'F', 'I')
-integrations <- c('Z_pdm2pgm', 'Z_pgm2p', 'Z_pgm2p_dNM', 'Z_p2qf', 'Z_qf2q', 'Z_q2all')
+integrations <- c('Z_pdm2pgm', 'Z_pgm2p', 'Z_pgm2p_dNM', 'Z_p2qc', 'Z_qc2q', 'Z_q2all')
 
 intgr <- integrations[1]
 

@@ -46,28 +46,28 @@ def getColumnNames(config, contrast):
 def getRepQFColumnNames(config, contrast):
     return [ tuple(i) for i in [
         config['pCol'],
-        config['qfCol'],
+        config['qcCol'],
         config['qCol'],
         config['pFreq'],
-        config['qfFreq'],
+        config['qcFreq'],
         [f"{config['qvalue_p'][0]}_{contrast}", config['qvalue_p'][1]],
-        [f"{config['qvalue_qf'][0]}_{contrast}", config['qvalue_qf'][1]],
+        [f"{config['qvalue_qc'][0]}_{contrast}", config['qvalue_qc'][1]],
         [f"{config['sign_p'][0]}_{contrast}", config['sign_p'][1]],
-        [f"{config['sign_qf'][0]}_{contrast}", config['sign_qf'][1]],
+        [f"{config['sign_qc'][0]}_{contrast}", config['sign_qc'][1]],
         config['missing_cleavages']
         ]
     ]
 
 def getRepQF(rep0, config, contrast):
     
-    pCol, qfCol, qCol, pFreq, qfFreq, FDRp, FDRqf, sign_p, sign_qf, mcCol = getRepQFColumnNames(config, contrast)
+    pCol, qcCol, qCol, pFreq, qcFreq, FDRp, FDRqc, sign_p, sign_qc, mcCol = getRepQFColumnNames(config, contrast)
     
     repQF = {
         'PSMs': {},
         'Peptides': {}
         }
     
-    for i, iCol, iFreq, FDRi, sign_i in [('p', pCol, pFreq, FDRp, sign_p), ('qf', qfCol, qfFreq, FDRqf, sign_qf)]:
+    for i, iCol, iFreq, FDRi, sign_i in [('p', pCol, pFreq, FDRp, sign_p), ('qc', qcCol, qcFreq, FDRqc, sign_qc)]:
         if not all([j in rep0.columns for j in [iCol, iFreq, FDRi]]):
             repQF['PSMs'][i]=None
             repQF['Peptides'][i]=None
@@ -75,7 +75,7 @@ def getRepQF(rep0, config, contrast):
         
         if i == 'p':
             iRep = rep0.loc[:, [qCol, iCol, iFreq, FDRi, sign_i, mcCol]].drop_duplicates().copy()#.dropna()
-        elif i == 'qf':
+        elif i == 'qc':
             iRep = rep0.loc[:, [qCol, iCol, iFreq, FDRi, sign_i]].drop_duplicates().copy()#.dropna()
             
         repQF['PSMs'][i] = iRep.copy()
@@ -222,7 +222,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
     '''
     
     pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
-    pCol, qfCol, qCol, pFreq, qfFreq, FDRp, FDRqf, sign_p, sign_qf, mcCol = getRepQFColumnNames(config, contrast)
+    pCol, qcCol, qCol, pFreq, qcFreq, FDRp, FDRqc, sign_p, sign_qc, mcCol = getRepQFColumnNames(config, contrast)
     
     # Collapse PTMs of the same protein
     qTableD = qTableD.reset_index().drop(pdmCol, axis=1).groupby([qCol]).agg("sum")
@@ -265,11 +265,11 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
         how='left'
         ).fillna(0)
         
-    #for i, iFreq, FDRi in [('p', pFreq, FDRp), ('qf', qfFreq, FDRqf)]:
+    #for i, iFreq, FDRi in [('p', pFreq, FDRp), ('qc', qcFreq, FDRqc)]:
     for i, iFreq, FDRi, sign_ii in [
             ('DT', pFreq, FDRp, sign_p), 
             ('DP', pFreq, FDRp, sign_p), 
-            ('qf', qfFreq, FDRqf, sign_qf)
+            ('qc', qcFreq, FDRqc, sign_qc)
             ]:
         
         if type(repPQF[i]) == type(None): continue
@@ -306,8 +306,8 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
         ]
         return qTableD
         
-    #for c1, c2 in [('NM', 'NMsig'), ('p', 'psig'), ('qf', 'qfsig')]:
-    for c1, c2 in [('NM', 'NMsig'), ('DT', 'DTsig'), ('DP', 'DPsig'), ('qf', 'qfsig')]:
+    #for c1, c2 in [('NM', 'NMsig'), ('p', 'psig'), ('qc', 'qcsig')]:
+    for c1, c2 in [('NM', 'NMsig'), ('DT', 'DTsig'), ('DP', 'DPsig'), ('qc', 'qcsig')]:
         qTableD = getHypergeom(qTableD, c1, c2)
         
 
@@ -346,8 +346,8 @@ def qReportDesign(config, quan, qTableD, contrast):
     pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
     
     # Sort columns
-    infoCols = [qdCol,qFreq,(quan,'NM'),(quan,'NMsig'),(quan,'DT'),(quan,'DTsig'),(quan,'DP'),(quan,'DPsig'),(quan,'qf'),(quan,'qfsig'),\
-                ('Hypergeom','NMbased'),('Hypergeom','DTbased'),('Hypergeom','DPbased'),('Hypergeom','qfbased'),('Hypergeom','PTMbased'), (quan, 'PTMs')]
+    infoCols = [qdCol,qFreq,(quan,'NM'),(quan,'NMsig'),(quan,'DT'),(quan,'DTsig'),(quan,'DP'),(quan,'DPsig'),(quan,'qc'),(quan,'qcsig'),\
+                ('Hypergeom','NMbased'),('Hypergeom','DTbased'),('Hypergeom','DPbased'),('Hypergeom','qcbased'),('Hypergeom','PTMbased'), (quan, 'PTMs')]
     infoCols = [i for i in infoCols if i in qTableD.columns]
     i = qTableD.loc[:, infoCols]
     qTableD = i.join(qTableD.loc[:, [pdmFreq[0]]].replace(0, np.nan)).sort_values((quan, 'PTMs'), ascending=False)

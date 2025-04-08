@@ -8,8 +8,8 @@ FDRoptimizer:
   ColumnNames:
     - [ [pgm, LEVEL], [pgmFreq, REL], Z_pgm2p_limma-NM(g&REL) ]
     - [ [pgm, LEVEL], [pgmFreq, REL], Z_pgm2p_dNM_limma ]
-    - [ [p, LEVEL], [pFreq, REL], Z_p2qf_limma ]
-    - [ [qf, LEVEL], [qfFreq, REL], Z_qf2q_limma ]
+    - [ [p, LEVEL], [pFreq, REL], Z_p2qc_limma ]
+    - [ [qc, LEVEL], [qcFreq, REL], Z_qc2q_limma ]
     - [ [q, LEVEL], [qFreq, REL], Z_q2all_limma ]
     - [ [pgm, LEVEL], [pgmFreq, REL], Z_pgm2p_limma ]
     - [ [pdm, LEVEL], [ScanFreq, REL], Z_pdm2pdmq_limma ]

@@ -6,9 +6,9 @@ library("optparse")
 
 # define command-line options
 option_list <- list(
-  make_option(c("-c", "--config"), type = "character", default = NULL, help = "Path to the YAML configuration file", metavar = "character"),
   make_option(c("-i", "--input"), type = "character", default = NULL, help = "Path to the isanxot report file", metavar = "character"),
   make_option(c("-s", "--samples"), type = "character", default = NULL, help = "Path to the sample table file", metavar = "character"),
+  make_option(c("-c", "--config"), type = "character", default = NULL, help = "Path to the YAML configuration file", metavar = "character"),
   make_option(c("-o", "--output"), type = "character", default = NULL, help = "Path to the output file", metavar = "character")
 )
 

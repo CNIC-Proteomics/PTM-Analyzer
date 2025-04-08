@@ -88,16 +88,16 @@ def applyStructure(row,New_FDR,g,NM,a,first_b,New_LPS,LPS_pgm2p,LPS_pgm2p_NM,n,F
         row[a_g_d] = row[a]
     return row
 
-def obtaindf (df,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qf,FDR_qf2q,Missing_Cleavages,LPS_p2qf,LPS_qf2q,e,description, p,q,qf,pFreq,pgmFreq, qfFreq,d,NM,threshold_pgm2p,pgmFreqThreshold):
+def obtaindf (df,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qc,FDR_qc2q,Missing_Cleavages,LPS_p2qc,LPS_qc2q,e,description, p,q,qc,pFreq,pgmFreq, qcFreq,d,NM,threshold_pgm2p,pgmFreqThreshold):
 
-    df = df.loc[:,[g, a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM, FDR_NM, FDR_pgm,FDR_p2qf, FDR_qf2q,Missing_Cleavages,LPS_p2qf, LPS_qf2q, e , description,p, q, qf, pFreq, qfFreq, pgmFreq,d]]
+    df = df.loc[:,[g, a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM, FDR_NM, FDR_pgm,FDR_p2qc, FDR_qc2q,Missing_Cleavages,LPS_p2qc, LPS_qc2q, e , description,p, q, qc, pFreq, qcFreq, pgmFreq,d]]
 
     df = df.rename(columns={New_FDR:"New_FDR",FDR_pgm:"FDR_pgm",g:"g", a: "a",n:"n",first_b : "first_b", LPS_pgm2p: "LPS_pgm2p",
-                        LPS_pgm2p_NM: "LPS_pgm2p_NM", FDR_NM: "FDR_NM",FDR_p2qf : "FDR_p2qf", FDR_qf2q:"FDR_qf2q",
-                      Missing_Cleavages: "Missing_Cleavages",LPS_p2qf:"LPS_p2qf", LPS_qf2q:"LPS_qf2q", e : "e", description: "description",
-                       p :"p", q:"q", qf:"qf", pFreq:"pFreq", qfFreq: "qfFreq", pgmFreq: "pgmFreq",d :"d"})
-    df = df.astype({'FDR_NM': 'float64', 'FDR_pgm': 'float64','LPS_pgm2p_NM': 'float64','LPS_pgm2p': 'float64','FDR_p2qf': 'float64',
-                'FDR_qf2q': 'float64','LPS_p2qf': 'float64','LPS_qf2q': 'float64','pgmFreq': 'float64','pFreq': 'float64','qfFreq': 'float64',
+                        LPS_pgm2p_NM: "LPS_pgm2p_NM", FDR_NM: "FDR_NM",FDR_p2qc : "FDR_p2qc", FDR_qc2q:"FDR_qc2q",
+                      Missing_Cleavages: "Missing_Cleavages",LPS_p2qc:"LPS_p2qc", LPS_qc2q:"LPS_qc2q", e : "e", description: "description",
+                       p :"p", q:"q", qc:"qc", pFreq:"pFreq", qcFreq: "qcFreq", pgmFreq: "pgmFreq",d :"d"})
+    df = df.astype({'FDR_NM': 'float64', 'FDR_pgm': 'float64','LPS_pgm2p_NM': 'float64','LPS_pgm2p': 'float64','FDR_p2qc': 'float64',
+                'FDR_qc2q': 'float64','LPS_p2qc': 'float64','LPS_qc2q': 'float64','pgmFreq': 'float64','pFreq': 'float64','qcFreq': 'float64',
                 'Missing_Cleavages': 'float64', "first_b": 'float64'})
     
     df =df[df['first_b'].notnull()] # if an incomplete input it will discard using this parameter
@@ -117,8 +117,8 @@ def obtaindf (df,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FD
     
     return df_final
 
-def p2qfMaker (dfp,listproteins,threshold_p2qf):
-    df_p2qf = pd.DataFrame(columns=["p","qf","q","pFreq",'Missing_Cleavages',"LPS_p2qf","position","description","FDR_p2qf"],dtype=float) # Dataframe 2 is created with the aim of 
+def p2qcMaker (dfp,listproteins,threshold_p2qc):
+    df_p2qc = pd.DataFrame(columns=["p","qc","q","pFreq",'Missing_Cleavages',"LPS_p2qc","position","description","FDR_p2qc"],dtype=float) # Dataframe 2 is created with the aim of 
     dfp_proteins=dfp [dfp ['q'].isin (listproteins)]
     dfp_proteins = dfp_proteins.drop_duplicates(subset=['p'])
     cont = 0
@@ -128,66 +128,66 @@ def p2qfMaker (dfp,listproteins,threshold_p2qf):
 
         for i in range(int_b,int_e+1):
             cont = cont+1
-            df_p2qf.loc[cont,"p"] = row["p"]
-            df_p2qf.loc[cont,"pFreq"] = row["pFreq"]
-            df_p2qf.loc[cont,"q"] = row["q"]
-            df_p2qf.loc[cont,"Missing_Cleavages"] = row["Missing_Cleavages"]
-            df_p2qf.loc[cont,"LPS_p2qf"] = row["LPS_p2qf"]   
-            df_p2qf.loc[cont,"description"] = row["description"]
-            df_p2qf.loc[cont,"FDR_p2qf"] = row["FDR_p2qf"]
-            df_p2qf.loc[cont,"position"] = i 
-    df_p2qf_filtered = df_p2qf[df_p2qf.FDR_p2qf.le(threshold_p2qf)].reset_index()
-    return df_p2qf,df_p2qf_filtered
+            df_p2qc.loc[cont,"p"] = row["p"]
+            df_p2qc.loc[cont,"pFreq"] = row["pFreq"]
+            df_p2qc.loc[cont,"q"] = row["q"]
+            df_p2qc.loc[cont,"Missing_Cleavages"] = row["Missing_Cleavages"]
+            df_p2qc.loc[cont,"LPS_p2qc"] = row["LPS_p2qc"]   
+            df_p2qc.loc[cont,"description"] = row["description"]
+            df_p2qc.loc[cont,"FDR_p2qc"] = row["FDR_p2qc"]
+            df_p2qc.loc[cont,"position"] = i 
+    df_p2qc_filtered = df_p2qc[df_p2qc.FDR_p2qc.le(threshold_p2qc)].reset_index()
+    return df_p2qc,df_p2qc_filtered
 
-def qf2qMaker (dfqf, listproteins,threshold_qf2q):
-    dfqf_2 = pd.DataFrame(columns=["qf","q","qfFreq","LPS_qf2q","position","description","FDR_qf2q"],dtype=float)
-    dfqf_proteins=dfqf [dfqf ['q'].isin (listproteins)]
-    dfqf_proteins = dfqf_proteins.drop_duplicates(subset=['qf'])
+def qc2qMaker (dfqc, listproteins,threshold_qc2q):
+    dfqc_2 = pd.DataFrame(columns=["qc","q","qcFreq","LPS_qc2q","position","description","FDR_qc2q"],dtype=float)
+    dfqc_proteins=dfqc [dfqc ['q'].isin (listproteins)]
+    dfqc_proteins = dfqc_proteins.drop_duplicates(subset=['qc'])
     cont = 0
-    for index, row in dfqf_proteins.iterrows():
-        W = int(row["qf"].replace("-","_").split(";")[0].split(":")[1].split("_")[0])
-        V = int(row["qf"].replace("-","_").split(";")[0].split(":")[1].split("_")[1])
+    for index, row in dfqc_proteins.iterrows():
+        W = int(row["qc"].replace("-","_").split(";")[0].split(":")[1].split("_")[0])
+        V = int(row["qc"].replace("-","_").split(";")[0].split(":")[1].split("_")[1])
         for i in range(W,V+1):
             cont = cont+1
-            dfqf_2.loc[cont,"qfFreq"] = row["qfFreq"]
-            dfqf_2.loc[cont,"q"] = row["q"]
-            dfqf_2.loc[cont,"LPS_qf2q"] = row["LPS_qf2q"]  
-            dfqf_2.loc[cont,"FDR_qf2q"] = row["FDR_qf2q"] 
-            dfqf_2.loc[cont,"description"] = row["description"]
-            dfqf_2.loc[cont,"position"] = i 
-            dfqf_2.loc[cont,"qf"] = row["qf"]
+            dfqc_2.loc[cont,"qcFreq"] = row["qcFreq"]
+            dfqc_2.loc[cont,"q"] = row["q"]
+            dfqc_2.loc[cont,"LPS_qc2q"] = row["LPS_qc2q"]  
+            dfqc_2.loc[cont,"FDR_qc2q"] = row["FDR_qc2q"] 
+            dfqc_2.loc[cont,"description"] = row["description"]
+            dfqc_2.loc[cont,"position"] = i 
+            dfqc_2.loc[cont,"qc"] = row["qc"]
         
-    dfqf_2_filtered= dfqf_2[dfqf_2.FDR_qf2q.le(threshold_qf2q)].reset_index()
-    return dfqf_2, dfqf_2_filtered
+    dfqc_2_filtered= dfqc_2[dfqc_2.FDR_qc2q.le(threshold_qc2q)].reset_index()
+    return dfqc_2, dfqc_2_filtered
 
-def TablesMaker (df_final,threshold_p2qf,NM,New_LPS,New_FDR,threshold_pgm2p,FDR_qf2q,threshold_qf2q):
-    # p2qf Table
+def TablesMaker (df_final,threshold_p2qc,NM,New_LPS,New_FDR,threshold_pgm2p,FDR_qc2q,threshold_qc2q):
+    # p2qc Table
     df_final["Missing_Cleavages"] = df_final["Missing_Cleavages"].replace(0,"DT").replace(1,"DP").replace(2,"DP").replace(3,"DP").replace(4,"DP")
     df_final["first_b"] = df_final["first_b"].astype(int)
-    dfp =df_final[df_final["LPS_p2qf"].notnull()] 
-    dfp_filtered= dfp[dfp.FDR_p2qf.le(threshold_p2qf)].reset_index()
+    dfp =df_final[df_final["LPS_p2qc"].notnull()] 
+    dfp_filtered= dfp[dfp.FDR_p2qc.le(threshold_p2qc)].reset_index()
      
     # pgm2p Table
     dfpgm = df_final[df_final[New_LPS].notnull()]
     dfpgm.loc[dfpgm["g"] !=NM, "g"] = 'Mod'
     dfpgm_filtered= dfpgm[dfpgm.New_FDR.le(threshold_pgm2p)].reset_index()
     
-    #qf2q Table
-    dfqf = df_final[df_final["LPS_qf2q"].notnull()]
-    dfqf_filtered= dfqf[dfqf.FDR_qf2q.le(threshold_qf2q)].reset_index()
+    #qc2q Table
+    dfqc = df_final[df_final["LPS_qc2q"].notnull()]
+    dfqc_filtered= dfqc[dfqc.FDR_qc2q.le(threshold_qc2q)].reset_index()
     
     # Proteins thar passs the filters 
-    listproteins = list(set((list(dfp_filtered["q"])+list(dfpgm_filtered["q"])+list(dfqf_filtered["q"]))))
-    logging.info("- proteins that pass the threshold p2qf: " + str(len(set(list(dfp_filtered["q"])))))
+    listproteins = list(set((list(dfp_filtered["q"])+list(dfpgm_filtered["q"])+list(dfqc_filtered["q"]))))
+    logging.info("- proteins that pass the threshold p2qc: " + str(len(set(list(dfp_filtered["q"])))))
     logging.info("- proteins that pass the threshold pgm2p: " + str(len(set(list(dfpgm_filtered["q"])))))
-    logging.info("- proteins that pass the threshold qf2q: " + str(len(set(list(dfqf_filtered["q"])))))
+    logging.info("- proteins that pass the threshold qc2q: " + str(len(set(list(dfqc_filtered["q"])))))
     
-    df_p2qf,df_p2qf_filtered = p2qfMaker(dfp, listproteins,threshold_p2qf)
-    dfqf_2,dfqf_2_filtered= qf2qMaker(dfqf, listproteins,threshold_qf2q)
+    df_p2qc,df_p2qc_filtered = p2qcMaker(dfp, listproteins,threshold_p2qc)
+    dfqc_2,dfqc_2_filtered= qc2qMaker(dfqc, listproteins,threshold_qc2q)
     
-    return df_p2qf,df_p2qf_filtered, dfqf_2,dfqf_2_filtered,dfpgm,dfpgm_filtered,listproteins
+    return df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm,dfpgm_filtered,listproteins
 
-def plotting (df_p2qf_filtered,dfpgm_filtered,dfqf_2_filtered,group_path,listproteins,font_size,grid,plot_width,plot_height):
+def plotting (df_p2qc_filtered,dfpgm_filtered,dfqc_2_filtered,group_path,listproteins,font_size,grid,plot_width,plot_height):
 
     listafail = []
     dfpgm_filtered["n"].astype('int')
@@ -195,20 +195,20 @@ def plotting (df_p2qf_filtered,dfpgm_filtered,dfqf_2_filtered,group_path,listpro
     for prot in listproteins: 
         c = c+1
         q = prot
-        df1= df_p2qf_filtered[df_p2qf_filtered.q.eq(prot)]
+        df1= df_p2qc_filtered[df_p2qc_filtered.q.eq(prot)]
         df1pgm= dfpgm_filtered[dfpgm_filtered.q.eq(prot)]
         df1pgm["pgmFreq"] = df1pgm["pgmFreq"].astype(float)
 
-        dfqf_3= dfqf_2_filtered[dfqf_2_filtered.q.eq(prot)]
-        dfqf_3["qfFreq"] = dfqf_3["qfFreq"].astype(float)
+        dfqc_3= dfqc_2_filtered[dfqc_2_filtered.q.eq(prot)]
+        dfqc_3["qcFreq"] = dfqc_3["qcFreq"].astype(float)
         list1 = list(df1pgm["n"])
         list1 = [int(x) for x in list1]
-        dfqf_3["q"] = dfqf_3["q"].replace(prot,"qf2q")
-        listw= list1+list(dfqf_3["position"])+list(df1["position"])
+        dfqc_3["q"] = dfqc_3["q"].replace(prot,"qc2q")
+        listw= list1+list(dfqc_3["position"])+list(df1["position"])
         listw.sort()
         df1pgm["a_g"] = df1pgm["a_g_d"] + "<br>" + "p= "+ df1pgm["p"]
         try: 
-            fig1 = px.scatter(df1, x="position", y="LPS_p2qf",
+            fig1 = px.scatter(df1, x="position", y="LPS_p2qc",
                         size="pFreq", color="Missing_Cleavages",
                                  hover_name="Missing_Cleavages", size_max=8, opacity=1, title=list(df1["description"])[0],color_discrete_map={"DT": "lightgreen", "DP": "black"}, width=400, height=400)
             fig1.update_traces(
@@ -227,7 +227,7 @@ def plotting (df_p2qf_filtered,dfpgm_filtered,dfqf_2_filtered,group_path,listpro
             fig2 ="false"
 
         try:
-            fig3 = px.scatter(dfqf_3, x="position", y="LPS_qf2q", size="qfFreq",color = 'q',hover_name= 'q', opacity=1, size_max=9,color_discrete_map={"qf2q": "orange"}, width=400, height=400)
+            fig3 = px.scatter(dfqc_3, x="position", y="LPS_qc2q", size="qcFreq",color = 'q',hover_name= 'q', opacity=1, size_max=9,color_discrete_map={"qc2q": "orange"}, width=400, height=400)
             fig3.update_traces(
                 marker=dict( symbol="square", line=dict(width=0, color="orange")),
                 selector=dict(mode="markers"),)
@@ -256,7 +256,7 @@ def plotting (df_p2qf_filtered,dfpgm_filtered,dfqf_2_filtered,group_path,listpro
             pass
 
         try : 
-            fig.update_layout(title_text=list(dfqf_3["description"])[0])
+            fig.update_layout(title_text=list(dfqc_3["description"])[0])
         except: 
             try : 
                 fig.update_layout(title_text=list(df1["description"])[0])
@@ -307,12 +307,12 @@ def main(config):
     q = f"{q_first_header}_{q_second_header}"
     d_first_header, d_second_header = config.get("d_column_name", ["", ""])
     d = f"{d_first_header}_{d_second_header}"
-    qf_first_header, qf_second_header = config.get("qf_column_name", ["", ""])
-    qf = f"{qf_first_header}_{qf_second_header}"
+    qc_first_header, qc_second_header = config.get("qc_column_name", ["", ""])
+    qc = f"{qc_first_header}_{qc_second_header}"
     pFreq_first_header, pFreq_second_header = config.get("pFreq_column_name", ["", ""])
     pFreq = f"{pFreq_first_header}_{pFreq_second_header}"
-    qfFreq_first_header, qfFreq_second_header = config.get("qfFreq_column_name", ["", ""])
-    qfFreq = f"{qfFreq_first_header}_{qfFreq_second_header}"
+    qcFreq_first_header, qcFreq_second_header = config.get("qcFreq_column_name", ["", ""])
+    qcFreq = f"{qcFreq_first_header}_{qcFreq_second_header}"
     pgmFreq_first_header, pgmFreq_second_header = config.get("pgmFreq_column_name", ["", ""])
     pgmFreq = f"{pgmFreq_first_header}_{pgmFreq_second_header}"
     first_b_first_header, first_b_second_header = config.get("first_b_column_name", ["", ""])
@@ -327,8 +327,8 @@ def main(config):
     # extract threshold parameters
     threshold_pgm2p_NM = config.get("threshold_pgm2p_NM") 
     threshold_pgm2p = config.get("threshold_pgm2p") 
-    threshold_p2qf = config.get("threshold_p2qf") 
-    threshold_qf2q = config.get("threshold_qf2q")     
+    threshold_p2qc = config.get("threshold_p2qc") 
+    threshold_qc2q = config.get("threshold_qc2q")     
     pgmFreqThreshold = config.get("pgmFreqThreshold")
 
     # extract map parameters
@@ -362,8 +362,8 @@ def main(config):
 
         # read LPS column mappings
         LPS_mappings = config.get("LPS_ColumnNames", {})
-        LPS_p2qf = f"{LPS_mappings['p2qc'][0]}_{grp}_{LPS_mappings['p2qc'][1]}"
-        LPS_qf2q = f"{LPS_mappings['qc2q'][0]}_{grp}_{LPS_mappings['qc2q'][1]}"
+        LPS_p2qc = f"{LPS_mappings['p2qc'][0]}_{grp}_{LPS_mappings['p2qc'][1]}"
+        LPS_qc2q = f"{LPS_mappings['qc2q'][0]}_{grp}_{LPS_mappings['qc2q'][1]}"
         LPS_pgm2p = f"{LPS_mappings['pgm2p'][0]}_{grp}_{LPS_mappings['pgm2p'][1]}"
         LPS_pgm2p_NM = f"{LPS_mappings['pgm2p_NM'][0]}_{grp}_{LPS_mappings['pgm2p_NM'][1]}"
 
@@ -374,18 +374,18 @@ def main(config):
 
         # read Filter column mappings
         Filter_mappings = config.get("Filter_ColumnNames", {})
-        FDR_p2qf = f"{Filter_mappings['p2qc'][0]}_{grp}_{Filter_mappings['p2qc'][1]}"
-        FDR_qf2q = f"{Filter_mappings['qc2q'][0]}_{grp}_{Filter_mappings['qc2q'][1]}"
+        FDR_p2qc = f"{Filter_mappings['p2qc'][0]}_{grp}_{Filter_mappings['p2qc'][1]}"
+        FDR_qc2q = f"{Filter_mappings['qc2q'][0]}_{grp}_{Filter_mappings['qc2q'][1]}"
 
         logging.info("- obtaining group data...")
-        df_final = obtaindf (df,"New_FDR",g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qf,FDR_qf2q,Missing_Cleavages,LPS_p2qf,LPS_qf2q,e,description, p,q,qf,pFreq,pgmFreq, qfFreq,d,NM,threshold_pgm2p,pgmFreqThreshold)
+        df_final = obtaindf (df,"New_FDR",g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qc,FDR_qc2q,Missing_Cleavages,LPS_p2qc,LPS_qc2q,e,description, p,q,qc,pFreq,pgmFreq, qcFreq,d,NM,threshold_pgm2p,pgmFreqThreshold)
 
         logging.info("- preparing data...")
-        df_p2qf,df_p2qf_filtered, dfqf_2,dfqf_2_filtered,dfpgm, dfpgm_filtered, listproteins= TablesMaker (df_final,threshold_p2qf,NM,"New_LPS","New_FDR",threshold_pgm2p,FDR_qf2q,threshold_qf2q)
+        df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered, listproteins= TablesMaker (df_final,threshold_p2qc,NM,"New_LPS","New_FDR",threshold_pgm2p,FDR_qc2q,threshold_qc2q)
         logging.info("- plotting filtered data...")
-        plotting(df_p2qf_filtered,dfpgm_filtered,dfqf_2_filtered,group_path_FDR,listproteins,font_size, grid, plot_width,plot_height)
+        plotting(df_p2qc_filtered,dfpgm_filtered,dfqc_2_filtered,group_path_FDR,listproteins,font_size, grid, plot_width,plot_height)
         logging.info("- plotting all data...")
-        plotting(df_p2qf,dfpgm,dfqf_2,group_path,listproteins,font_size, grid, plot_width,plot_height)
+        plotting(df_p2qc,dfpgm,dfqc_2,group_path,listproteins,font_size, grid, plot_width,plot_height)
     
 
 

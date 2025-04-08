@@ -22,9 +22,9 @@ PTMMap:
   p_column_name: [p, LEVEL]
   q_column_name: [q, LEVEL]
   d_column_name: [d, REL]
-  qf_column_name: [qf, LEVEL]
+  qc_column_name: [qc, LEVEL]
   pFreq_column_name: [pFreq, REL]
-  qfFreq_column_name: [qfFreq, REL]
+  qcFreq_column_name: [qcFreq, REL]
   pgmFreq_column_name: [pgmFreq, REL]
   first_b_column_name: [first_b, REL]
   description_column_name: [description, REL]
@@ -57,9 +57,9 @@ PTMMap:
     p2qc: [Z_p2qc_limma, qvalue]
     qc2q: [Z_qc2q_limma, qvalue]
 
-  # Threshold of filtering for the given integrations: pgm2p_NM, pgm2p, p2qf, qf2q
+  # Threshold of filtering for the given integrations: pgm2p_NM, pgm2p, p2qc, qc2q
   threshold_pgm2p_NM: 0.05
   threshold_pgm2p: 0.05
-  threshold_p2qf: 0.05
-  threshold_qf2q: 0.05
+  threshold_p2qc: 0.05
+  threshold_qc2q: 0.05
   pgmFreqThreshold: 0
