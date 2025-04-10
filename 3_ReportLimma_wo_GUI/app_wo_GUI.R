@@ -1,3 +1,9 @@
+# ignore warnings
+suppressWarnings({
+  library(yaml)
+  # library(other_package)
+})
+
 # import modules
 library("limma")
 library("logging")
