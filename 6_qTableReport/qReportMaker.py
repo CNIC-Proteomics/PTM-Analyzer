@@ -329,7 +329,6 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
 
 def qReportDesign(config, quan, qTableD, contrast):
     '''
-
     Parameters
     ----------
     config : TYPE
@@ -378,6 +377,13 @@ def qReportDesign(config, quan, qTableD, contrast):
         ]
     ).reset_index(names=[qCol])
 
+    alphabet = pd.Series([j[0] for i,j in qTableD.columns if i == pdmFreq[0]]).drop_duplicates().values.tolist()
+    ptmSort = [(i, j) for i,j in qTableD.columns if i == pdmFreq[0]]
+    ptmSort = sorted(ptmSort, key=lambda col: alphabet.index(col[1][0]))
+    ptmSort = [(i,j) for i,j in qTableD.columns if i!=pdmFreq[0]]+ptmSort
+    qTableD = qTableD[ptmSort]
+    
+    
     qTableD.columns = pd.MultiIndex.from_tuples([
         (quan,j[0], j[1]) if i==pdmFreq[0] else (i,j,'') 
         for i,j in qTableD.columns
@@ -406,11 +412,59 @@ def qReportDesign(config, quan, qTableD, contrast):
             qTableD = qTableD[[qTableD.columns[1]]].rename(columns={'':'Filt'}).join(qTableD)
             qTableD[qTableD.columns[0]] = \
                 [f"=HYPERLINK(\"{os.path.join(ptmMapPathFDRExcel, i)}.html\", \"{i}\")" if i in plotted_q else '' if i=='Sum' else i for i in qTableD.iloc[:, 0]]
+        
+    # Remove Hypergeom columns from PSMs table
+    if quan == 'PSMs':
+        qTableD = qTableD.drop(
+            [(i,j,k) for i,j,k in qTableD.columns if i == 'Hypergeom' and j in ['NMbased', 'DPbased', 'DTbased', 'qcbased', 'PTMbased']],
+            axis=1
+        ).copy()
 
     return qTableD
 
+def sortPeptidesTables(qReportList, config):
+    # qReportList elem --> (fdr_i, sign_i, quan, qReportDesign(*i))
+    
+    # Create dict (fdr_i, sign_i) -> PTMs columns sorted
+    
+    
+    myPTMsort = {
+     (fdr_i, sign_i): [('Peptides', col[1], col[2]) for col in qReportDesigned.columns if col[0]=='PSMs' and col[2]!=''] 
+     for fdr_i, sign_i, quan, qReportDesigned in qReportList if quan == 'PSMs'
+     }
+    
+    myqCol = (config['qCol'][0], config['qCol'][1], '')
+    myProteinSort = {
+        (fdr_i, sign_i): qReportDesigned[myqCol].tolist()
+        for fdr_i, sign_i, quan, qReportDesigned in qReportList if quan == 'PSMs'
+        }
+    
+    qReportList2 = []
+    for qReportList_i in qReportList:
+        fdr_i, sign_i, quan, qReportDesigned = qReportList_i
+        
+        if quan == 'PSMs':
+            qReportList2.append(qReportList_i)
+            continue
+        
+        # elif quan == 'Peptides'
+        newCols = [i for i in qReportDesigned.columns if i[0] != 'Peptides' or i[2]==''] +\
+            myPTMsort[(fdr_i, sign_i)]        
+        qReportDesigned2 = qReportDesigned.loc[:, newCols]
+        
+        # Sort proteins (row)
+        qReportDesigned2 = qReportDesigned2.iloc[
+            [qReportDesigned2[myqCol].tolist().index(i) for i in myProteinSort[(fdr_i, sign_i)]], :
+        ]
+        
+        qReportList2.append((fdr_i, sign_i, quan, qReportDesigned2))
 
-def qReportMergeUpDown(params):
+    
+    return qReportList2
+    # 
+
+
+def qReportMergeUpDown(params, config):
     md = {}
     
     for i in params:
@@ -469,6 +523,11 @@ def qReportMergeUpDown(params):
             
             df_out.columns = pd.MultiIndex.from_tuples(df_out.columns)
             df_out = df_out.join(df_ptm)
+              
+            # Row with Sum in the first position
+            mySumIndex = df_out.index.tolist()[df_out[('', config['qCol'][0],config['qCol'][1], '')].tolist().index('Sum')]
+            df_out = df_out.loc[[mySumIndex] + [i for i in df_out.index.tolist() if i!=mySumIndex]]        
+            
             params_i[2] = 'up&down'
             params_i[4] = df_out
             params2.append(tuple(params_i))
@@ -582,13 +641,16 @@ def qReportContrast(rep0, config, contrast):
      ]
     qReportList = [(fdr_i, sign_i, quan, qReportDesign(*i)) for i, (fdr_i, sign_i, quan) in params]
     
+    # Sort PTMs of Peptides table as PSMs table
+    qReportList = sortPeptidesTables(qReportList, config)
+    
     logging.info('Adapting qReport format')
     params = [
      (config, fdr_i, sign_i, quan, qTableD, contrast)
      for fdr_i, sign_i, quan, qTableD in qReportList
      ]
     
-    params = params + qReportMergeUpDown(params)
+    params = params + qReportMergeUpDown(params, config)
     
 
     if args.outdir:
