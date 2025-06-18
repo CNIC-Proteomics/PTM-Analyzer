@@ -216,7 +216,7 @@ calculatePvalues <- function(obj, config, sampleGroups) {
 
     # LIMMA
     x <- c()
-    for (i in config$hypothesis_testing) {
+    for (i in config$groups) {
       x <- c(x, paste0(i[1], '-', i[2]))
     }
     #x <- gsub(" vs ", "-", obj$hypTesting)
@@ -326,10 +326,10 @@ writeOutputReport <- function (config, reportData, pvalues_df, subHeader) {
 #
 
 # Read YAML file
-config <- read_yaml(opt$config)
+full_config <- read_yaml(opt$config)
 
-# get the config section
-config <- config$LimmaCompare
+# Merge LimmaCompare and General into a single list
+config <- c(full_config$LimmaCompare, full_config$General)
 
 # override specific parameters from command-line arguments
 config$report_infile <- opt$input

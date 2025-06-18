@@ -1,4 +1,19 @@
 #
+# PARAMETERS: General parameters
+#
+General:
+
+  # Comparison groups:
+  # - pair groups for hypothesis testing (LimmaCompare)
+  # - pair groups to which calculate FDR (FDRoptimizer)
+  # - pair groups to plot the PTM maps (PTMmap)
+  # - pair groups to to be analysed (qReport)
+  groups:
+    - [ H, C ]
+
+
+
+#
 # PARAMETERS: FDRoptimizer.py
 #
 FDRoptimizer:
@@ -11,14 +26,6 @@ FDRoptimizer:
     - [ [p, LEVEL], [pFreq, REL], Z_p2qc_limma ]
     - [ [qc, LEVEL], [qcFreq, REL], Z_qc2q_limma ]
     - [ [q, LEVEL], [qFreq, REL], Z_q2all_limma ]
-    - [ [pgm, LEVEL], [pgmFreq, REL], Z_pgm2p_limma ]
-    - [ [pdm, LEVEL], [ScanFreq, REL], Z_pdm2pdmq_limma ]
-    - [ [pgm, LEVEL], [pgmFreq, REL], Z_pgm2pgmq_limma ]
-    - [ [p, LEVEL], [pFreq, REL], Z_p2pq_limma ]
-
-  # Pair groups to which calculate FDR
-  groups:
-    - H-C
 
   # FDR thresholds applied
   FDR_Thr:

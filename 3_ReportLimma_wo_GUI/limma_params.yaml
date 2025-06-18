@@ -1,4 +1,19 @@
 #
+# PARAMETERS: General parameters
+#
+General:
+
+  # Comparison groups:
+  # - pair groups for hypothesis testing (LimmaCompare)
+  # - pair groups to which calculate FDR (FDRoptimizer)
+  # - pair groups to plot the PTM maps (PTMmap)
+  # - pair groups to to be analysed (qReport)
+  groups:
+    - [ H, C ]
+
+
+
+#
 # PARAMETERS: LIMMA wo GUI
 #
 LimmaCompare:
@@ -9,7 +24,6 @@ LimmaCompare:
   # - t-test
   test_type:
     - limma
-    - limma_with_duplicates
     - t-test
 
   # Integrations used to apply Limma
@@ -18,9 +32,5 @@ LimmaCompare:
     - [ [pgm, LEVEL], Z_pgm2p]
     - [ [pgm, LEVEL], Z_pgm2p_dNM]
     - [ [p, LEVEL], Z_p2qc]
-    - [ [qc, LEVEL], Z_qc2qcq]
-    - [ [qcq, LEVEL], Z_qcq2qcqall]
-    
-  hypothesis_testing:
-    - [ H, C ]
-    - [ Control, Heteroplasmy ]
+    - [ [qc, LEVEL], Z_qc2q]
+    - [ [q, LEVEL], Z_q2all]

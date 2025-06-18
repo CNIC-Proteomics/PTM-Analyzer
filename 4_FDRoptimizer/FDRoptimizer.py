@@ -49,7 +49,8 @@ def main(config, file=None):
         
         logging.info(f'FDR Threshold: {thr}')
     
-        for t in config['groups']:
+        for group in config['groups']:
+            t = '-'.join(group)
 
             logging.info(f'Group: {t}')
     
@@ -160,9 +161,9 @@ if __name__ == '__main__':
 
 
     with open(args.config) as file:
-        config = yaml.load(file, yaml.FullLoader)        
-        # get the config section
-        config = config.get('FDRoptimizer')
+        full_config = yaml.load(file, Loader=yaml.FullLoader)
+        # merge 'General' and 'FDRoptimizer' into a single config
+        config = {**full_config.get('General', {}), **full_config.get('FDRoptimizer', {})}
         
 
     # prepare workspace

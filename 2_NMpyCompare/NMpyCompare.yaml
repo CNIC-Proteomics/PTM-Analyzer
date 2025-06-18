@@ -1,4 +1,19 @@
 #
+# PARAMETERS: General parameters
+#
+General:
+
+  # Comparison groups:
+  # - pair groups for hypothesis testing (LimmaCompare)
+  # - pair groups to which calculate FDR (FDRoptimizer)
+  # - pair groups to plot the PTM maps (PTMmap)
+  # - pair groups to to be analysed (qReport)
+  groups:
+    - [ H, C ]
+
+
+
+#
 # PARAMETERS: NMpyCompare.py
 #
 NMpyCompare:

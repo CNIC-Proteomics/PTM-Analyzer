@@ -348,7 +348,9 @@ def main(config):
     df = readInfile(args.infile,pgm)
 
     logging.info(f'Processing by groups: {groups}')
-    for grp in groups:
+    # for grp in groups:
+    for group in groups:
+        grp = '-'.join(group)
         logging.info(f"Preparing workspace for '{grp}'...")
         # prepare workspaces
         group_path_FDR = os.path.join(args.outdir, path_plots_FDR, grp)
@@ -409,9 +411,9 @@ if __name__ == '__main__':
    
    # parse config
     with open(args.config) as file:
-        config = yaml.load(file, yaml.FullLoader)        
-        # get the config section
-        config = config.get('PTMMap')
+        full_config = yaml.load(file, Loader=yaml.FullLoader)
+        # merge 'General' and 'PTMMap' into a single config
+        config = {**full_config.get('General', {}), **full_config.get('PTMMap', {})}
 
     # prepare workspace
     outdir = args.outdir

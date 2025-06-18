@@ -1,4 +1,19 @@
 #
+# PARAMETERS: General parameters
+#
+General:
+
+  # Comparison groups:
+  # - pair groups for hypothesis testing (LimmaCompare)
+  # - pair groups to which calculate FDR (FDRoptimizer)
+  # - pair groups to plot the PTM maps (PTMmap)
+  # - pair groups to to be analysed (qReport)
+  groups:
+    - [ H, C ]
+
+
+
+#
 # PARAMETERS: PTMMap
 #
 PTMMap:
@@ -32,10 +47,6 @@ PTMMap:
 
   # How Non-modified are named
   NM: NM
-
-  # Group to be analysed
-  groups:
-    - H-C
 
   # LPS integrations for: p2qc, qc2q, pgm2p, pgm2p_MN
   # [LowLevel_firstRow, LowLevel_secondRow]
