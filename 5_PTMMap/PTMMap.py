@@ -395,18 +395,28 @@ if __name__ == '__main__':
 
     # parse arguments
     parser = argparse.ArgumentParser(
-        description='PTMaps',
-        epilog='''
+        description='''
+        PTMMap - Visualize and compare protein post-translational modifications (PTMs)
+        
+        This tool generates interactive maps for each protein, displaying residue-specific PTM events and zonal changes 
+        based on statistical significance (LPS) between experimental conditions.
+        Two subfolders will be created:
+            - "path_plots_with_threshold" (maps for modifications meeting the threshold), and 
+            - "path_plots_without_threshold" (full protein maps).
+
         Example:
-            python PTMaps.py
-        ''')
+            python PTMMap.py -i limma_output.tsv -o PTM_maps/ -c PTMMap.yml -v
+        ''',
+        epilog='''Developed for PTM-Analyzer quantitative proteomics workflows''',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
       
     # default PTMaps configuration file
     defaultconfig = os.path.join(os.path.dirname(__file__), 'PTMMap.yml')
-    parser.add_argument('-i', '--infile', required=True, help='Path to input file')
-    parser.add_argument('-o', '--outdir', required=True, help='Output directory. Will be created if it does not exist')
-    parser.add_argument('-c', '--config', default=defaultconfig, help='Path to custom config.ini file')
-    parser.add_argument('-v', dest='verbose', action='store_true', help="Increase output verbosity")
+    parser.add_argument('-i', '--infile', required=True, help='Path to the input report file containing p-values and LPS scores from limma comparisons')
+    parser.add_argument('-o', '--outdir', required=True, help='Output directory to save PTM maps.')
+    parser.add_argument('-c', '--config', default=defaultconfig, help='Path to the YAML configuration file specifying thresholds, plotting options, and residue annotations')
+    parser.add_argument('-v', dest='verbose', action='store_true', help='Enable verbose logging for detailed progress messages')
     args = parser.parse_args()
    
    # parse config

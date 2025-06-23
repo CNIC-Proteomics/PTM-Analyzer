@@ -147,15 +147,20 @@ if __name__ == '__main__':
     
 
     parser = argparse.ArgumentParser(
-        description='FDRoptimizer',
-        epilog='''
-        Example:
-            python FDRoptimizer.py
-        ''')
+        description='''FDRoptimizer: 
+        A script to optimize spectral count thresholds for maximum statistical significance across integration levels using Benjamini-Hochberg correction. 
+        It analyzes iSanXoT/limma-style reports to identify the best threshold per group and contrast.
+
+        Example usage:
+            python FDRoptimizer.py -i limma_report.tsv -o optimized_report.tsv -c FDRoptimizer.yaml
+        ''',
+        epilog='''Developed for PTM-Analyzer quantitative proteomics workflows''',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
     parser.add_argument('-i', '--infile', required=True, help='Path to report with the Limma comparisons')
     parser.add_argument('-o', '--outfile', required=True, help='Path to output where FDR values will be saved')
-    parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'FDRoptimizer.yaml'), type=str, help='Path to config file')
+    parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'FDRoptimizer.yaml'), type=str, help='Path to YAML config file')
 
     args = parser.parse_args()
 

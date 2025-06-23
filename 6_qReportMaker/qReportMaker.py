@@ -26,7 +26,6 @@ idx = pd.IndexSlice
 # Local Functions
 #
 
-#os.chdir(r"S:\U_Proteomica\UNIDAD\software\MacrosRafa\data\Proteomics\GroupTools\ReportAnalysis\qTableReport")
 from utils.BinomialSiteListMaker import main as BSLM
 
 def getColumnNames(config, contrast):
@@ -770,17 +769,24 @@ if __name__ == '__main__':
     
 
     parser = argparse.ArgumentParser(
-        description='qReportMaker',
-        epilog='''
-        Example:
-            python qReportMaker.py
-        ''')
+        description='''
+        qReportMaker - Module designed for peptide-centric quantitative proteomics workflows.
 
-    parser.add_argument('-i', '--infile', required=True, help='Path to report with the FDR results')
+        This module enables a detailed exploration of significant changes at the protein level in a peptide-centric workflow.
+        It generates an output table summarizing the number of modified and non-modified peptidoforms with significant increases or decreases, along with details on digestion status and qc clusters.
+
+        Example:
+            python qReportMaker.py -i path/to/diffexpr_report.tsv -c config/qReportMaker.yaml -o results/qReports/ -q path/to/q2info.tsv  -p path/to/PTMMapPlots/
+        ''',
+        epilog='''Developed for PTM-Analyzer quantitative proteomics workflows''',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
+    parser.add_argument('-i', '--infile', required=True, help='Path to report with peptide-level differential expression results and annotations')
     parser.add_argument('-q', '--q2info', help='Path to report with protein information')
     parser.add_argument('-p', '--ptmmap', help='Path to PTMMap plots')
     parser.add_argument('-o', '--outdir', required=True, help='Path to the folder where output files will be saved')
-    parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'qReportMaker.yaml'), type=str, help='Path to config file')
+    parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'qReportMaker.yaml'), type=str, help='Path to YAML configuration file defining column mappings, thresholds, and output options')
 
     args = parser.parse_args()
 

@@ -233,15 +233,32 @@ if __name__ == '__main__':
     
 
     parser = argparse.ArgumentParser(
-        description='NMpyCompare',
-        epilog='''
-        Example:
-            python NMpyCompare.py
-        ''')
+        description='''
+        NMpyCompare - Compute NM-corrected values from iSanXoT reports.
 
-    parser.add_argument('-i', '--infile', required=True, help='Path to iSanXoT report file')
-    parser.add_argument('-o', '--outfile', required=True, help='Output with the NM-corrected values')
-    parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'NMpyCompare.yaml'), type=str, help='Path to config file')
+        This script processes an iSanXoT report to calculate delta Z values (ΔZ) 
+        by comparing modified peptidoforms to their corresponding non-modified (NM) references
+        within each cluster. The NM identification criteria and integration levels are 
+        specified via a configuration file.
+
+        The resulting NM-corrected values are appended as new columns in the output file.
+
+        Inputs:
+            - iSanXoT-formatted report (.tsv with multi-indexed levels)
+            - YAML configuration file defining integration levels and NM identification logic
+
+        Output:
+            - A modified report file containing additional columns with NM reference values and ΔZ values for each modified peptidoform
+
+        Example:
+            python NMpyCompare.py -i report.tsv -o corrected_report.tsv -c NMpyCompare.yaml
+        ''',
+        epilog='''Developed for PTM-Analyzer quantitative proteomics workflows''',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument('-i', '--infile', required=True, help='Path to input iSanXoT report file')
+    parser.add_argument('-o', '--outfile', required=True, help='Path to the output file with appended NM-corrected values')
+    parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'NMpyCompare.yaml'), type=str, help='Path to YAML config file (default: NMpyCompare.yaml in script directory)')
 
     args = parser.parse_args()
 

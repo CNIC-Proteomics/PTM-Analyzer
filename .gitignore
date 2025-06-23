@@ -2,3 +2,4 @@
 .spyproject
 env
 */*/__pycache__
+*/*/__init__.py
