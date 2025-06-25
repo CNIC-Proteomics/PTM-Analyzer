@@ -316,8 +316,8 @@ The module generates:
     # Specific parameters of module
     qReportMaker:
 
-      # Number of works in parallel
-      n_cpu: 8
+      # Number of works in parallel. Othwerise is the 75% of total number of cpu's
+      # n_cpu: 8
 
       # Folder where the outputs will be saved
       outDirName: qReports
@@ -327,11 +327,7 @@ The module generates:
       path_plots_Without_threshold: PTMmaps
 
       # FDR threshold used
-      qvThr:
-        - 0.01
-        - 0.05
-        - 0.1
-        - 1
+      qvThr: [0.01, 0.05, 0.1, 1]
 
       #
       # Columns information
@@ -341,20 +337,14 @@ The module generates:
       # Second row column name
 
       # Column name containing group
-      gCol: 
-        - g
-        - REL
+      gCol: [g, REL]
 
 
       # Column name containing modified aminoacid
-      aCol: 
-        - a
-        - REL
+      aCol: [a, REL]
           
       # Column name containing peptide position of modification
-      mCol: 
-        - m
-        - REL
+      mCol: [m, REL]
 
       # Name of the group corresponding to non-modified
       NMgroup: NM
@@ -365,53 +355,35 @@ The module generates:
       #
 
       # Column containing pgm in the following format: PEP[MOD]TIDE
-      pdmCol:
-        - pgm
-        - LEVEL
+      pdmCol: [pgm, LEVEL]
 
       # Column containing p
-      pCol:
-        - p
-        - LEVEL
+      pCol: [p, LEVEL]
 
       # Column containing qc
-      qcCol:
-        - qc
-        - LEVEL
+      qcCol: [qc, LEVEL]
 
       # Column containing q
-      qCol:
-        - q
-        - LEVEL
+      qCol: [q, LEVEL]
 
       # Column containing protein description
-      qDescCol:
-        - description
-        - REL
+      qDescCol: [description, REL]
 
       #
       # Frequencies
       #
 
       # Column containing scan frequency of pgm
-      pdmFreq:
-        - pgmFreq
-        - REL
+      pdmFreq: [pgmFreq, REL]
 
       # Column containing scan frequency of p 
-      pFreq:
-        - pFreq
-        - REL
+      pFreq: [pFreq, REL]
 
       # Column containing scan frequency of qc
-      qcFreq:
-        - qcFreq
-        - REL
+      qcFreq: [qcFreq, REL]
 
       # Column containing protein frequency
-      qFreq:
-        - qFreq
-        - REL
+      qFreq: [qFreq, REL]
 
       #
       # Mean differences
@@ -419,53 +391,35 @@ The module generates:
 
       # Column containing positive values for "up" pgm and negative values for "down"
       # pgm in Z_pdm2p_dNM. For example, mean difference between Treatment Group and Control Group
-      sign:
-        - Z_pgm2p_dNM_dX
-        - dX
+      sign: [Z_pgm2p_dNM_dX, dX]
 
       # Column containing positive values for "up" pdm_NM and negative values for "down"
       # pdm in Z_pdm2p (without NM correction). For example, mean difference between Treatment Group and Control Group
-      signNM:
-        - Z_pgm2p_dX
-        - dX
+      signNM: [Z_pgm2p_dX, dX]
 
-      sign_p:
-        - Z_p2qc_dX
-        - dX
+      sign_p: [Z_p2qc_dX, dX]
           
-      sign_qc:
-        - Z_qc2q_dX
-        - dX
+      sign_qc: [Z_qc2q_dX, dX]
           
 
       #
       # qValue/pValue
       #
 
-      # Column containing qvalue/pvalue for Z_pgm2p_dNM (pgm corrected by their non modified version)
-      qvalue_dNM:
-        - Z_pgm2p_dNM_limma
-        - qvalue
+      # Column containing significance value (qvalue/pvalue) for Z_pgm2p_dNM (pgm corrected by their non modified version)
+      qvalue_dNM: Z_pgm2p_dNM_limma
 
       # Column containing qvalue/pvalue for Z_pgm2p considering only non modified pgm
-      qvalue_NM:
-        - Z_pgm2p_limma_NM_ONLY
-        - qvalue
+      qvalue_NM: Z_pgm2p_limma_NM_ONLY
 
       # Column containing qvalue of p
-      qvalue_p:
-        - Z_p2qc_limma
-        - qvalue
+      qvalue_p: Z_p2qc_limma
           
       # Column containing qvalue of qc
-      qvalue_qc:
-        - Z_qc2q_limma
-        - qvalue
+      qvalue_qc: Z_qc2q_limma
 
       # Column containing number of missing cleavages
-      missing_cleavages:
-        - Missing_Cleavage
-        - REL
+      missing_cleavages: [Missing_Cleavage, REL]
 
 
       #
@@ -485,6 +439,7 @@ The module generates:
       # Values represented in pivot table
       # Possible values: 'x-PSM', 'x-PDM'
       values_pivot: x-PSM
+
     ```
 - **Optional inputs**
   * `--ptmmap` (`-p`): Path to PTMMap plots.
