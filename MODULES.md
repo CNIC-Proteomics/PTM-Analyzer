@@ -82,6 +82,10 @@ This unified metric facilitates interpretation of both statistical significance 
       groups:
         - [ H, C ]
 
+      # Significance value used across multiple modules. Can be either a qvalue or pvalue. Defaults to pvalue.
+      significance_value: 'pvalue'
+
+
     # Specific parameters of module
     LimmaCompare:
 
@@ -139,6 +143,10 @@ Additionally, FDRoptimizer generates interactive visualizations using **Plotly**
       groups:
         - [ H, C ]
 
+      # Significance value used across multiple modules. Can be either a qvalue or pvalue. Defaults to pvalue.
+      significance_value: 'pvalue'
+      
+
     # Specific parameters of module
     FDRoptimizer:
 
@@ -192,6 +200,10 @@ The x-axis represents the position of each residue in the protein. Specific PTMs
       groups:
         - [ H, C ]
 
+      # Significance value used across multiple modules. Can be either a qvalue or pvalue. Defaults to pvalue.
+      significance_value: 'pvalue'
+      
+
     # Specific parameters of module
     PTMMap:
 
@@ -234,16 +246,16 @@ The x-axis represents the position of each residue in the protein. Specific PTMs
         pgm2p_NM: [Z_pgm2p_dNM_logLimma, LPS]
 
       # NM comparison for pgm2p integrations
-      # [LowLevel_firstRow, LowLevel_secondRow]
+      # LowLevel_firstRow
       NM_ColumnNames:
-        pgm2p:    [Z_pgm2p_dNM_limma, qvalue]
-        pgm2p_NM: [Z_pgm2p_limma_NM_ONLY, qvalue]
+        pgm2p:    Z_pgm2p_dNM_limma
+        pgm2p_NM: Z_pgm2p_limma_NM_ONLY
 
       # Filter integrations for: p2qc, qc2q
-      # [LowLevel_firstRow, LowLevel_secondRow]
+      # LowLevel_firstRow
       Filter_ColumnNames:
-        p2qc: [Z_p2qc_limma, qvalue]
-        qc2q: [Z_qc2q_limma, qvalue]
+        p2qc: Z_p2qc_limma
+        qc2q: Z_qc2q_limma
 
       # Threshold of filtering for the given integrations: pgm2p_NM, pgm2p, p2qc, qc2q
       threshold_pgm2p_NM: 0.05
@@ -296,6 +308,10 @@ The module generates:
       # Comparison groups
       groups:
         - [ H, C ]
+
+      # Significance value used across multiple modules. Can be either a qvalue or pvalue. Defaults to pvalue.
+      significance_value: 'pvalue'
+      
 
     # Specific parameters of module
     qReportMaker:

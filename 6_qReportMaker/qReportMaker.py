@@ -28,7 +28,7 @@ idx = pd.IndexSlice
 
 from utils.BinomialSiteListMaker import main as BSLM
 
-def getColumnNames(config, contrast):
+def getColumnNames(config, contrast, significance_value):
     return [tuple(i) for i in [
         config['pdmCol'], 
         config['qCol'],
@@ -37,29 +37,29 @@ def getColumnNames(config, contrast):
         config['qFreq'], 
         [f"{config['sign'][0]}_{contrast}", config['sign'][1]], 
         [f"{config['signNM'][0]}_{contrast}", config['signNM'][1]],
-        [f"{config['qvalue_dNM'][0]}_{contrast}", config['qvalue_dNM'][1]],
-        [f"{config['qvalue_NM'][0]}_{contrast}", config['qvalue_NM'][1]],
+        [f"{config['qvalue_dNM']}_{contrast}", significance_value],
+        [f"{config['qvalue_NM']}_{contrast}", significance_value],
         ]
     ]
 
-def getRepQFColumnNames(config, contrast):
+def getRepQFColumnNames(config, contrast, significance_value):
     return [ tuple(i) for i in [
         config['pCol'],
         config['qcCol'],
         config['qCol'],
         config['pFreq'],
         config['qcFreq'],
-        [f"{config['qvalue_p'][0]}_{contrast}", config['qvalue_p'][1]],
-        [f"{config['qvalue_qc'][0]}_{contrast}", config['qvalue_qc'][1]],
+        [f"{config['qvalue_p']}_{contrast}", significance_value],
+        [f"{config['qvalue_qc']}_{contrast}", significance_value],
         [f"{config['sign_p'][0]}_{contrast}", config['sign_p'][1]],
         [f"{config['sign_qc'][0]}_{contrast}", config['sign_qc'][1]],
         config['missing_cleavages']
         ]
     ]
 
-def getRepQF(rep0, config, contrast):
+def getRepQF(rep0, config, contrast, significance_value):
     
-    pCol, qcCol, qCol, pFreq, qcFreq, FDRp, FDRqc, sign_p, sign_qc, mcCol = getRepQFColumnNames(config, contrast)
+    pCol, qcCol, qCol, pFreq, qcFreq, FDRp, FDRqc, sign_p, sign_qc, mcCol = getRepQFColumnNames(config, contrast, significance_value)
     
     repQF = {
         'PSMs': {},
@@ -90,7 +90,7 @@ def getRepQF(rep0, config, contrast):
 
     
 
-def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
+def generateFreqTable(config, sign_i, fdr_i, rep, contrast, significance_value):
     '''
     Parameters
     ----------
@@ -104,7 +104,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
     ptm : TYPE
         DESCRIPTION.
     '''
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast, significance_value)
     
     boolean = np.logical_and.reduce([
         rep[FDRdNM] < fdr_i,
@@ -140,7 +140,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
         })
 
     
-    outFolder = os.path.join(args.outdir, 'FreqTables', contrast, f"{config['qvalue_dNM'][1]}-{fdr_i}")
+    outFolder = os.path.join(args.outdir, 'FreqTables', contrast, f"{significance_value}-{fdr_i}")
     if not os.path.exists(outFolder):
         os.makedirs(outFolder, exist_ok=True)
     
@@ -155,7 +155,7 @@ def generateFreqTable(config, sign_i, fdr_i, rep, contrast):
 
 
 
-def qReportPivot(config, fdr_i, sign_i, rep, ptmCol, contrast):
+def qReportPivot(config, fdr_i, sign_i, rep, ptmCol, contrast, significance_value):
     '''
 
     Parameters
@@ -172,10 +172,10 @@ def qReportPivot(config, fdr_i, sign_i, rep, ptmCol, contrast):
 
     '''
     
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast, significance_value)
     
     # Generate PTM Freq Table
-    biptm = generateFreqTable(config, sign_i, fdr_i, rep, contrast)
+    biptm = generateFreqTable(config, sign_i, fdr_i, rep, contrast, significance_value)
     
     repD = rep[np.logical_and.reduce([
         rep[FDRdNM] < fdr_i,
@@ -202,7 +202,7 @@ def qReportPivot(config, fdr_i, sign_i, rep, ptmCol, contrast):
     return qTableD
         
 
-def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, contrast):
+def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, contrast, significance_value):
     '''
     
     Parameters
@@ -220,8 +220,8 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
 
     '''
     
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
-    pCol, qcCol, qCol, pFreq, qcFreq, FDRp, FDRqc, sign_p, sign_qc, mcCol = getRepQFColumnNames(config, contrast)
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast, significance_value)
+    pCol, qcCol, qCol, pFreq, qcFreq, FDRp, FDRqc, sign_p, sign_qc, mcCol = getRepQFColumnNames(config, contrast, significance_value)
     
     # Collapse PTMs of the same protein
     qTableD = qTableD.reset_index().drop(pdmCol, axis=1).groupby([qCol]).agg("sum")
@@ -326,7 +326,7 @@ def qReportAddData(config, fdr_i, sign_i, quan, qTableD, repNM, repPQF, rep, con
     return qTableD
 
 
-def qReportDesign(config, quan, qTableD, contrast):
+def qReportDesign(config, quan, qTableD, contrast, significance_value):
     '''
     Parameters
     ----------
@@ -341,7 +341,7 @@ def qReportDesign(config, quan, qTableD, contrast):
 
     '''
     
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast, significance_value)
     
     # Sort columns
     infoCols = [qdCol,qFreq,(quan,'NM'),(quan,'NMsig'),(quan,'DT'),(quan,'DTsig'),(quan,'DP'),(quan,'DPsig'),(quan,'qc'),(quan,'qcsig'),\
@@ -534,9 +534,9 @@ def qReportMergeUpDown(params, config):
     return params2
 
 
-def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
+def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast, significance_value):
     
-    outFolder = os.path.join(args.outdir, config['outDirName'], contrast, f'{config["qvalue_dNM"][1]}-{fdr_i}')
+    outFolder = os.path.join(args.outdir, config['outDirName'], contrast, f'{significance_value}-{fdr_i}')
     if not os.path.exists(outFolder):
         os.makedirs(outFolder, exist_ok=True)
     
@@ -571,7 +571,7 @@ def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast):
     
     
 
-def qReportContrast(rep0, config, contrast):
+def qReportContrast(rep0, config, contrast, significance_value):
     '''
     Parameters
     ----------
@@ -584,7 +584,14 @@ def qReportContrast(rep0, config, contrast):
     -------
     None.
     '''
-    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast)
+    logging.info(f"*** {contrast} ***")
+
+    # get the n_cpu from config file. Otherwise, get the 75% of total cpu's
+    n_cpu_total = multiprocessing.cpu_count()
+    n_cpu = config.get('n_cpu', (n_cpu_total * 75) // 100)
+    n_cpu = max(1, n_cpu)  # ensure at least one process
+
+    pdmCol, qCol, qdCol, pdmFreq, qFreq, sign, signNM, FDRdNM, FDRNM = getColumnNames(config, contrast, significance_value)
     ptmCol = ('PTM', 'REL')
     
     # Get required report fraction
@@ -602,7 +609,7 @@ def qReportContrast(rep0, config, contrast):
     repNM['Peptides'][pdmFreq] = [0 if i==0 else 1 for i in repNM['Peptides'][pdmFreq]]
     
 
-    repPQF = getRepQF(rep0, config, contrast)
+    repPQF = getRepQF(rep0, config, contrast, significance_value)
     
     # Create folder with output files
     # if not os.path.exists(os.path.join(args.outdir, 'FreqTables', contrast)):
@@ -612,30 +619,31 @@ def qReportContrast(rep0, config, contrast):
     # All combinations FDR x Sign
     fdrxsign = list(itertools.product(config['qvThr'], ['up', 'down']))
     
-    params = [(config, fdr_i, sign_i, rep, ptmCol, contrast) for fdr_i, sign_i in fdrxsign]
+    params = [(config, fdr_i, sign_i, rep, ptmCol, contrast, significance_value) for fdr_i, sign_i in fdrxsign]
     qReportList = [(i[1], i[2], qReportPivot(*i)) for i in params]
     
-    logging.info('Pivot Report to obtain pre-qReport')
     params = [
-     (config, fdr_i, sign_i, quan, qTableD[quan], repNM[quan], repPQF[quan], rep, contrast) 
+     (config, fdr_i, sign_i, quan, qTableD[quan], repNM[quan], repPQF[quan], rep, contrast, significance_value) 
      for fdr_i, sign_i, qTableD in qReportList if qTableD 
      for quan in qTableD
      ]
-    
-    # Single core
-    qReportList = [(i[1], i[2], i[3], qReportAddData(*i)) for i in params]
+
+    # # Single core
+    # logging.info("Pivot Report to obtain pre-qReport...")
+    # qReportList = [(i[1], i[2], i[3], qReportAddData(*i)) for i in params]
 
     # Multicore
-    #pool = multiprocessing.Pool(processes=config['n_cpu'])
-    #qReportList = pool.starmap(qReportAddData, params)
-    #pool.close()
-    #pool.join()
-    #qReportList = [(i[1], i[2], i[3], j) for i,j in zip(params, qReportList)]
+    logging.info(f"Pivot Report to obtain pre-qReport (ncpu: {n_cpu})...")
+    pool = multiprocessing.Pool(processes=n_cpu)
+    qReportList = pool.starmap(qReportAddData, params)
+    pool.close()
+    pool.join()
+    qReportList = [(i[1], i[2], i[3], j) for i,j in zip(params, qReportList)]
     
     
     logging.info('Adding data to qReport')
     params = [
-     [(config, quan, qTableD, contrast), (fdr_i, sign_i, quan)]
+     [(config, quan, qTableD, contrast, significance_value), (fdr_i, sign_i, quan)]
      for fdr_i, sign_i, quan, qTableD in qReportList
      ]
     qReportList = [(fdr_i, sign_i, quan, qReportDesign(*i)) for i, (fdr_i, sign_i, quan) in params]
@@ -645,7 +653,7 @@ def qReportContrast(rep0, config, contrast):
     
     logging.info('Adapting qReport format')
     params = [
-     (config, fdr_i, sign_i, quan, qTableD, contrast)
+     (config, fdr_i, sign_i, quan, qTableD, contrast, significance_value)
      for fdr_i, sign_i, quan, qTableD in qReportList
      ]
     
@@ -653,9 +661,15 @@ def qReportContrast(rep0, config, contrast):
     
 
     if args.outdir:
-        logging.info('Writing output')
-        _ = [qReportWrite(*i) for i in params]
-    
+        # # single core
+        # logging.info("Writing output...")
+        # _ = [qReportWrite(*i) for i in params]
+
+        # multi core
+        logging.info(f"Writing output (n_cpu: {n_cpu})...")
+        with multiprocessing.Pool(processes=n_cpu) as pool:
+            pool.starmap(qReportWrite, params)
+
     else:
         return qReportList
     
@@ -747,6 +761,7 @@ def main(config, file=None):
             )
     
 
+    logging.info(f"Pre-processing data...")
     ptmCol = ('PTM', 'REL')
     rep[ptmCol] = [
         #(None, None) if np.isnan(k) else (i,j) 
@@ -757,10 +772,15 @@ def main(config, file=None):
     #rep[ptmCol] = getPTMCol(rep, config)
     rep = rep[~rep[pdmCol].duplicated()]
     
+    # extract the significance value: p-value or q-value
+    significance_value = config['significance_value']
+
+
+    logging.info(f"Getting Basal qReport...")
     _ = getBasalQReport(rep, tuple(config['qCol']), tuple(config['qDescCol']), tuple(config['pdmFreq']), ptmCol)
     
-        
-    return [qReportContrast(rep, config, '-'.join(group)) for group in config['groups']]
+    logging.info(f"Getting qReport by groups...")
+    return [qReportContrast(rep, config, '-'.join(group), significance_value) for group in config['groups']]
     
 
 

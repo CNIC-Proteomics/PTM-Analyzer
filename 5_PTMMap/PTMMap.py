@@ -341,6 +341,9 @@ def main(config):
     path_plots_FDR = config.get("path_plots_with_threshold")
     path_plots = config.get("path_plots_Without_threshold")
 
+    # extract the significance value: p-value or q-value
+    significance_value = config.get("significance_value")
+
     # extract the groups
     groups = config.get("groups")
 
@@ -371,13 +374,13 @@ def main(config):
 
         # read NM column mappings
         NM_mappings = config.get("NM_ColumnNames", {})
-        FDR_pgm = f"{NM_mappings['pgm2p'][0]}_{grp}_{NM_mappings['pgm2p'][1]}"
-        FDR_NM = f"{NM_mappings['pgm2p_NM'][0]}_{grp}_{NM_mappings['pgm2p_NM'][1]}"
+        FDR_pgm = f"{NM_mappings['pgm2p']}_{grp}_{significance_value}"
+        FDR_NM = f"{NM_mappings['pgm2p_NM']}_{grp}_{significance_value}"
 
         # read Filter column mappings
         Filter_mappings = config.get("Filter_ColumnNames", {})
-        FDR_p2qc = f"{Filter_mappings['p2qc'][0]}_{grp}_{Filter_mappings['p2qc'][1]}"
-        FDR_qc2q = f"{Filter_mappings['qc2q'][0]}_{grp}_{Filter_mappings['qc2q'][1]}"
+        FDR_p2qc = f"{Filter_mappings['p2qc']}_{grp}_{significance_value}"
+        FDR_qc2q = f"{Filter_mappings['qc2q']}_{grp}_{significance_value}"
 
         logging.info("- obtaining group data...")
         df_final = obtaindf (df,"New_FDR",g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qc,FDR_qc2q,Missing_Cleavages,LPS_p2qc,LPS_qc2q,e,description, p,q,qc,pFreq,pgmFreq, qcFreq,d,NM,threshold_pgm2p,pgmFreqThreshold)

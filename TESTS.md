@@ -98,11 +98,11 @@ python 5_PTMMap/PTMMap.py \
 
 6. qTableReport:
 ```
-python 6_qTableReport/qReportMaker.py \
+python 6_qReportMaker/qReportMaker.py \
   -i samples/heteroplasmic_heart/results/quant_pdm_NM_LIMMA_FDR.tsv \
   -q samples/heteroplasmic_heart/inputs/myMitocarta.tsv \
   -c samples/heteroplasmic_heart/inputs/params.yml \
-  -o samples/heteroplasmic_heart/results
+  -o samples/heteroplasmic_heart/results_2
 ```
 
 <!--
