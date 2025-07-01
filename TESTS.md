@@ -65,7 +65,7 @@ You can use the R-portable program and execute the "ReportLimma" batch script on
 
 3.2 Execute the `ReportLimma` batch script using a R-portable.
 ```
-ReportLimma_wo_GUI\ReportLimma.bat ^
+bin\ReportLimma.bat ^
   -i "%CD%/samples/heteroplasmic_heart/results/quant_pgm_NM.tsv" ^
   -c "%CD%/samples/heteroplasmic_heart/inputs/params.yml" ^
   -s "%CD%/samples/heteroplasmic_heart/inputs/limma_comparisons.tsv" ^
