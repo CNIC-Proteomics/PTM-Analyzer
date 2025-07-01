@@ -1,4 +1,22 @@
 ___
+## v1.05
+
+### Date 📅 *2025_07*
+
+### Changes in detail
+
++ qReportMaker: sort PTMs columns and remove Hypergeom from PSMs.
++ The parameter with the comparison groups, which is used by most of the modules (app_wo_GUI.R, FDRoptimizer, PTMMap, and qReportMaker), has been included in the 'General' section of the parameter file.
++ Updated documentation.
++ The parameter that defines the qvalue or pvalue filter is included in the 'General' section of parameter file for the PTMmap and qReportMaker programs.
++ New structure of files.
++ The merging of iSanXoT and the PDMTable is at PGM level.
++ Optimize PTMmap and qReport for better performance.
+
+
+
+
+___
 ## v1.04
 
 ### Date 📅 *2025_04*
