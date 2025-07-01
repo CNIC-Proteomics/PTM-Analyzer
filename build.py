@@ -2,7 +2,7 @@ import zipfile
 import os
 
 # Lista de nombres de las carpetas que quieres comprimir
-carpetas = ['bin', 'src']
+carpetas = ['bin', 'src', 'config', 'INSTALLATION.md', 'MODULES.md', 'README.md', 'TESTS.md', 'changelog.md', 'install_packages.R', 'python_requirements.txt']
 
 exclude = ["\\test", "\\samples", "\\__pycache__"]
 
