@@ -26,7 +26,7 @@ idx = pd.IndexSlice
 # Local Functions
 #
 
-from utils.BinomialSiteListMaker import main as BSLM
+from BinomialSiteListMaker import main as BSLM
 
 def getColumnNames(config, contrast, significance_value):
     return [tuple(i) for i in [
@@ -802,11 +802,12 @@ if __name__ == '__main__':
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
+    default_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config', 'params.yml')
     parser.add_argument('-i', '--infile', required=True, help='Path to report with peptide-level differential expression results and annotations')
     parser.add_argument('-q', '--q2info', help='Path to report with protein information')
     parser.add_argument('-p', '--ptmmap', help='Path to PTMMap plots')
     parser.add_argument('-o', '--outdir', required=True, help='Path to the folder where output files will be saved')
-    parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'qReportMaker.yaml'), type=str, help='Path to YAML configuration file defining column mappings, thresholds, and output options')
+    parser.add_argument('-c', '--config', default=default_config_path, type=str, help='Path to YAML configuration file defining column mappings, thresholds, and output options (default: config/params.yml)')
 
     args = parser.parse_args()
 

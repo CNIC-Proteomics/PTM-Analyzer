@@ -147,8 +147,10 @@ if __name__ == '__main__':
     
 
     parser = argparse.ArgumentParser(
-        description='''FDRoptimizer: 
-        A script to optimize spectral count thresholds for maximum statistical significance across integration levels using Benjamini-Hochberg correction. 
+        description='''
+        FDRoptimizer - Optimize spectral count thresholds for maximum statistical significance
+
+        A script to optimize spectral count thresholds for maximum statistical significance across integration levels using Benjamini-Hochberg correction.
         It analyzes iSanXoT/limma-style reports to identify the best threshold per group and contrast.
 
         Example usage:
@@ -158,9 +160,10 @@ if __name__ == '__main__':
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
-    parser.add_argument('-i', '--infile', required=True, help='Path to report with the Limma comparisons')
+    default_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config', 'params.yml')
+    parser.add_argument('-i', '--infile',  required=True, help='Path to report with the Limma comparisons')
     parser.add_argument('-o', '--outfile', required=True, help='Path to output where FDR values will be saved')
-    parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'FDRoptimizer.yaml'), type=str, help='Path to YAML config file')
+    parser.add_argument('-c', '--config',  default=default_config_path, type=str, help='Path to YAML config file (default: config/params.yml)')
 
     args = parser.parse_args()
 

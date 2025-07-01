@@ -41,20 +41,21 @@ cd ..
 mkdir samples/heteroplasmic_heart/results
 ```
 
-1. MergeiSanxotPDM:
+1. mergeiSanxotPGM:
 ```
-python 1_MergeiSanxotPDM/MergeiSanxotPDM.py \
+python src/mergeiSanxotPGM.py \
   -i samples/heteroplasmic_heart/inputs/q_all.tsv \
-  -p samples/heteroplasmic_heart/inputs/DMTable_PeakAssignation_FDRfiltered_DM0S_PA_T_PeakAssignation_SS_Heart_FDR_PDMTable_GM_J_PDM_Table_pgmFreq.tsv \
-  -o samples/heteroplasmic_heart/results/quant_pdm.tsv
+  -p samples/heteroplasmic_heart/inputs/DMTable_PeakAssignation_FDRfiltered_DM0S_PA_T_PeakAssignation_SS_Heart_FDR_PDMTable_GM_J_PGM_Table_pgmFreq.tsv \
+  -o samples/heteroplasmic_heart/results/quant_pgm.tsv
 ```
+Note: This program is optional. If you already have the PDM table at the PGM level in the iSanXoT report (q_all.tsv file), you do not need to run it.
 
 2. NMpyCompare:
 ```
-python 2_NMpyCompare/NMpyCompare.py \
-  -i samples/heteroplasmic_heart/results/quant_pdm.tsv \
+python src/NMpyCompare.py \
+  -i samples/heteroplasmic_heart/results/quant_pgm.tsv \
   -c samples/heteroplasmic_heart/inputs/params.yml \
-  -o samples/heteroplasmic_heart/results/quant_pdm_NM.tsv
+  -o samples/heteroplasmic_heart/results/quant_pgm_NM.tsv
 ```
 
 3. ReportLimma:
@@ -64,45 +65,45 @@ You can use the R-portable program and execute the "ReportLimma" batch script on
 
 3.2 Execute the `ReportLimma` batch script using a R-portable.
 ```
-3_ReportLimma_wo_GUI\ReportLimma.bat ^
-  -i "%CD%/samples/heteroplasmic_heart/results/quant_pdm_NM.tsv" ^
+ReportLimma_wo_GUI\ReportLimma.bat ^
+  -i "%CD%/samples/heteroplasmic_heart/results/quant_pgm_NM.tsv" ^
   -c "%CD%/samples/heteroplasmic_heart/inputs/params.yml" ^
   -s "%CD%/samples/heteroplasmic_heart/inputs/limma_comparisons.tsv" ^
-  -o "%CD%/samples/heteroplasmic_heart/results/quant_pdm_NM_LIMMA.tsv"
+  -o "%CD%/samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA.tsv"
 ```
 
 Alternatively, you can run the R script directly using your own Rscript installation:
 ```
-Rscript --vanilla 3_ReportLimma_wo_GUI/app_wo_GUI.R \
-  -i samples/heteroplasmic_heart/results/quant_pdm_NM.tsv \
+Rscript --vanilla src/ReportLimma.R \
+  -i samples/heteroplasmic_heart/results/quant_pgm_NM.tsv \
   -c samples/heteroplasmic_heart/inputs/params.yml \
   -s samples/heteroplasmic_heart/inputs/limma_comparisons.tsv \
-  -o samples/heteroplasmic_heart/results/quant_pdm_NM_LIMMA.tsv
+  -o samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA.tsv
 ```
 
 4. FDRoptimizer:
 ```
-python 4_FDRoptimizer/FDRoptimizer.py \
-  -i samples/heteroplasmic_heart/results/quant_pdm_NM_LIMMA.tsv \
+python src/FDRoptimizer.py \
+  -i samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA.tsv \
   -c samples/heteroplasmic_heart/inputs/params.yml \
-  -o samples/heteroplasmic_heart/results/quant_pdm_NM_LIMMA_FDR.tsv
+  -o samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA_FDR.tsv
 ```
 
 5. PTMMap:
 ```
-python 5_PTMMap/PTMMap.py \
-  -i samples/heteroplasmic_heart/results/quant_pdm_NM_LIMMA_FDR.tsv \
+python src/PTMMap.py \
+  -i samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA_FDR.tsv \
   -c samples/heteroplasmic_heart/inputs/params.yml \
   -o samples/heteroplasmic_heart/results
 ```
 
 6. qTableReport:
 ```
-python 6_qReportMaker/qReportMaker.py \
-  -i samples/heteroplasmic_heart/results/quant_pdm_NM_LIMMA_FDR.tsv \
+python src/qReportMaker.py \
+  -i samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA_FDR.tsv \
   -q samples/heteroplasmic_heart/inputs/myMitocarta.tsv \
   -c samples/heteroplasmic_heart/inputs/params.yml \
-  -o samples/heteroplasmic_heart/results_2
+  -o samples/heteroplasmic_heart/results
 ```
 
 <!--

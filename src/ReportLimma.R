@@ -21,10 +21,11 @@ option_list <- list(
 # parse options
 opt_parser <- OptionParser(
   option_list = option_list,
-  description = '''
-  ReportLimma: Performs group-wise statistical testing on iSanXoT integration-level data using the limma package.
-  Computes p-values, mean differences, and signed log p-values (LPS) for specified contrasts.
-  '''
+  description = paste(
+    "ReportLimma: Performs group-wise statistical testing on iSanXoT integration-level data using the limma package.",
+    "Computes p-values, mean differences, and signed log p-values (LPS) for specified contrasts.",
+    sep = "\n"
+  )
 )
 opt <- parse_args(opt_parser)
 

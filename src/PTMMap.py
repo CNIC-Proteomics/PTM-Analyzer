@@ -22,6 +22,7 @@ import logging
 import os
 import sys
 import yaml
+import multiprocessing
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -117,47 +118,52 @@ def obtaindf (df,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FD
     
     return df_final
 
-def p2qcMaker (dfp,listproteins,threshold_p2qc):
-    df_p2qc = pd.DataFrame(columns=["p","qc","q","pFreq",'Missing_Cleavages',"LPS_p2qc","position","description","FDR_p2qc"],dtype=float) # Dataframe 2 is created with the aim of 
-    dfp_proteins=dfp [dfp ['q'].isin (listproteins)]
-    dfp_proteins = dfp_proteins.drop_duplicates(subset=['p'])
-    cont = 0
-    for index, row in dfp_proteins.iterrows():
+def p2qcMaker(dfp, listproteins, threshold_p2qc):
+    dfp_proteins = dfp[dfp['q'].isin(listproteins)].drop_duplicates(subset=['p'])
+    rows = []
+    for _, row in dfp_proteins.iterrows():
         int_b = int(row["first_b"])
         int_e = int(row["e"])
 
-        for i in range(int_b,int_e+1):
-            cont = cont+1
-            df_p2qc.loc[cont,"p"] = row["p"]
-            df_p2qc.loc[cont,"pFreq"] = row["pFreq"]
-            df_p2qc.loc[cont,"q"] = row["q"]
-            df_p2qc.loc[cont,"Missing_Cleavages"] = row["Missing_Cleavages"]
-            df_p2qc.loc[cont,"LPS_p2qc"] = row["LPS_p2qc"]   
-            df_p2qc.loc[cont,"description"] = row["description"]
-            df_p2qc.loc[cont,"FDR_p2qc"] = row["FDR_p2qc"]
-            df_p2qc.loc[cont,"position"] = i 
-    df_p2qc_filtered = df_p2qc[df_p2qc.FDR_p2qc.le(threshold_p2qc)].reset_index()
-    return df_p2qc,df_p2qc_filtered
+        for i in range(int_b, int_e + 1):
+            rows.append({
+                "p": row["p"],
+                "pFreq": row["pFreq"],
+                "q": row["q"],
+                "Missing_Cleavages": row["Missing_Cleavages"],
+                "LPS_p2qc": row["LPS_p2qc"],
+                "position": i,
+                "description": row["description"],
+                "FDR_p2qc": row["FDR_p2qc"],
+            })
 
-def qc2qMaker (dfqc, listproteins,threshold_qc2q):
-    dfqc_2 = pd.DataFrame(columns=["qc","q","qcFreq","LPS_qc2q","position","description","FDR_qc2q"],dtype=float)
-    dfqc_proteins=dfqc [dfqc ['q'].isin (listproteins)]
-    dfqc_proteins = dfqc_proteins.drop_duplicates(subset=['qc'])
-    cont = 0
-    for index, row in dfqc_proteins.iterrows():
-        W = int(row["qc"].replace("-","_").split(";")[0].split(":")[1].split("_")[0])
-        V = int(row["qc"].replace("-","_").split(";")[0].split(":")[1].split("_")[1])
-        for i in range(W,V+1):
-            cont = cont+1
-            dfqc_2.loc[cont,"qcFreq"] = row["qcFreq"]
-            dfqc_2.loc[cont,"q"] = row["q"]
-            dfqc_2.loc[cont,"LPS_qc2q"] = row["LPS_qc2q"]  
-            dfqc_2.loc[cont,"FDR_qc2q"] = row["FDR_qc2q"] 
-            dfqc_2.loc[cont,"description"] = row["description"]
-            dfqc_2.loc[cont,"position"] = i 
-            dfqc_2.loc[cont,"qc"] = row["qc"]
-        
-    dfqc_2_filtered= dfqc_2[dfqc_2.FDR_qc2q.le(threshold_qc2q)].reset_index()
+    df_p2qc = pd.DataFrame(rows)
+    df_p2qc_filtered = df_p2qc[df_p2qc["FDR_p2qc"] <= threshold_p2qc].reset_index(drop=True)
+
+    return df_p2qc, df_p2qc_filtered
+
+def qc2qMaker(dfqc, listproteins, threshold_qc2q):
+    dfqc_proteins = dfqc[dfqc['q'].isin(listproteins)].drop_duplicates(subset=['qc'])
+    rows = []
+    for _, row in dfqc_proteins.iterrows():
+        # preprocess the 'qc' field once
+        qc_str = row["qc"].replace("-", "_").split(";")[0].split(":")[1]
+        W, V = map(int, qc_str.split("_"))
+
+        for i in range(W, V + 1):
+            rows.append({
+                "qc": row["qc"],
+                "q": row["q"],
+                "qcFreq": row["qcFreq"],
+                "LPS_qc2q": row["LPS_qc2q"],
+                "position": i,
+                "description": row["description"],
+                "FDR_qc2q": row["FDR_qc2q"],
+            })
+
+    dfqc_2 = pd.DataFrame(rows)
+    dfqc_2_filtered = dfqc_2[dfqc_2["FDR_qc2q"] <= threshold_qc2q].reset_index(drop=True)
+
     return dfqc_2, dfqc_2_filtered
 
 def TablesMaker (df_final,threshold_p2qc,NM,New_LPS,New_FDR,threshold_pgm2p,FDR_qc2q,threshold_qc2q):
@@ -182,101 +188,102 @@ def TablesMaker (df_final,threshold_p2qc,NM,New_LPS,New_FDR,threshold_pgm2p,FDR_
     logging.info("- proteins that pass the threshold pgm2p: " + str(len(set(list(dfpgm_filtered["q"])))))
     logging.info("- proteins that pass the threshold qc2q: " + str(len(set(list(dfqc_filtered["q"])))))
     
+    logging.info("- creating p2qc report...")
     df_p2qc,df_p2qc_filtered = p2qcMaker(dfp, listproteins,threshold_p2qc)
+
+    logging.info("- creating qc2q report...")
     dfqc_2,dfqc_2_filtered= qc2qMaker(dfqc, listproteins,threshold_qc2q)
     
     return df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm,dfpgm_filtered,listproteins
 
-def plotting (df_p2qc_filtered,dfpgm_filtered,dfqc_2_filtered,group_path,listproteins,font_size,grid,plot_width,plot_height):
+def plot_single_protein(prot, df_p2qc_filtered, dfpgm_filtered, dfqc_2_filtered, group_path, font_size, grid, plot_width, plot_height):
 
     listafail = []
     dfpgm_filtered["n"].astype('int')
-    c  =0
-    for prot in listproteins: 
-        c = c+1
-        q = prot
-        df1= df_p2qc_filtered[df_p2qc_filtered.q.eq(prot)]
-        df1pgm= dfpgm_filtered[dfpgm_filtered.q.eq(prot)]
-        df1pgm["pgmFreq"] = df1pgm["pgmFreq"].astype(float)
 
-        dfqc_3= dfqc_2_filtered[dfqc_2_filtered.q.eq(prot)]
-        dfqc_3["qcFreq"] = dfqc_3["qcFreq"].astype(float)
-        list1 = list(df1pgm["n"])
-        list1 = [int(x) for x in list1]
-        dfqc_3["q"] = dfqc_3["q"].replace(prot,"qc2q")
-        listw= list1+list(dfqc_3["position"])+list(df1["position"])
-        listw.sort()
-        df1pgm["a_g"] = df1pgm["a_g_d"] + "<br>" + "p= "+ df1pgm["p"]
-        try: 
-            fig1 = px.scatter(df1, x="position", y="LPS_p2qc",
-                        size="pFreq", color="Missing_Cleavages",
-                                 hover_name="Missing_Cleavages", size_max=8, opacity=1, title=list(df1["description"])[0],color_discrete_map={"DT": "lightgreen", "DP": "black"}, width=400, height=400)
-            fig1.update_traces(
-                marker=dict(symbol="square", line=dict(width=0, color="DarkSlateGrey")),
-                selector=dict(mode="markers"),)
-        except: 
-            fig1= "false"
+    q = prot
+    df1= df_p2qc_filtered[df_p2qc_filtered.q.eq(prot)]
+    df1pgm= dfpgm_filtered[dfpgm_filtered.q.eq(prot)]
+    df1pgm["pgmFreq"] = df1pgm["pgmFreq"].astype(float)
 
-        try:
-            fig2 = px.scatter(df1pgm, x="n", y="New_LPS",
-                    size="pgmFreq", color="g",
-                             hover_name="g", size_max=90,text="a_g", hover_data={"a_g": True},color_discrete_map={"NM": "orchid", 'Mod' :"red"}, width=400, height=400)
-            fig2.for_each_trace(lambda t: t.update(textfont_color=t.marker.color))
-            fig2.for_each_trace(lambda t: t.update(textfont_color='rgba(0,0,0,0)'))
-        except: 
-            fig2 ="false"
+    dfqc_3= dfqc_2_filtered[dfqc_2_filtered.q.eq(prot)]
+    dfqc_3["qcFreq"] = dfqc_3["qcFreq"].astype(float)
+    list1 = list(df1pgm["n"])
+    list1 = [int(x) for x in list1]
+    dfqc_3["q"] = dfqc_3["q"].replace(prot,"qc2q")
+    listw= list1+list(dfqc_3["position"])+list(df1["position"])
+    listw.sort()
+    df1pgm["a_g"] = df1pgm["a_g_d"] + "<br>" + "p= "+ df1pgm["p"]
+    try: 
+        fig1 = px.scatter(df1, x="position", y="LPS_p2qc",
+                    size="pFreq", color="Missing_Cleavages",
+                                hover_name="Missing_Cleavages", size_max=8, opacity=1, title=list(df1["description"])[0],color_discrete_map={"DT": "lightgreen", "DP": "black"}, width=400, height=400)
+        fig1.update_traces(
+            marker=dict(symbol="square", line=dict(width=0, color="DarkSlateGrey")),
+            selector=dict(mode="markers"),)
+    except: 
+        fig1= "false"
 
-        try:
-            fig3 = px.scatter(dfqc_3, x="position", y="LPS_qc2q", size="qcFreq",color = 'q',hover_name= 'q', opacity=1, size_max=9,color_discrete_map={"qc2q": "orange"}, width=400, height=400)
-            fig3.update_traces(
-                marker=dict( symbol="square", line=dict(width=0, color="orange")),
-                selector=dict(mode="markers"),)
-        except:
-            fig3 = "false"
+    try:
+        fig2 = px.scatter(df1pgm, x="n", y="New_LPS",
+                size="pgmFreq", color="g",
+                            hover_name="g", size_max=90,text="a_g", hover_data={"a_g": True},color_discrete_map={"NM": "orchid", 'Mod' :"red"}, width=400, height=400)
+        fig2.for_each_trace(lambda t: t.update(textfont_color=t.marker.color))
+        fig2.for_each_trace(lambda t: t.update(textfont_color='rgba(0,0,0,0)'))
+    except: 
+        fig2 ="false"
+
+    try:
+        fig3 = px.scatter(dfqc_3, x="position", y="LPS_qc2q", size="qcFreq",color = 'q',hover_name= 'q', opacity=1, size_max=9,color_discrete_map={"qc2q": "orange"}, width=400, height=400)
+        fig3.update_traces(
+            marker=dict( symbol="square", line=dict(width=0, color="orange")),
+            selector=dict(mode="markers"),)
+    except:
+        fig3 = "false"
 
 
-        if fig1 =="false" and fig2!="false" and fig3!= "false":
-            fig = go.Figure(data = fig3.data  + fig2.data)
-        elif fig1 =="false" and fig2=="false" and fig3!= "false":
-            fig = go.Figure(data = fig3.data)
-        elif fig1 =="false" and fig2!="false" and fig3== "false":
-            fig = go.Figure(data = fig2.data)
-        elif fig1 !="false" and fig2=="false" and fig3== "false":     
-            fig = go.Figure(data = fig1.data)
-        elif fig1 !="false" and fig2=="false" and fig3!= "false":
-            fig = go.Figure(data = fig3.data  + fig1.data)  
-        elif fig1!="false" and fig2!="false" and fig3== "false":
-            fig = go.Figure(data = fig1.data  + fig2.data) 
-        else: 
-            fig = go.Figure(data = fig3.data + fig1.data + fig2.data)
-        try: 
-            fig.update_xaxes(range=[0,(listw[-1]+100)])
-        except: 
-            listafail.append(prot)
-            pass
+    if fig1 =="false" and fig2!="false" and fig3!= "false":
+        fig = go.Figure(data = fig3.data  + fig2.data)
+    elif fig1 =="false" and fig2=="false" and fig3!= "false":
+        fig = go.Figure(data = fig3.data)
+    elif fig1 =="false" and fig2!="false" and fig3== "false":
+        fig = go.Figure(data = fig2.data)
+    elif fig1 !="false" and fig2=="false" and fig3== "false":     
+        fig = go.Figure(data = fig1.data)
+    elif fig1 !="false" and fig2=="false" and fig3!= "false":
+        fig = go.Figure(data = fig3.data  + fig1.data)  
+    elif fig1!="false" and fig2!="false" and fig3== "false":
+        fig = go.Figure(data = fig1.data  + fig2.data) 
+    else: 
+        fig = go.Figure(data = fig3.data + fig1.data + fig2.data)
+    try: 
+        fig.update_xaxes(range=[0,(listw[-1]+100)])
+    except: 
+        listafail.append(prot)
+        pass
 
+    try : 
+        fig.update_layout(title_text=list(dfqc_3["description"])[0])
+    except: 
         try : 
-            fig.update_layout(title_text=list(dfqc_3["description"])[0])
+            fig.update_layout(title_text=list(df1["description"])[0])
         except: 
-            try : 
-                fig.update_layout(title_text=list(df1["description"])[0])
-            except: 
-                fig.update_layout(title_text=list(df1pgm["description"])[0])
+            fig.update_layout(title_text=list(df1pgm["description"])[0])
+    
+    fig.update_traces(textfont_size=1)
+    fig.update_layout(yaxis = dict(tickfont = dict(size=font_size)))
+    fig.update_layout(xaxis = dict(tickfont = dict(size=font_size)))
+    fig.update_layout(paper_bgcolor = "rgba(0,0,0,0)",plot_bgcolor = "rgba(0,0,0,0)")
+    if grid == "No": 
+        fig.update_yaxes(showline=True, linewidth=5, linecolor='black', gridcolor='white', gridwidth=0,zeroline=True, zerolinewidth=5, zerolinecolor='black')
+    else: 
+        fig.update_yaxes(showline=True, linewidth=3, linecolor='black', gridcolor='black', gridwidth=1,zeroline=True, zerolinewidth=5, zerolinecolor='black',)
+        fig.update_xaxes(showline=True, linewidth=3, linecolor='black', 
+                gridcolor='black', gridwidth=1)
         
-        fig.update_traces(textfont_size=1)
-        fig.update_layout(yaxis = dict(tickfont = dict(size=font_size)))
-        fig.update_layout(xaxis = dict(tickfont = dict(size=font_size)))
-        fig.update_layout(paper_bgcolor = "rgba(0,0,0,0)",plot_bgcolor = "rgba(0,0,0,0)")
-        if grid == "No": 
-            fig.update_yaxes(showline=True, linewidth=5, linecolor='black', gridcolor='white', gridwidth=0,zeroline=True, zerolinewidth=5, zerolinecolor='black')
-        else: 
-            fig.update_yaxes(showline=True, linewidth=3, linecolor='black', gridcolor='black', gridwidth=1,zeroline=True, zerolinewidth=5, zerolinecolor='black',)
-            fig.update_xaxes(showline=True, linewidth=3, linecolor='black', 
-                  gridcolor='black', gridwidth=1)
-            
-        fig.update_xaxes(tickangle=-90, showline=True, linewidth=5, linecolor='black')
-        fig.update_layout(width=plot_width, height=plot_height, xaxis=dict(ticks="outside",ticklen=15, tickwidth=5), yaxis=dict(ticks="outside",ticklen=15, tickwidth=5))
-        fig.write_html(group_path + "/" + q + ".html", config={'toImageButtonOptions': {'format': 'svg', 'filename': q, 'height': plot_height, 'width': plot_width, 'scale': 1}})
+    fig.update_xaxes(tickangle=-90, showline=True, linewidth=5, linecolor='black')
+    fig.update_layout(width=plot_width, height=plot_height, xaxis=dict(ticks="outside",ticklen=15, tickwidth=5), yaxis=dict(ticks="outside",ticklen=15, tickwidth=5))
+    fig.write_html(group_path + "/" + q + ".html", config={'toImageButtonOptions': {'format': 'svg', 'filename': q, 'height': plot_height, 'width': plot_width, 'scale': 1}})
 
 
 
@@ -347,6 +354,12 @@ def main(config):
     # extract the groups
     groups = config.get("groups")
 
+    # get the n_cpu from config file. Otherwise, get the 75% of total cpu's
+    n_cpu_total = multiprocessing.cpu_count()
+    n_cpu = config.get('n_cpu', (n_cpu_total * 75) // 100)
+    n_cpu = max(1, n_cpu)  # ensure at least one process
+
+
     logging.info(f"Reading input file: {args.infile}...")
     df = readInfile(args.infile,pgm)
 
@@ -387,11 +400,19 @@ def main(config):
 
         logging.info("- preparing data...")
         df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered, listproteins= TablesMaker (df_final,threshold_p2qc,NM,"New_LPS","New_FDR",threshold_pgm2p,FDR_qc2q,threshold_qc2q)
-        logging.info("- plotting filtered data...")
-        plotting(df_p2qc_filtered,dfpgm_filtered,dfqc_2_filtered,group_path_FDR,listproteins,font_size, grid, plot_width,plot_height)
-        logging.info("- plotting all data...")
-        plotting(df_p2qc,dfpgm,dfqc_2,group_path,listproteins,font_size, grid, plot_width,plot_height)
-    
+
+        logging.info(f"- plotting filtered data (ncpu: {n_cpu})...")
+        params_p2qc_filtered = [(prot, df_p2qc_filtered, dfpgm_filtered, dfqc_2_filtered, group_path_FDR, font_size, grid, plot_width, plot_height) for prot in listproteins ]
+        with multiprocessing.Pool(processes=n_cpu) as pool:
+            pool.starmap(plot_single_protein, params_p2qc_filtered)
+
+        logging.info(f"- plotting all data (ncpu: {n_cpu})...")
+        params_p2qc = [(prot, df_p2qc, dfpgm, dfqc_2, group_path, font_size, grid, plot_width, plot_height) for prot in listproteins ]
+        with multiprocessing.Pool(processes=n_cpu) as pool:
+            pool.starmap(plot_single_protein, params_p2qc)
+
+
+
 
 
 if __name__ == '__main__':
@@ -415,10 +436,10 @@ if __name__ == '__main__':
     )
       
     # default PTMaps configuration file
-    defaultconfig = os.path.join(os.path.dirname(__file__), 'PTMMap.yml')
+    default_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config', 'params.yml')
     parser.add_argument('-i', '--infile', required=True, help='Path to the input report file containing p-values and LPS scores from limma comparisons')
     parser.add_argument('-o', '--outdir', required=True, help='Output directory to save PTM maps.')
-    parser.add_argument('-c', '--config', default=defaultconfig, help='Path to the YAML configuration file specifying thresholds, plotting options, and residue annotations')
+    parser.add_argument('-c', '--config', default=default_config_path, help='Path to the YAML configuration file specifying thresholds, plotting options, and residue annotations (default: config/params.yml)')
     parser.add_argument('-v', dest='verbose', action='store_true', help='Enable verbose logging for detailed progress messages')
     args = parser.parse_args()
    

@@ -3,6 +3,9 @@
 #
 General:
 
+  # Number of works in parallel. Othwerise is the 75% of total number of cpu's
+  # n_cpu: 8
+
   # Comparison groups:
   # - pair groups for hypothesis testing (LimmaCompare)
   # - pair groups to which calculate FDR (FDRoptimizer)
@@ -158,9 +161,6 @@ PTMMap:
 # PARAMETERS: qReportMaker
 #
 qReportMaker:
-
-  # Number of works in parallel. Othwerise is the 75% of total number of cpu's
-  # n_cpu: 8
 
   # Folder where the outputs will be saved
   outDirName: qReports

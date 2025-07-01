@@ -256,9 +256,11 @@ if __name__ == '__main__':
         epilog='''Developed for PTM-Analyzer quantitative proteomics workflows''',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('-i', '--infile', required=True, help='Path to input iSanXoT report file')
+    
+    default_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config', 'params.yml')
+    parser.add_argument('-i', '--infile',  required=True, help='Path to input iSanXoT report file')
     parser.add_argument('-o', '--outfile', required=True, help='Path to the output file with appended NM-corrected values')
-    parser.add_argument('-c', '--config', default=os.path.join(os.path.dirname(__file__), 'NMpyCompare.yaml'), type=str, help='Path to YAML config file (default: NMpyCompare.yaml in script directory)')
+    parser.add_argument('-c', '--config',  default=default_config_path, type=str, help='Path to YAML config file (default: config/params.yml)')
 
     args = parser.parse_args()
 
