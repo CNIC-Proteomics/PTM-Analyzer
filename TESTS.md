@@ -17,7 +17,7 @@ The samples originate from `heart` tissue, based on the study by Bagwan N, Bonzo
 + On Linux:
 ```bash
 cd samples && \
-wget https://zenodo.org/records/15189856/files/heteroplasmic_heart.zip?download=1 -O heteroplasmic_heart.zip && \
+wget https://zenodo.org/records/15785083/files/heteroplasmic_heart.zip?download=1 -O heteroplasmic_heart.zip && \
 unzip heteroplasmic_heart.zip && \
 cd ..
 ```
@@ -29,9 +29,10 @@ or
 @echo off
 mkdir samples
 cd samples
-curl -L -o heteroplasmic_heart.zip https://zenodo.org/records/15189856/files/heteroplasmic_heart.zip?download=1 
+curl -L -o heteroplasmic_heart.zip https://zenodo.org/records/15785083/files/heteroplasmic_heart.zip?download=1 
 powershell -Command "Expand-Archive -Path heteroplasmic_heart.zip -DestinationPath ."
 cd ..
+@echo on
 ```
 
 ### Execute the programs for the current sample:
@@ -106,13 +107,12 @@ python src/qReportMaker.py \
   -o samples/heteroplasmic_heart/results
 ```
 
-<!--
 
 ## Samples 2: iSanXoT Report and PDM table for Mouse Heteroplasmia (Liver)
 
 You can download the input files for this `liver` sample, derived from the study by Bagwan N, Bonzon-Kulichenko E, Calvo E, et al. [1] at the following URL:
 
-https://zenodo.org/records/XXXXX/files/heteroplasmic_liver.zip?download=1
+https://zenodo.org/records/15785083/files/heteroplasmic_liver.zip?download=1
 
 To execute the pipeline, follow the same steps as in Sample 1.
 
@@ -121,11 +121,11 @@ To execute the pipeline, follow the same steps as in Sample 1.
 
 You can download the input files for this sample from the following URL:
 
-https://zenodo.org/records/XXXX/files/heteroplasmic_muscle.zip?download=1
+https://zenodo.org/records/15785083/files/heteroplasmic_muscle.zip?download=1
 
 To execute the pipeline, follow the same steps as in Sample 1.
 
--->
+
 
 
 # References
