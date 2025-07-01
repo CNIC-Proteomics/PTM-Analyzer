@@ -10,7 +10,7 @@
 
 
 ### 1. MergeiSanxotPDM
-This Python script merges the iSanXoT report of protein2proteinall with the PDM table.
+This Python script merges the iSanXoT report of protein2proteinall with the PDMTable at PGM level.
 
 
 
