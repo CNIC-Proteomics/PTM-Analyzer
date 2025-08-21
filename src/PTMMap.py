@@ -205,40 +205,50 @@ def TablesMaker (df_final,threshold_p2qc,NM,New_LPS,New_FDR,threshold_pgm2p,FDR_
     return df_p2qc,df_p2qc_filtered,dfqc_2,dfqc_2_filtered,dfpgm,dfpgm_filtered,listproteins
 
 
-def write_tables(df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered,group):
+def write_tables(df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered,group, tables_path):
+
+
+    df_a=df_p2qc.copy()
+    df_a_filtered=df_p2qc_filtered.copy()
+    df_b=dfqc_2.copy()
+    df_b_filtered=dfqc_2_filtered.copy()
+    df_c=dfpgm.copy()
+    df_c_filtered=dfpgm_filtered.copy()
+    
+
     
     headers=pd.MultiIndex.from_product([[group],df_p2qc.columns])
     headers_1=pd.MultiIndex.from_product([[group],dfqc_2.columns])
     headers_2=pd.MultiIndex.from_product([[group],dfpgm.columns])
 
 
-    df_p2qc.columns=headers
-    df_p2qc_filtered.columns=headers
+    df_a.columns=headers
+    df_a_filtered.columns=headers
 
 
-    dfqc_2.columns=headers_1
-    dfqc_2_filtered.columns=headers_1
+    df_b.columns=headers_1
+    df_b_filtered.columns=headers_1
 
-    dfpgm.columns=headers_2
-    dfpgm_filtered.columns=headers_2
+    df_c.columns=headers_2
+    df_c_filtered.columns=headers_2
 
 
-    df_p2qc.to_csv('df_p2qc.tsv',sep='\t',index=False)
-    df_p2qc_filtered.to_csv('df_p2qc_filtered.tsv',sep='\t',index=False)
+    df_a.to_csv(os.path.join(tables_path,'df_p2qc.tsv'),sep='\t',index=False)
+    df_a_filtered.to_csv(os.path.join(tables_path,'df_p2qc_filtered.tsv'),sep='\t',index=False)
 
-    dfqc_2.to_csv('dfqc_2.tsv',sep='\t',index=False)
-    dfqc_2_filtered.to_csv('dfqc_2_filtered.tsv',sep='\t',index=False)
+    df_b.to_csv(os.path.join(tables_path,'dfqc_2.tsv'),sep='\t',index=False)
+    df_b_filtered.to_csv(os.path.join(tables_path,'dfqc_2_filtered.tsv'),sep='\t',index=False)
 
-    dfpgm.to_csv('dfpgm.tsv',sep='\t',index=False)
-    dfpgm_filtered.to_csv('dfpgm_filtered.tsv',sep='\t',index=False)
+    df_c.to_csv(os.path.join(tables_path,'dfpgm.tsv'),sep='\t',index=False)
+    df_c_filtered.to_csv(os.path.join(tables_path,'dfpgm_filtered.tsv'),sep='\t',index=False)
 
 
 
 def plot_single_protein(prot, df_p2qc_filtered, dfpgm_filtered, dfqc_2_filtered, group_path, font_size, grid, plot_width, plot_height):
 
+    
     listafail = []
     dfpgm_filtered["n"].astype('int')
-
     q = prot
     df1= df_p2qc_filtered[df_p2qc_filtered.q.eq(prot)]
     df1pgm= dfpgm_filtered[dfpgm_filtered.q.eq(prot)]
@@ -451,7 +461,9 @@ def main(config):
 
         logging.info("- preparing data...")
         df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered, listproteins= TablesMaker (df_final,threshold_p2qc,NM,"New_LPS","New_FDR",threshold_pgm2p,FDR_qc2q,threshold_qc2q)
-        write_tables(df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered,grp)
+        
+
+        write_tables(df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered,grp, tables_path)
 
         logging.info(f"- plotting filtered data (ncpu: {n_cpu})...")
         params_p2qc_filtered = [(prot, df_p2qc_filtered, dfpgm_filtered, dfqc_2_filtered, group_path_FDR, font_size, grid, plot_width, plot_height) for prot in listproteins ]
