@@ -155,6 +155,10 @@ PTMMap:
   threshold_qc2q: 0.05
   pgmFreqThreshold: 0
 
+  # List of selected proteins to plot
+  # Leave blank to plot all proteins
+  selected_proteins: [P02647,P21333-2]
+
 
 
 #

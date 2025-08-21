@@ -89,7 +89,8 @@ def applyStructure(row,New_FDR,g,NM,a,first_b,New_LPS,LPS_pgm2p,LPS_pgm2p_NM,n,F
         row[a_g_d] = row[a]
     return row
 
-def obtaindf (df,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qc,FDR_qc2q,Missing_Cleavages,LPS_p2qc,LPS_qc2q,e,description, p,q,qc,pFreq,pgmFreq, qcFreq,d,NM,threshold_pgm2p,pgmFreqThreshold):
+def obtaindf (df,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qc,FDR_qc2q,Missing_Cleavages,LPS_p2qc,LPS_qc2q,e,description, p,q,qc,pFreq,pgmFreq, qcFreq,d,NM,threshold_pgm2p,pgmFreqThreshold,
+              selected_proteins):
 
     df = df.loc[:,[g, a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM, FDR_NM, FDR_pgm,FDR_p2qc, FDR_qc2q,Missing_Cleavages,LPS_p2qc, LPS_qc2q, e , description,p, q, qc, pFreq, qcFreq, pgmFreq,d]]
 
@@ -97,6 +98,11 @@ def obtaindf (df,New_FDR, g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FD
                         LPS_pgm2p_NM: "LPS_pgm2p_NM", FDR_NM: "FDR_NM",FDR_p2qc : "FDR_p2qc", FDR_qc2q:"FDR_qc2q",
                       Missing_Cleavages: "Missing_Cleavages",LPS_p2qc:"LPS_p2qc", LPS_qc2q:"LPS_qc2q", e : "e", description: "description",
                        p :"p", q:"q", qc:"qc", pFreq:"pFreq", qcFreq: "qcFreq", pgmFreq: "pgmFreq",d :"d"})
+    
+    if len(selected_proteins)>=1:
+        
+      df =df [df  ['q'].isin (selected_proteins)]
+
     df = df.astype({'FDR_NM': 'float64', 'FDR_pgm': 'float64','LPS_pgm2p_NM': 'float64','LPS_pgm2p': 'float64','FDR_p2qc': 'float64',
                 'FDR_qc2q': 'float64','LPS_p2qc': 'float64','LPS_qc2q': 'float64','pgmFreq': 'float64','pFreq': 'float64','qcFreq': 'float64',
                 'Missing_Cleavages': 'float64', "first_b": 'float64'})
@@ -140,6 +146,7 @@ def p2qcMaker(dfp, listproteins, threshold_p2qc):
     df_p2qc = pd.DataFrame(rows)
     df_p2qc_filtered = df_p2qc[df_p2qc["FDR_p2qc"] <= threshold_p2qc].reset_index(drop=True)
 
+
     return df_p2qc, df_p2qc_filtered
 
 def qc2qMaker(dfqc, listproteins, threshold_qc2q):
@@ -164,6 +171,7 @@ def qc2qMaker(dfqc, listproteins, threshold_qc2q):
     dfqc_2 = pd.DataFrame(rows)
     dfqc_2_filtered = dfqc_2[dfqc_2["FDR_qc2q"] <= threshold_qc2q].reset_index(drop=True)
 
+
     return dfqc_2, dfqc_2_filtered
 
 def TablesMaker (df_final,threshold_p2qc,NM,New_LPS,New_FDR,threshold_pgm2p,FDR_qc2q,threshold_qc2q):
@@ -176,7 +184,7 @@ def TablesMaker (df_final,threshold_p2qc,NM,New_LPS,New_FDR,threshold_pgm2p,FDR_
     # pgm2p Table
     dfpgm = df_final[df_final[New_LPS].notnull()]
     dfpgm.loc[dfpgm["g"] !=NM, "g"] = 'Mod'
-    dfpgm_filtered= dfpgm[dfpgm.New_FDR.le(threshold_pgm2p)].reset_index()
+    dfpgm_filtered= dfpgm[dfpgm.New_FDR.le(threshold_pgm2p)].reset_index(drop=True)
     
     #qc2q Table
     dfqc = df_final[df_final["LPS_qc2q"].notnull()]
@@ -191,10 +199,40 @@ def TablesMaker (df_final,threshold_p2qc,NM,New_LPS,New_FDR,threshold_pgm2p,FDR_
     logging.info("- creating p2qc report...")
     df_p2qc,df_p2qc_filtered = p2qcMaker(dfp, listproteins,threshold_p2qc)
 
-    logging.info("- creating qc2q report...")
+    # logging.info("- creating qc2q report...")
     dfqc_2,dfqc_2_filtered= qc2qMaker(dfqc, listproteins,threshold_qc2q)
     
-    return df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm,dfpgm_filtered,listproteins
+    return df_p2qc,df_p2qc_filtered,dfqc_2,dfqc_2_filtered,dfpgm,dfpgm_filtered,listproteins
+
+
+def write_tables(df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered,group):
+    
+    headers=pd.MultiIndex.from_product([[group],df_p2qc.columns])
+    headers_1=pd.MultiIndex.from_product([[group],dfqc_2.columns])
+    headers_2=pd.MultiIndex.from_product([[group],dfpgm.columns])
+
+
+    df_p2qc.columns=headers
+    df_p2qc_filtered.columns=headers
+
+
+    dfqc_2.columns=headers_1
+    dfqc_2_filtered.columns=headers_1
+
+    dfpgm.columns=headers_2
+    dfpgm_filtered.columns=headers_2
+
+
+    df_p2qc.to_csv('df_p2qc.tsv',sep='\t',index=False)
+    df_p2qc_filtered.to_csv('df_p2qc_filtered.tsv',sep='\t',index=False)
+
+    dfqc_2.to_csv('dfqc_2.tsv',sep='\t',index=False)
+    dfqc_2_filtered.to_csv('dfqc_2_filtered.tsv',sep='\t',index=False)
+
+    dfpgm.to_csv('dfpgm.tsv',sep='\t',index=False)
+    dfpgm_filtered.to_csv('dfpgm_filtered.tsv',sep='\t',index=False)
+
+
 
 def plot_single_protein(prot, df_p2qc_filtered, dfpgm_filtered, dfqc_2_filtered, group_path, font_size, grid, plot_width, plot_height):
 
@@ -359,8 +397,11 @@ def main(config):
     n_cpu = config.get('n_cpu', (n_cpu_total * 75) // 100)
     n_cpu = max(1, n_cpu)  # ensure at least one process
 
+    # selected proteins
+    selected_proteins=config.get("selected_proteins")
 
-    logging.info(f"Reading input file: {args.infile}...")
+
+    # logging.info(f"Reading input file: {args.infile}...")
     df = readInfile(args.infile,pgm)
 
     logging.info(f'Processing by groups: {groups}')
@@ -368,13 +409,22 @@ def main(config):
     for group in groups:
         grp = '-'.join(group)
         logging.info(f"Preparing workspace for '{grp}'...")
+
         # prepare workspaces
+
+
         group_path_FDR = os.path.join(args.outdir, path_plots_FDR, grp)
         group_path = os.path.join(args.outdir, path_plots, grp)
+        tables_path = os.path.join(args.outdir, 'PTMMap_Tables',grp)
+
         if not os.path.exists(group_path):
             os.makedirs(group_path, exist_ok=False)
         if not os.path.exists(group_path_FDR):
             os.makedirs(group_path_FDR, exist_ok=False)
+        
+        if not os.path.exists(tables_path):
+            os.makedirs(tables_path,exist_ok=False)
+        
 
         logging.info(f'- preparing parameters...')
 
@@ -396,10 +446,12 @@ def main(config):
         FDR_qc2q = f"{Filter_mappings['qc2q']}_{grp}_{significance_value}"
 
         logging.info("- obtaining group data...")
-        df_final = obtaindf (df,"New_FDR",g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qc,FDR_qc2q,Missing_Cleavages,LPS_p2qc,LPS_qc2q,e,description, p,q,qc,pFreq,pgmFreq, qcFreq,d,NM,threshold_pgm2p,pgmFreqThreshold)
+        df_final = obtaindf (df,"New_FDR",g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qc,FDR_qc2q,Missing_Cleavages,LPS_p2qc,LPS_qc2q,e,description, p,q,qc,pFreq,pgmFreq, qcFreq,d,NM,threshold_pgm2p,pgmFreqThreshold,
+                            selected_proteins)
 
         logging.info("- preparing data...")
         df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered, listproteins= TablesMaker (df_final,threshold_p2qc,NM,"New_LPS","New_FDR",threshold_pgm2p,FDR_qc2q,threshold_qc2q)
+        write_tables(df_p2qc,df_p2qc_filtered, dfqc_2,dfqc_2_filtered,dfpgm, dfpgm_filtered,grp)
 
         logging.info(f"- plotting filtered data (ncpu: {n_cpu})...")
         params_p2qc_filtered = [(prot, df_p2qc_filtered, dfpgm_filtered, dfqc_2_filtered, group_path_FDR, font_size, grid, plot_width, plot_height) for prot in listproteins ]
