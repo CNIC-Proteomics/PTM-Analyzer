@@ -455,6 +455,10 @@ def main(config):
         FDR_p2qc = f"{Filter_mappings['p2qc']}_{grp}_{significance_value}"
         FDR_qc2q = f"{Filter_mappings['qc2q']}_{grp}_{significance_value}"
 
+        logging.info(LPS_mappings)
+        logging.info(NM_mappings)
+        logging.info(Filter_mappings)
+
         logging.info("- obtaining group data...")
         df_final = obtaindf (df,"New_FDR",g,a,n,first_b,LPS_pgm2p,LPS_pgm2p_NM,FDR_NM,FDR_pgm,FDR_p2qc,FDR_qc2q,Missing_Cleavages,LPS_p2qc,LPS_qc2q,e,description, p,q,qc,pFreq,pgmFreq, qcFreq,d,NM,threshold_pgm2p,pgmFreqThreshold,
                             selected_proteins)
