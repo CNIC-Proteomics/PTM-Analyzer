@@ -157,7 +157,7 @@ PTMMap:
 
   # List of selected proteins to plot
   # Leave blank to plot all proteins
-  selected_proteins: [P02647,P21333-2]
+  selected_proteins: []
 
 
 
