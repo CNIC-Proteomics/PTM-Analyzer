@@ -1,6 +1,6 @@
 # Modules
 
-1. [MergeiSanxotPDM](#1-mergeisanxotpdm)
+1. [MergeiSanxotPGM](#1-mergeisanxotpgm)
 2. [NMpyCompare](#2-nmpycompare)
 3. [ReportLimma](#3-reportlimma)
 4. [FDRoptimizer](#4-fdroptimizer)
@@ -9,7 +9,7 @@
 
 
 
-### 1. MergeiSanxotPDM
+### 1. MergeiSanxotPGM
 This Python script merges the iSanXoT report of protein2proteinall with the PDMTable at PGM level.
 
 
