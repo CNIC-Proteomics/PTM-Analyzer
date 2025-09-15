@@ -1,4 +1,16 @@
 ___
+## 1.06
+
+### Date 📅 *2025_09*
+
+### Changes in detail
+
+**rc1**
++ write_PTMMap_tables and allows the user to only plot a set of proteins.
++ Renamed the repository to 'PTM-Analyzer' (previously called ReportAnalysis).
+
+
+___
 ## v1.05
 
 ### Date 📅 *2025_07*
