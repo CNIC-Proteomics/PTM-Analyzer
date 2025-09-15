@@ -7,7 +7,7 @@ carpetas = ['bin', 'src', 'config', 'INSTALLATION.md', 'MODULES.md', 'README.md'
 exclude = ["\\test", "\\samples", "\\__pycache__"]
 
 # Nombre del archivo ZIP de salida
-nombre_zip = 'ReportAnalysis-v1.05.zip'
+nombre_zip = 'PTM-Analyzer-v1.06.zip'
 
 # Crear un archivo ZIP
 with zipfile.ZipFile(nombre_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:

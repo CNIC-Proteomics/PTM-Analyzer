@@ -8,7 +8,7 @@ For further information, consult the [INSTALLATION Guide](INSTALLATION.md).
 
 ## Samples 1: iSanXoT Report and PDM table for Mouse Heteroplasmia (Heart)
 
-Input files for ReportAnalysis, derived from the quantification results of iSanXoT [1] and the PDM table from the PTM-compass [2].
+Input files for PTM-Analyzer, derived from the quantification results of iSanXoT [1] and the PDM table from the PTM-compass [2].
 
 The samples originate from `heart` tissue, based on the study by Bagwan N, Bonzon-Kulichenko E, Calvo E, et al. [3].
 
