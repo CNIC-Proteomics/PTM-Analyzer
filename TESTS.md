@@ -17,7 +17,7 @@ The samples originate from `heart` tissue, based on the study by Bagwan N, Bonzo
 + On Linux:
 ```bash
 cd samples && \
-wget https://zenodo.org/records/15785083/files/heteroplasmic_heart.zip?download=1 -O heteroplasmic_heart.zip && \
+wget https://zenodo.org/records/17141424/files/heteroplasmic_heart.zip?download=1 -O heteroplasmic_heart.zip && \
 unzip heteroplasmic_heart.zip && \
 cd ..
 ```
@@ -29,7 +29,7 @@ or
 @echo off
 mkdir samples
 cd samples
-curl -L -o heteroplasmic_heart.zip https://zenodo.org/records/15785083/files/heteroplasmic_heart.zip?download=1 
+curl -L -o heteroplasmic_heart.zip https://zenodo.org/records/17141424/files/heteroplasmic_heart.zip?download=1 
 powershell -Command "Expand-Archive -Path heteroplasmic_heart.zip -DestinationPath ."
 cd ..
 @echo on
@@ -60,7 +60,16 @@ python src/NMpyCompare.py \
 ```
 
 3. ReportLimma:
-You can use the R-portable program and execute the "ReportLimma" batch script on Windows:
+You can run the R script directly using your own Rscript installation:
+```
+Rscript --vanilla src/ReportLimma.R \
+  -i samples/heteroplasmic_heart/results/quant_pgm_NM.tsv \
+  -c samples/heteroplasmic_heart/inputs/params.yml \
+  -s samples/heteroplasmic_heart/inputs/limma_comparisons.tsv \
+  -o samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA.tsv
+```
+
+Alternatively, you can use the R-portable program and execute the "ReportLimma" batch script on Windows:
 
 3.1 Open a command prompt window.
 
@@ -71,15 +80,6 @@ bin\ReportLimma.bat ^
   -c "%CD%/samples/heteroplasmic_heart/inputs/params.yml" ^
   -s "%CD%/samples/heteroplasmic_heart/inputs/limma_comparisons.tsv" ^
   -o "%CD%/samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA.tsv"
-```
-
-Alternatively, you can run the R script directly using your own Rscript installation:
-```
-Rscript --vanilla src/ReportLimma.R \
-  -i samples/heteroplasmic_heart/results/quant_pgm_NM.tsv \
-  -c samples/heteroplasmic_heart/inputs/params.yml \
-  -s samples/heteroplasmic_heart/inputs/limma_comparisons.tsv \
-  -o samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA.tsv
 ```
 
 4. FDRoptimizer:
@@ -112,7 +112,7 @@ python src/qReportMaker.py \
 
 You can download the input files for this `liver` sample, derived from the study by Bagwan N, Bonzon-Kulichenko E, Calvo E, et al. [1] at the following URL:
 
-https://zenodo.org/records/15785083/files/heteroplasmic_liver.zip?download=1
+https://zenodo.org/records/17141424/files/heteroplasmic_liver.zip?download=1
 
 To execute the pipeline, follow the same steps as in Sample 1.
 
@@ -121,7 +121,7 @@ To execute the pipeline, follow the same steps as in Sample 1.
 
 You can download the input files for this sample from the following URL:
 
-https://zenodo.org/records/15785083/files/heteroplasmic_muscle.zip?download=1
+https://zenodo.org/records/17141424/files/heteroplasmic_muscle.zip?download=1
 
 To execute the pipeline, follow the same steps as in Sample 1.
 
