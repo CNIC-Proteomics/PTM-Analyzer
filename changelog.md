@@ -8,6 +8,9 @@ ___
 **rc1**
 + write_PTMMap_tables and allows the user to only plot a set of proteins.
 + Renamed the repository to 'PTM-Analyzer' (previously called ReportAnalysis).
+**rc2**
++ Updated documentation: Zenodo repository.
++ Updated sample parameters.
 
 
 ___
