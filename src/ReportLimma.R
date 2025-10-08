@@ -56,9 +56,6 @@ readReport <- function(obj, config) {
   
   updatedObj = obj
   
-  # read report data
-  # updatedObj$repData <- read.csv(updatedObj$filePath, header=FALSE, sep="\t", skip=2)
-  
   # read report metadata
   tmp <- read.csv(config$report_infile, header=FALSE, sep="\t", nrows=2)
   updatedObj$colNames <- unlist(tmp[1,])
@@ -75,17 +72,6 @@ readReport <- function(obj, config) {
     }
     index <- index + 1 
   }
-  # for (i in updatedObj$colTypes) {
-  #   
-  #   if (i != "LEVEL" & i != "REL" & i != "STATS" & i != "EXTRA") {
-  #     updatedObj$Zcols <- append(updatedObj$Zcols, index)
-  #     updatedObj$repIntegrations <- append(updatedObj$repIntegrations, 
-  #                                       updatedObj$colNames[index])
-  #     updatedObj$repSamples <- append(updatedObj$repSamples, i)
-  #   }
-  #  
-  #   index <- index + 1 
-  # }
   
   updatedObj$repIntegrationSet <- unique(updatedObj$repIntegrations)
   updatedObj$repSampleSet <- unique(updatedObj$repSamples)
@@ -103,7 +89,6 @@ LIMMA <- function(sampleGroups, Target, x, integration, eset, type) {
     
     fit <- lmFit(eset, design)
     
-    #x <- gsub(" vs ", "-", obj$hypTesting)
     contrast.matrix <- makeContrasts(contrasts=x, levels=names(sampleGroups))
     
     fit2 <- contrasts.fit(fit, contrast.matrix)
@@ -226,7 +211,6 @@ calculatePvalues <- function(obj, config, sampleGroups) {
     for (i in config$groups) {
       x <- c(x, paste0(i[1], '-', i[2]))
     }
-    #x <- gsub(" vs ", "-", obj$hypTesting)
     
     #Mean Difference
     loginfo(paste0(integration, " - Calculating Mean difference"), logger="ReportLimma")
@@ -315,11 +299,6 @@ writeOutputReport <- function (config, reportData, pvalues_df, subHeader) {
   reportData <- cbind(reportData, pvalues_df)
   reportData <- data.frame(mapply('c', header, reportData))
   
-  #outDir <- dirname(config$report_infile) # dirname changes \\ --> /, yielding error in \\tierra...
-  #outDir <- gsub("/", "\\\\", outDir) # fix it //tierra...
-  #outFile <- paste("LIMMA", basename(obj$filePath), sep="_")
-  #outPath <- paste(outDir, outFile, sep="\\")
-  
   # print table
   write.table(reportData, file = config$outfile, quote = F, sep = "\t", row.names = F,
               col.names = F, na="")
@@ -375,7 +354,6 @@ for (i in names(sampleGroups)) {
 }
 
 # Set Logging file
-# logFile <- paste0(strsplit(config$report_infile, split='[^.]+$', perl=T), 'log')
 logFile <- paste0(outdir, '/LimmaCompare.log')
 basicConfig()
 addHandler(writeToFile, logger='ReportLimma', file=logFile)
