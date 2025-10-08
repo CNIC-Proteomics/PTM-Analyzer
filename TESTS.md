@@ -85,10 +85,10 @@ bin\ReportLimma.bat ^
 In addition, you can run the R script for Limma using one sample:
 ```
 Rscript --vanilla src/ReportLimma_oneSample.R \
-  -i samples/test_limma_one_sample/NM_Tabla_final.tsv \
-  -c samples/test_limma_one_sample/params.yml \
-  -s samples/test_limma_one_sample/limma_comparisons.tsv \
-  -o samples/test_limma_one_sample/NM_LIMMA_Tabla_final.tsv
+  -i samples/limma_one_sample/NM_Tabla_final.tsv \
+  -c samples/limma_one_sample/params.yml \
+  -s samples/limma_one_sample/limma_comparisons.tsv \
+  -o samples/limma_one_sample/NM_LIMMA_Tabla_final.tsv
 ```
 
 4. FDRoptimizer:
