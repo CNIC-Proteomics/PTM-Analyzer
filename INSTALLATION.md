@@ -117,7 +117,7 @@ Rscript --version
 
 <!-- 
 Remove packages:
-Rscript -e "remove.packages(c('limma', 'logging', 'yaml', 'optparse'))" 
+Rscript -e "remove.packages(c('limma', 'dplyr', 'logging', 'yaml', 'optparse'))" 
 -->
 
 
@@ -128,5 +128,5 @@ The pipeline requires R version 4.1.2 or higher.
 To install the necessary dependencies, you have to execute:
 
 ```bash
-Rscript install_packages.R
+(sudo) Rscript install_packages.R
 ```

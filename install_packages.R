@@ -15,7 +15,7 @@ install_if_missing <- function(package) {
 }
 
 # List of required packages
-packages <- c("limma", "logging", "yaml", "optparse")
+packages <- c("limma", "dplyr", "logging", "yaml", "optparse")
 
 # Install missing packages
 for (pkg in packages) { 

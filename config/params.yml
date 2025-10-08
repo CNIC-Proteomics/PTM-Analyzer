@@ -7,12 +7,12 @@ General:
   # n_cpu: 8
 
   # Comparison groups:
-  # - pair groups for hypothesis testing (LimmaCompare)
+  # - pair groups for hypothesis testing (LimmaOneSample)
   # - pair groups to which calculate FDR (FDRoptimizer)
   # - pair groups to plot the PTM maps (PTMmap)
   # - pair groups to to be analysed (qReport)
   groups:
-    - [ Heteroplasmy, Control ]
+    - [ B0, F, I ]
 
   # Significance value used across multiple modules. Can be either a qvalue or pvalue. Defaults to pvalue.
   significance_value: 'qvalue'
@@ -39,6 +39,27 @@ NMpyCompare:
   NM_columns:
     - g#REL:
       - NM
+
+
+
+#
+# PARAMETERS: LIMMA wo GUI
+#
+LimmaOneSample:
+
+  # Possible types 
+  # - limma
+  test_type:
+    - limma
+
+  # Integrations used to apply Limma
+  # [ [LowLevel_firstRow, LowLevel_secondRow], integration ]
+  ColumnNames:
+    - [ [pgm, LEVEL], Z_pgm2p]
+    - [ [pgm, LEVEL], Z_pgm2p_dNM]
+    - [ [p, LEVEL], Z_p2qc]
+    - [ [qc, LEVEL], Z_qc2q]
+    - [ [q, LEVEL], Z_q2all]
 
 
 

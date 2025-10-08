@@ -82,6 +82,15 @@ bin\ReportLimma.bat ^
   -o "%CD%/samples/heteroplasmic_heart/results/quant_pgm_NM_LIMMA.tsv"
 ```
 
+In addition, you can run the R script for Limma using one sample:
+```
+Rscript --vanilla src/ReportLimma_oneSample.R \
+  -i samples/test_limma_one_sample/NM_Tabla_final.tsv \
+  -c samples/test_limma_one_sample/params.yml \
+  -s samples/test_limma_one_sample/limma_comparisons.tsv \
+  -o samples/test_limma_one_sample/NM_LIMMA_Tabla_final.tsv
+```
+
 4. FDRoptimizer:
 ```
 python src/FDRoptimizer.py \
