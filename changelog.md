@@ -1,4 +1,18 @@
 ___
+## 1.07
+
+### Date 📅 *2025_10*
+
+### Changes in detail
+
+**rc1**
++ Added R program that calculates the Limma value for a single sample.
++ Minor changes: remove obsolete comment lines.
+
+
+
+
+___
 ## 1.06
 
 ### Date 📅 *2025_09*
