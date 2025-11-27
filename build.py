@@ -1,26 +1,36 @@
 import zipfile
 import os
 
-# Lista de nombres de las carpetas que quieres comprimir
-carpetas = ['bin', 'src', 'config', 'INSTALLATION.md', 'MODULES.md', 'README.md', 'TESTS.md', 'changelog.md', 'install_packages.R', 'python_requirements.txt']
+
+# List of folder and file names you want to compress
+folders = ['bin', 'src', 'config', 'INSTALLATION.md', 'MODULES.md', 'README.md', 'TESTS.md', 'changelog.md', 'install_packages.R', 'python_requirements.txt']
 
 exclude = ["\\test", "\\samples", "\\__pycache__"]
 
-# Nombre del archivo ZIP de salida
-nombre_zip = 'PTM-Analyzer-v1.07.zip'
+# Name of the output ZIP file
+zip_name = 'PTM-Analyzer-v1.08.zip'
 
-# Crear un archivo ZIP
-with zipfile.ZipFile(nombre_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:
-    for carpeta in carpetas:
-        # Recorre cada carpeta y agrega su contenido al archivo ZIP
-        for root, dirs, files in os.walk(carpeta):
-            for archivo in files:
-                if any([i in root for i in exclude]):
-                    continue
-                print(archivo)
-                ruta_completa = os.path.join(root, archivo)
-                # Determina la ruta relativa al archivo ZIP
-                #ruta_zip = os.path.relpath(ruta_completa, carpeta)
-                archivo_zip.write(ruta_completa, ruta_completa)
+# Create ZIP file
+with zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:
+    for item in folders:
 
-print(f'Archivo ZIP "{nombre_zip}" creado exitosamente.')
+        # Case 1: If it is a file => add directly
+        if os.path.isfile(item):
+            print(f"Adding: {item}")
+            archivo_zip.write(item, item)
+            continue
+
+        # Case 2: If it is a directory => traverse with os.walk
+        if os.path.isdir(item):
+            # Traverse each directory and add its contents to the ZIP file
+            for root, dirs, files in os.walk(item):
+                for archivo in files:
+                    if any([i in root for i in exclude]): # apply exclusions
+                        continue
+
+                    ruta_completa = os.path.join(root, archivo)
+                    ruta_zip = ruta_completa  # you can adjust this if you want relative paths
+                    print(f"Adding: {ruta_completa}")
+                    archivo_zip.write(ruta_completa, ruta_zip)
+
+print(f'ZIP file"{zip_name}" created successfully.')
