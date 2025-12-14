@@ -1,4 +1,18 @@
 ___
+## 1.08
+
+### Date 📅 *2025_12*
+
+### Changes in detail
+
+**rc1**
++ Fixing a bug when creating the zip file with the folders/files.
++ Updated parameter file.
+
+
+
+
+___
 ## 1.07
 
 ### Date 📅 *2025_10*
