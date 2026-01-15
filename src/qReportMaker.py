@@ -467,7 +467,7 @@ def qReportMergeUpDown(params, config):
     md = {}
     
     for i in params:
-        fdr, sign, quan, df = i[1], i[2], i[3], i[4]
+        fdr, sign, quan, df = i[2], i[3], i[4], i[5]
         if fdr not in md.keys():
             md[fdr] = {}
         
@@ -527,16 +527,16 @@ def qReportMergeUpDown(params, config):
             mySumIndex = df_out.index.tolist()[df_out[('', config['qCol'][0],config['qCol'][1], '')].tolist().index('Sum')]
             df_out = df_out.loc[[mySumIndex] + [i for i in df_out.index.tolist() if i!=mySumIndex]]        
             
-            params_i[2] = 'up&down'
-            params_i[4] = df_out
+            params_i[3] = 'up&down'
+            params_i[5] = df_out
             params2.append(tuple(params_i))
 
     return params2
 
 
-def qReportWrite(config, fdr_i, sign_i, quan, qTableD, contrast, significance_value):
+def qReportWrite(outdir, config, fdr_i, sign_i, quan, qTableD, contrast, significance_value):
     
-    outFolder = os.path.join(args.outdir, config['outDirName'], contrast, f'{significance_value}-{fdr_i}')
+    outFolder = os.path.join(outdir, config['outDirName'], contrast, f'{significance_value}-{fdr_i}')
     if not os.path.exists(outFolder):
         os.makedirs(outFolder, exist_ok=True)
     
@@ -653,7 +653,7 @@ def qReportContrast(rep0, config, contrast, significance_value):
     
     logging.info('Adapting qReport format')
     params = [
-     (config, fdr_i, sign_i, quan, qTableD, contrast, significance_value)
+     (args.outdir, config, fdr_i, sign_i, quan, qTableD, contrast, significance_value)
      for fdr_i, sign_i, quan, qTableD in qReportList
      ]
     
