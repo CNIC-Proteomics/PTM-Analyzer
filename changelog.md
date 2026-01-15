@@ -1,4 +1,16 @@
 ___
+## 1.09
+
+### Date 📅 *2026_01*
+
+### Changes in detail
+
+**rc1**
++ Fixing a bug related to the Python version. The code now works with Python versions >= 3.12.
++ Upgrade the Python requeriments for Python versions >= 3.12.
+
+
+___
 ## 1.08
 
 ### Date 📅 *2025_12*
